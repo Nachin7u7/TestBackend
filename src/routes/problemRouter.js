@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { config } = require("dotenv");
-const userAuth = require("../middleware/userAuth");
+const userAuth = require("../middlewares/userAuth");
 const User = require("../models/user.model");
 const Problem = require("../models/problem.model");
 const Submission = require("../models/submission.model");

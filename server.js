@@ -1,12 +1,12 @@
 // --------------- Prerequisites ---------------
 const express = require("express");
 const cors = require("cors");
-const mongoose = require("mongoose");
-const { CLIENT_URL } = require("./config/config");
+const { CLIENT_URL } = require("./src/config/config");
 require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 5555;
+const mongoConnectionInit = require("./src/config/dataSource");
 
 app.use(
   cors({
@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: false }));
 const passport = require("passport");
 const session = require("express-session");
 const LocalStrategy = require("passport-local").Strategy;
-const User = require("./models/user.model");
+const User = require("./src/models/user.model");
 const env = process.env.NODE_ENV || "development";
 
 // ----- Configure auth session options -----
@@ -71,25 +71,27 @@ passport.deserializeUser((sessionUser, done) => {
 });
 
 // --------------- Routes ---------------
-const userRouter = require("./routes/userRouter");
+const userRouter = require("./src/routes/userRouter");
 app.use("/users", userRouter);
-const problemCreationRouter = require("./routes/problemCreationRouter");
+const problemCreationRouter = require("./src/routes/problemCreationRouter");
 app.use("/problemCreation", problemCreationRouter);
-const problemRouter = require("./routes/problemRouter");
+const problemRouter = require("./src/routes/problemRouter");
 app.use("/problem", problemRouter);
 
 // --------------- Connect to MongoDB ---------------
-const uri = "mongodb+srv://plandaeta:p2da2t2@cluster0.xewtikf.mongodb.net/?retryWrites=true&w=majority"; 
-mongoose
-  .connect(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    dbName: 'test', // Replace with your actual database name if different
-  })
-  .then(() => {
-    console.log("MongoDB database connection established successfully");
-  })
-  .catch((err) => console.error(err));
+// const uri = "mongodb+srv://andercaymi:Standbyme1@cluster0.ngncwfr.mongodb.net/?retryWrites=true&w=majority";
+// mongoose
+//   .connect(uri, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//     dbName: 'test', // Replace with your actual database name if different
+//   })
+//   .then(() => {
+//     console.log("MongoDB database connection established successfully");
+//   })
+//   .catch((err) => console.error(err));
+
+mongoConnectionInit();
 
 // --------------- Listen to given PORT ---------------
 app.listen(PORT, () => {

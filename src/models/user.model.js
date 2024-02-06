@@ -33,9 +33,9 @@ const userSchema = new mongoose.Schema(
       unsolved: [Number],
       solvedCount: {
         type: Number,
-        default: 0
-      }
-    }
+        default: 0,
+      },
+    },
   },
   {
     timestamps: true,

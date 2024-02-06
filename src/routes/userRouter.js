@@ -8,7 +8,7 @@ const { readFileSync } = require("fs");
 const handlebars = require("handlebars");
 const sendMail = require("../utils/sendMail");
 
-const sourceHtml = readFileSync("./utils/emailTemplates/confirmEmail.html", "utf-8").toString();
+const sourceHtml = readFileSync("src/utils/emailTemplates/confirmEmail.html", "utf-8").toString();
 const verifyEmailTemplate = handlebars.compile(sourceHtml);
 
 router.post("/register", async (req, res) => {

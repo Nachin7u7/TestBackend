@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const userAuth = require("../middleware/userAuth");
+const userAuth = require("../middlewares/userAuth");
 const Counter = require("../models/counter.model");
 const Problem = require("../models/problem.model");
 const { userPermissions } = require("../utils/data");
