@@ -24,11 +24,11 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-configurePassport(app);
-
 mongoConnectionInit();
 
 app.use("/api/v1", routes);
+
+configurePassport(app);
 
 //! --------------- Listen to given PORT ---------------
 app.listen(PORT, () => {

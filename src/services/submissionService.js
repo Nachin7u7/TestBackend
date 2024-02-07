@@ -1,0 +1,210 @@
+const Submission = require("../repositories/submissionRepository");
+const User = require("../repositories/userRepository");
+const Problem = require("../repositories/problemRepository");
+const axios = require("axios");
+
+const getUsernameProblemIdSubmissions = async (req) => {
+  try {
+    const submissionsList = await Submission.find({
+      username: req.query.username,
+      problemId: req.query.problemId,
+    });
+    return submissionsList;
+  } catch (err) {
+    throw err;
+  }
+};
+
+const getAcceptedProblemIdSubmissions = async (req) => {
+  try {
+    const submissions = await Submission.find({
+      problemId: req.query.problemId,
+      verdict: "Accepted!",
+    });
+    submissions.sort((s1, s2) => s1.time - s2.time);
+    return submissions;
+  } catch (err) {
+    throw err;
+  }
+};
+
+const compileAndRunHelper = async (program) => {
+  try {
+    const response = await axios.post(
+      "https://api.jdoodle.com/v1/execute",
+      program,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Accept-Encoding": "application/json",
+        },
+      }
+    );
+    return {
+      statusCodeReturn: response.data && response.data.statusCode,
+      body: response.data,
+    };
+  } catch (err) {
+    console.log(err);
+    return {
+      statusCodeReturn: 500,
+    };
+  }
+};
+
+const postSubmission = async (req) => {
+  try {
+    // Prepare
+    let verdictName = "ac";
+    let verdictLabel = "Accepted!";
+    const problemId = req.body.problemId;
+    const isSample = req.body.isSample;
+    const code = req.body.code;
+    let language = req.body.language;
+    let versionIndex = 0;
+    if (language === "cpp") {
+      language = "cpp17";
+      versionIndex = "1";
+    } else if (language === "java") {
+      language = "java";
+      versionIndex = 4;
+    } else if (language === "python") {
+      language = "python3";
+      versionIndex = 4;
+    }
+    // Fetch
+    let problem = await Problem.findOne(
+      {
+        problemId: problemId,
+        isPublished: true,
+      },
+      {
+        "published.testcases": 1,
+        "published.config": 1,
+        "published.checkerCode": 1,
+        solvedCount: 1,
+        totalSubmissions: 1,
+      }
+    );
+
+    // For each test case
+    problemJSON = JSON.parse(JSON.stringify(problem));
+    const timeLimit = problemJSON.published.config.timelimit / 1000;
+    const memoryLimit = problemJSON.published.config.memorylimit * 1000;
+    const checkerCode = problemJSON.published.checkerCode;
+    let maxTime = 0,
+      maxMemory = 0;
+    for (let i = 0; i < problemJSON.published.testcases.length; i++) {
+      // If user has clicked on "Run" button then we will only run the code on sample testcases.
+      if (
+        isSample == true &&
+        problemJSON.published.testcases[i].isSample == false
+      )
+        continue;
+
+      let program = {
+        script: code,
+        stdin: problemJSON.published.testcases[i].input.url,
+        language: language,
+        versionIndex: versionIndex,
+        clientId: process.env.JDOODLE_CLIENT_ID,
+        clientSecret: process.env.JDOODLE_CLIENT_SECRET,
+      };
+      const clientCodeResult = await compileAndRunHelper(program);
+      maxTime = Math.max(maxTime, clientCodeResult.body.cpuTime || 0);
+      maxMemory = Math.max(maxMemory, clientCodeResult.body.memory || 0);
+      if (clientCodeResult.body.output.includes("JDoodle - Timeout")) {
+        verdictName = "tle";
+        verdictLabel = "Time Limit Exceeded on Test Case " + String(i + 1);
+        break;
+      }
+      if (
+        clientCodeResult.body.memory == null ||
+        clientCodeResult.body.output.includes('File "/home/')
+      ) {
+        verdictName = "ce";
+        verdictLabel = "Compilation Error";
+        break;
+      }
+      if (clientCodeResult.body.memory > memoryLimit) {
+        verdictName = "mle";
+        verdictLabel = "Memory Limit Exceeded on Test Case " + String(i + 1);
+        break;
+      }
+      if (clientCodeResult.body.cpuTime > timeLimit) {
+        verdictName = "tle";
+        verdictLabel = "Time Limit Exceeded on Test Case " + String(i + 1);
+        break;
+      }
+      program.language = "cpp17";
+      program.versionIndex = "1";
+      program.script = checkerCode;
+      program.stdin =
+        problemJSON.published.testcases[i].input.url +
+        " " +
+        clientCodeResult.body.output;
+      console.log("🚀 ~ router.post ~ program:", program);
+      const checkerCodeResult = await complieAndRunHelper(program);
+      console.log("🚀 ~ router.post ~ checkerCodeResult:", checkerCodeResult);
+
+      if (checkerCodeResult.body.output[0] != "1") {
+        verdictName = "wa";
+        verdictLabel = "Wrong Answer on Test Case " + String(i + 1);
+        break;
+      }
+    }
+    if (!isSample) {
+      let submission = new Submission({
+        username: req.session.passport.user.username,
+        problemId: problemId,
+        code: code,
+        language: req.body.language,
+        verdict: verdictLabel,
+        time: maxTime,
+        memory: maxMemory,
+      });
+      submission = await submission.save();
+
+      if (verdictName == "ac") {
+        problem.solvedCount += 1;
+      }
+      problem.totalSubmissions += 1;
+      await problem.save();
+
+      const user = await User.findById(req.session.passport.user._id);
+      if (verdictName === "ac") {
+        if (user.stats.solved.indexOf(problemId) == -1) {
+          user.stats.solved.push(problemId);
+          user.stats.solvedCount += 1;
+
+          let index = user.stats.unsolved.indexOf(problemId);
+          if (index !== -1) {
+            user.stats.unsolved.splice(index, 1);
+          }
+        }
+      } else {
+        if (
+          user.stats.solved.indexOf(problemId) == -1 &&
+          user.stats.unsolved.indexOf(problemId) == -1
+        ) {
+          user.stats.unsolved.push(problemId);
+        }
+      }
+      await user.save();
+    }
+    return {
+      name: verdictName,
+      label: verdictLabel,
+    };
+  } catch (err) {
+    throw err;
+  }
+};
+
+const submissionService = {
+  getUsernameProblemIdSubmissions,
+  getAcceptedProblemIdSubmissions,
+  postSubmission,
+};
+
+module.exports = submissionService;
