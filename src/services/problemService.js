@@ -17,9 +17,8 @@ const getProblems = async () => {
   }
 };
 
-const getProblemById = async (req) => {
+const getProblemById = async (problemId) => {
   try {
-    const problemId = req.query.problemId;
     const problem = await problemRepository.getProblemByIdAndPublished(
       problemId,
       true
