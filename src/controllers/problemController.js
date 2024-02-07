@@ -15,7 +15,7 @@ const getProblemsList = async (req, res) => {
 };
 const getProblemData = async (req, res) => {
   try {
-    const problem = await problemService.getProblemById(req);
+    const problem = await problemService.getProblemById(req.query.problemId);
     return res.status(200).json({
       success: true,
       problem,
