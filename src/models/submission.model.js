@@ -38,4 +38,5 @@ const submissionSchema = new mongoose.Schema(
 
 submissionSchema.index({ username: 1, problemId: 1 }, { unique: false });
 
-module.exports = submissionSchema;
+const Submission = mongoose.model("Submission", submissionSchema);
+module.exports = Submission;

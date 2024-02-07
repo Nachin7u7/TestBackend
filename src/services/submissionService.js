@@ -1,14 +1,15 @@
-const Submission = require("../repositories/submissionRepository");
+const submissionRepository = require("../repositories/submissionRepository");
 const User = require("../repositories/userRepository");
 const Problem = require("../repositories/problemRepository");
 const axios = require("axios");
 
 const getUsernameProblemIdSubmissions = async (req) => {
   try {
-    const submissionsList = await Submission.find({
-      username: req.query.username,
-      problemId: req.query.problemId,
-    });
+    const submissionsList =
+      await submissionRepository.getUsernameProblemIdSubmissions(
+        req.query.username,
+        req.query.problemId
+      );
     return submissionsList;
   } catch (err) {
     throw err;
@@ -17,10 +18,10 @@ const getUsernameProblemIdSubmissions = async (req) => {
 
 const getAcceptedProblemIdSubmissions = async (req) => {
   try {
-    const submissions = await Submission.find({
-      problemId: req.query.problemId,
-      verdict: "Accepted!",
-    });
+    const submissions =
+      await submissionRepository.getAcceptedProblemIdSubmissions(
+        req.query.problemId
+      );
     submissions.sort((s1, s2) => s1.time - s2.time);
     return submissions;
   } catch (err) {

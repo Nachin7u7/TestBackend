@@ -130,4 +130,6 @@ const problemSchema = new mongoose.Schema(
   }
 );
 
-module.exports = problemSchema;
+const Problem = mongoose.model("Problem", problemSchema);
+module.exports = Problem;
+
