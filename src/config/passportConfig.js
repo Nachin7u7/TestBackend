@@ -2,7 +2,7 @@
 const passport = require("passport");
 const session = require("express-session");
 const LocalStrategy = require("passport-local").Strategy;
-const User = require("../models/user.model");
+const User = require("../repositories/userRepository");
 const env = process.env.NODE_ENV || "development";
 require("dotenv").config();
 
