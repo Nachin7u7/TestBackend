@@ -1,13 +1,19 @@
-// --------------- Prerequisites ---------------
+//! --------------- Prerequisites ---------------
 const express = require("express");
 const cors = require("cors");
-const mongoose = require("mongoose");
 const { CLIENT_URL } = require("./config/config");
 require("dotenv").config();
+const routes = require("./api/routes");
 
+//! ------ App Creation and Port declaration ------
 const app = express();
 const PORT = process.env.PORT || 5555;
 
+//! ----------- Services Importations -----------
+const mongoConnectionInit = require("./config/dataSource");
+const configurePassport =  require("./config/passportConfig")
+
+//! ----------- Init App Configurations ---------
 app.use(
   cors({
     origin: CLIENT_URL, // Allow to server to accept request from different origin.
@@ -18,80 +24,13 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// --------------- Passport Config ---------------
-const passport = require("passport");
-const session = require("express-session");
-const LocalStrategy = require("passport-local").Strategy;
-const User = require("./models/user.model");
-const env = process.env.NODE_ENV || "development";
+configurePassport(app);
 
-// ----- Configure auth session options -----
-const sessionOptions = {
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 24 * 30, // Cookie expiry time = 1 month (in milliseconds)
-  },
-};
+mongoConnectionInit();
 
-if (env == "production") {
-  app.set("trust proxy", 1); // trust first proxy
-  sessionOptions.cookie.sameSite = "none";
-  sessionOptions.cookie.secure = true;
-  sessionOptions.cookie.domain = "netlify.app";
-}
-app.use(session(sessionOptions));
+app.use("/api/v1", routes);
 
-passport.use(
-  new LocalStrategy(
-    {
-      usernameField: "username",
-      passwordField: "password",
-    },
-    User.authenticate()
-  )
-);
-
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(express.static("./"));
-
-passport.serializeUser((user, done) => {
-  const sessionUser = {
-    _id: user._id,
-    username: user.username,
-    email: user.email,
-    userType: user.userType,
-  };
-  done(null, sessionUser);
-});
-passport.deserializeUser((sessionUser, done) => {
-  done(null, sessionUser);
-});
-
-// --------------- Routes ---------------
-const userRouter = require("./routes/userRouter");
-app.use("/users", userRouter);
-const problemCreationRouter = require("./routes/problemCreationRouter");
-app.use("/problemCreation", problemCreationRouter);
-const problemRouter = require("./routes/problemRouter");
-app.use("/problem", problemRouter);
-
-// --------------- Connect to MongoDB ---------------
-const uri = "mongodb+srv://plandaeta:p2da2t2@cluster0.xewtikf.mongodb.net/?retryWrites=true&w=majority"; 
-mongoose
-  .connect(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    dbName: 'test', // Replace with your actual database name if different
-  })
-  .then(() => {
-    console.log("MongoDB database connection established successfully");
-  })
-  .catch((err) => console.error(err));
-
-// --------------- Listen to given PORT ---------------
+//! --------------- Listen to given PORT ---------------
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
