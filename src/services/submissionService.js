@@ -2,6 +2,7 @@ const submissionRepository = require("../repositories/submissionRepository");
 const User = require("../repositories/userRepository");
 const Problem = require("../repositories/problemRepository");
 const axios = require("axios");
+const { joodle } = require("../config/config");
 
 const getUsernameProblemIdSubmissions = async (req) => {
   try {
@@ -108,8 +109,8 @@ const postSubmission = async (req) => {
         stdin: problemJSON.published.testcases[i].input.url,
         language: language,
         versionIndex: versionIndex,
-        clientId: process.env.JDOODLE_CLIENT_ID,
-        clientSecret: process.env.JDOODLE_CLIENT_SECRET,
+        clientId: joodle.clientId,
+        clientSecret: joodle.clientSecret,
       };
       const clientCodeResult = await compileAndRunHelper(program);
       maxTime = Math.max(maxTime, clientCodeResult.body.cpuTime || 0);

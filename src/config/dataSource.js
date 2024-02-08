@@ -1,9 +1,8 @@
 const mongoose = require("mongoose");
-
+const { mongoDB } = require("../config/config");
 // --------------- Connect to MongoDB ---------------
 const mongoConnectionInit = () => {
-  const uri =
-    "mongodb+srv://andercaymi:Standbyme1@cluster0.ngncwfr.mongodb.net/?retryWrites=true&w=majority";
+  const uri = mongoDB.mongoUri;
   mongoose
     .connect(uri, {
       useNewUrlParser: true,
@@ -16,4 +15,4 @@ const mongoConnectionInit = () => {
     .catch((err) => console.error(err));
 };
 
-module.exports = mongoConnectionInit
+module.exports = mongoConnectionInit;

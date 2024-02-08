@@ -1,17 +1,17 @@
 //! --------------- Prerequisites ---------------
 const express = require("express");
 const cors = require("cors");
-const { CLIENT_URL } = require("./config/config");
+const { CLIENT_URL, env } = require("./config/config");
 require("dotenv").config();
 const routes = require("./api/routes");
 
 //! ------ App Creation and Port declaration ------
 const app = express();
-const PORT = process.env.PORT || 5555;
+const PORT = env.port;
 
 //! ----------- Services Importations -----------
 const mongoConnectionInit = require("./config/dataSource");
-const configurePassport =  require("./config/passportConfig")
+const configurePassport = require("./config/passportConfig");
 
 //! ----------- Init App Configurations ---------
 app.use(

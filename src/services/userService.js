@@ -2,6 +2,7 @@ const userRepository = require("../repositories/userRepository");
 const jwt = require("jsonwebtoken");
 const { sendMail } = require("../utils/sendMail");
 const passport = require("passport");
+const { passport: passportConfig } = require("../config/config");
 
 const registerUser = async (userData) => {
   const { email, username, password } = userData;
@@ -22,7 +23,7 @@ const registerUser = async (userData) => {
 
   const token = jwt.sign(
     { userId: user._id, email: user.email },
-    process.env.TOKEN_SECRET,
+    passportConfig.tokenSecret,
     { expiresIn: "1h" }
   );
   await sendVerificationEmail(email, token);
@@ -32,7 +33,7 @@ const registerUser = async (userData) => {
 
 const verifyEmail = async (token) => {
   try {
-    const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
+    const decoded = jwt.verify(token, passportConfig.tokenSecret);
     await userRepository.updateUserConfirmation(decoded.email, true);
   } catch (error) {
     throw new Error("Verification failed. Invalid or expired token.");
