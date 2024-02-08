@@ -16,7 +16,7 @@ const configurePassport = require("./config/passportConfig");
 //! ----------- Init App Configurations ---------
 app.use(
   cors({
-    origin: CLIENT_URL, // Allow to server to accept request from different origin.
+    origin: "*", // Allow to server to accept request from different origin.
     methods: "*",
     credentials: true, // Allow session cookie from browser to pass through.
   })

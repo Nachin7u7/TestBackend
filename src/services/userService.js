@@ -2,18 +2,16 @@ const userRepository = require("../repositories/userRepository");
 const jwt = require("jsonwebtoken");
 const { sendMail } = require("../utils/sendMail");
 const passport = require("passport");
-const { passport: passportConfig } = require("../config/config");
+const { passport: passportConfig, CLIENT_URL} = require("../config/config");
 
 const registerUser = async (userData) => {
   const { email, username, password } = userData;
 
-  // Verificar si el usuario ya existe
   const existingUser = await userRepository.findUserByEmail(email);
   if (existingUser) {
     throw new Error("User with the given email already exists.");
   }
 
-  // Crear el usuario
   const user = await userRepository.createUser({
     email,
     username,
@@ -26,6 +24,7 @@ const registerUser = async (userData) => {
     passportConfig.tokenSecret,
     { expiresIn: "1h" }
   );
+
   await sendVerificationEmail(email, token);
 
   return user;
@@ -41,7 +40,6 @@ const verifyEmail = async (token) => {
 };
 
 const sendVerificationEmail = async (email, token) => {
-  // Implementación simplificada. Asegúrate de adaptarla según tu lógica de envío de correos.
   const verificationUrl = `${CLIENT_URL}/verify/${token}`;
   const htmlContent = `<p>Please verify your email by clicking on the link: <a href="${verificationUrl}">${verificationUrl}</a></p>`;
 
@@ -49,21 +47,6 @@ const sendVerificationEmail = async (email, token) => {
     to: email,
     subject: "Verify Your Email",
     html: htmlContent,
-  });
-};
-
-const authenticateUser = (username, password) => {
-  return new Promise((resolve, reject) => {
-    const user = { username, password };
-    passport.authenticate("local", (err, user, info) => {
-      if (err) {
-        reject(err);
-      } else if (!user) {
-        reject(new Error("Invalid username or password"));
-      } else {
-        resolve(user);
-      }
-    })({ body: user });
   });
 };
 
@@ -79,7 +62,7 @@ const getUsersSortedBySolvedProblems = async () => {
 const userService = {
   getUsersSortedBySolvedProblems,
   registerUser,
-  verifyEmail,
-  authenticateUser,
+  verifyEmail
 };
+
 module.exports = userService;
