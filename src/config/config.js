@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 let CLIENT_URL = "";
 let SERVER_URL = "";
 const env = process.env.NODE_ENV || "development";
