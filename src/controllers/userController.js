@@ -1,4 +1,5 @@
 const userService = require("../services/userService");
+const passport = require('passport');
 
 const globalLeaderboard = async (req, res) => {
   try {
@@ -24,7 +25,7 @@ const register = async (req, res) => {
       .status(201)
       .json({
         message:
-          "Registration successful. Please check your email to verify your account.",
+          "Your account has been created successfully.",
       });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -45,28 +46,17 @@ const verifyEmail = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    const user = await userService.authenticateUser(username, password);
-    req.login(user, (err) => {
-      if (err) {
-        throw err;
-      }
-      res.status(200).json({
-        message: "Logged in successfully",
-        user: {
-          _id: user._id,
-          username: user.username,
-          email: user.email,
-          userType: user.userType,
-          avatarUrl: user.avatarUrl,
-        },
-      });
-    });
-  } catch (error) {
-    res.status(401).json({ message: error.message });
-  }
+const login = (req, res) => {
+  res.status(200).json({
+    message: "Logged in successfully",
+    user: {
+      _id: req.user._id,
+      username: req.user.username,
+      email: req.user.email,
+      userType: req.user.userType,
+      avatarUrl: req.user.avatarUrl,
+    },
+  });
 };
 
 const logout = (req, res) => {
