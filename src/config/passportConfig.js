@@ -35,11 +35,18 @@ const configurePassport = (app) => {
   // Configure LocalStrategy
   passport.use(
     new LocalStrategy(
-      {
-        usernameField: "username",
-        passwordField: "password",
-      },
+      // {
+      //   usernameField: "username",
+      //   passwordField: "password",
+      // },
       User.authenticate()
+      // (username, password, done) => {
+      //   User.authenticate(username, password)
+      //     .then((user) => {
+      //       return done(/* no error */ null, user);
+      //     })
+      //     .catch(done);
+      // }
     )
   );
 

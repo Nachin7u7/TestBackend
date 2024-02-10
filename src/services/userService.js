@@ -1,6 +1,7 @@
 const userRepository = require("../repositories/userRepository");
 const jwt = require("jsonwebtoken");
-const { sendMail } = require("../utils/sendMail");
+// Error: {sendMail} -> sendMail
+const sendMail  = require("../utils/sendMail");
 const passport = require("passport");
 const { passport: passportConfig, CLIENT_URL} = require("../config/config");
 

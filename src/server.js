@@ -26,9 +26,10 @@ app.use(express.urlencoded({ extended: false }));
 
 mongoConnectionInit();
 
+configurePassport(app);
+
 app.use("/api/v1", routes);
 
-configurePassport(app);
 
 //! --------------- Listen to given PORT ---------------
 app.listen(PORT, () => {
