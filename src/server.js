@@ -5,6 +5,9 @@ const { CLIENT_URL, env } = require("./config/config");
 require("dotenv").config();
 const routes = require("./api/routes");
 
+const { buildLogger } = require("./plugin");
+
+const logger = buildLogger('server.js');
 //! ------ App Creation and Port declaration ------
 const app = express();
 const PORT = env.port;
@@ -32,5 +35,6 @@ configurePassport(app);
 
 //! --------------- Listen to given PORT ---------------
 app.listen(PORT, () => {
+  logger.log(`Server is running on port ${PORT}`);
   console.log(`Server is running on port ${PORT}`);
 });
