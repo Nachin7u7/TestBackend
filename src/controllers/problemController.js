@@ -1,7 +1,7 @@
 const problemService = require("../services/problemService");
 const getProblemsList = async (req, res) => {
   try {
-    problemsList = await problemService.getProblems();
+    const problemsList = await problemService.getProblems();
     return res.status(200).json({
       success: true,
       problemsList,
