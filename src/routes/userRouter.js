@@ -12,9 +12,11 @@ router.post("/register", validateRegisterInput, userController.register);
 //! -------- ADMIN USERS ROUTES --------
 
 // TODO: Add middleware role verification
-router.post("/create-admin", (req, res) => {
-  return res.json({ msg: "Route to create a new admin user" });
-});
+router.post(
+  "/create-admin",
+  validateRegisterInput,
+  userController.registerAdmin
+);
 
 //! -------- FOR ALL USERS ROUTES --------
 

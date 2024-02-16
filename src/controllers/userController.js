@@ -32,6 +32,25 @@ const register = async (req, res) => {
   }
 };
 
+const registerAdmin = async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+
+    // TODO: Create Service with the name commented
+    
+    // await userService.registerAdminUser({ username, email, password });
+    
+    res
+      .status(201)
+      .json({
+        message:
+          "A new ADMIN account has been created successfully.",
+      });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const verifyEmail = async (req, res) => {
   try {
     const { token } = req.params;
@@ -82,6 +101,7 @@ const checkAuthentication = (req, res) => {
 const userController = {
   globalLeaderboard,
   register,
+  registerAdmin,
   verifyEmail,
   login,
   logout,
