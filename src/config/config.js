@@ -35,6 +35,8 @@ const config = {
   email: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
+    service: process.env.EMAIL_SERVICE,
+    serviceProvider: process.env.EMAIL_PROVIDER,
   },
   mongoDB: {
     uri: process.env.DB_HOST,
