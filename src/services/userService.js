@@ -2,7 +2,7 @@ const userRepository = require("../repositories/userRepository");
 const jwt = require("jsonwebtoken");
 const { sendMail } = require("../utils/sendMail");
 const passport = require("passport");
-const { passport: passportConfig, CLIENT_URL} = require("../config/config");
+const { passport: passportConfig, CLIENT_URL } = require("../config/config");
 
 const registerUser = async (userData) => {
   const { email, username, password } = userData;
@@ -17,6 +17,33 @@ const registerUser = async (userData) => {
     username,
     password,
     isConfirmed: false,
+  });
+
+  const token = jwt.sign(
+    { userId: user._id, email: user.email },
+    passportConfig.tokenSecret,
+    { expiresIn: "1h" }
+  );
+
+  await sendVerificationEmail(email, token);
+
+  return user;
+};
+
+const registerAdminUser = async (userData) => {
+  const { email, username, password } = userData;
+
+  const existingUser = await userRepository.findUserByEmail(email);
+  if (existingUser) {
+    throw new Error("User with the given email already exists.");
+  }
+
+  const user = await userRepository.createUser({
+    email,
+    username,
+    password,
+    isConfirmed: false,
+    userType: "admin",
   });
 
   const token = jwt.sign(
@@ -62,7 +89,8 @@ const getUsersSortedBySolvedProblems = async () => {
 const userService = {
   getUsersSortedBySolvedProblems,
   registerUser,
-  verifyEmail
+  verifyEmail,
+  registerAdminUser
 };
 
 module.exports = userService;
