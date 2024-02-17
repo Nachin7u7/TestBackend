@@ -1,20 +1,21 @@
 const userRepository = require('../repositories/userRepository');
 const jwt = require('jsonwebtoken');
-const { readFileSync } = require("fs");
 const { sendVerificationEmail } = require('./emailService');
 const passport = require('passport');
 const { passport: passportConfig, CLIENT_URL } = require('../config/config');
 const { config } = require('../config');
-const handlebars = require("handlebars");
 
-const sourceHtml = readFileSync("./src/templates/emailTemplates/confirmEmail.html", "utf-8").toString();
-const verifyEmailTemplate = handlebars.compile(sourceHtml);
-const { client } = config;
+const generateToken = (user) => jwt.sign(
+  { userId: user._id, email: user.email },
+  passportConfig.tokenSecret,
+  { expiresIn: '1h' }
+);
+
 
 const registerUser = async (userData) => {
   const { email, username, password } = userData;
-
   const existingUser = await userRepository.findUserByEmail(email);
+  
   if (existingUser) {
     throw new Error('User with the given email already exists.');
   }
@@ -26,12 +27,7 @@ const registerUser = async (userData) => {
     isConfirmed: false,
   });
 
-  const token = jwt.sign(
-    { userId: user._id, email: user.email },
-    passportConfig.tokenSecret,
-    { expiresIn: '1h' }
-  );
-
+  const token = generateToken(user);
   await sendVerificationEmail(email, token);
 
   return user;
@@ -53,12 +49,7 @@ const registerAdminUser = async (userData) => {
     userType: 'admin',
   });
 
-  const token = jwt.sign(
-    { userId: user._id, email: user.email },
-    passportConfig.tokenSecret,
-    { expiresIn: '1h' }
-  );
-
+  const token = generateToken(user);
   await sendVerificationEmail(email, token);
 
   return user;
