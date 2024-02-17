@@ -3,9 +3,11 @@ require('winston-daily-rotate-file');
 
 const logFormat = winston.format.combine(
   winston.format.timestamp({
-    format: 'YYYY-MM-DD HH:mm:ss'
+    format: 'YYYY-MM-DD HH:mm:ss',
   }),
-  winston.format.printf(info => `${info.timestamp} ${info.level}: ${info.message} ${info.service}`),
+  winston.format.printf(
+    (info) => `${info.timestamp} ${info.level}: ${info.message} ${info.service}`
+  ),
   winston.format.colorize({ all: true })
 );
 
@@ -14,7 +16,7 @@ const dailyRotateFileTransport = new winston.transports.DailyRotateFile({
   datePattern: 'YYYY-MM-DD',
   zippedArchive: true,
   maxSize: '20m',
-  maxFiles: '14d'
+  maxFiles: '14d',
 });
 
 const logger = winston.createLogger({
@@ -23,13 +25,10 @@ const logger = winston.createLogger({
   transports: [
     new winston.transports.Console({
       level: 'debug', // para dev
-      format: winston.format.combine(
-        winston.format.colorize(),
-        logFormat
-      )
+      format: winston.format.combine(winston.format.colorize(), logFormat),
     }),
-    dailyRotateFileTransport
-  ]
+    dailyRotateFileTransport,
+  ],
 });
 
 // TODO: for routes move to middleware tier
@@ -41,9 +40,12 @@ const expressLoggerMiddleware = (req, res, next) => {
 };
 
 module.exports = function buildLogger(service) {
-    return {
-        log: (message) => {
-            logger.info({message, service});
-        }
-    }
-}
+  return {
+    log: (message) => {
+      logger.info({ message, service });
+    },
+    error: (message) => {
+      logger.error({ message, service });
+    },
+  };
+};

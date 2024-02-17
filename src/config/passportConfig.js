@@ -1,10 +1,12 @@
 // --------------- Passport Config ---------------
-const passport = require("passport");
-const session = require("express-session");
-const LocalStrategy = require("passport-local").Strategy;
-const { env: envConfig, passport: passportConfig } = require("./config");
-const User = require("../models/user.model");
-const env = envConfig.mode;
+const passport = require('passport');
+const session = require('express-session');
+const LocalStrategy = require('passport-local').Strategy;
+const config = require('./config');
+const User = require('../models/user.model');
+
+const env = config.env;
+const passportConfig = config.passport;
 
 // Function to configure authentication session options
 const configureSessionOptions = () => {
@@ -17,10 +19,10 @@ const configureSessionOptions = () => {
     },
   };
 
-  if (env == "production") {
-    sessionOptions.cookie.sameSite = "none";
+  if (env == 'production') {
+    sessionOptions.cookie.sameSite = 'none';
     sessionOptions.cookie.secure = true;
-    sessionOptions.cookie.domain = "netlify.app";
+    sessionOptions.cookie.domain = 'netlify.app';
   }
 
   return sessionOptions;
@@ -36,8 +38,8 @@ const configurePassport = (app) => {
   passport.use(
     new LocalStrategy(
       {
-        usernameField: "username",
-        passwordField: "password",
+        usernameField: 'username',
+        passwordField: 'password',
       },
       User.authenticate()
     )
