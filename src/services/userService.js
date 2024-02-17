@@ -1,15 +1,22 @@
-const userRepository = require("../repositories/userRepository");
-const jwt = require("jsonwebtoken");
-const { sendMail } = require("../utils/sendMail");
-const passport = require("passport");
-const { passport: passportConfig, CLIENT_URL } = require("../config/config");
+const userRepository = require('../repositories/userRepository');
+const jwt = require('jsonwebtoken');
+const { readFileSync } = require("fs");
+const { sendEMail } = require('../plugin');
+const passport = require('passport');
+const { passport: passportConfig, CLIENT_URL } = require('../config/config');
+const { config } = require('../config');
+const handlebars = require("handlebars");
+
+const sourceHtml = readFileSync("./src/templates/emailTemplates/confirmEmail.html", "utf-8").toString();
+const verifyEmailTemplate = handlebars.compile(sourceHtml);
+const { client } = config;
 
 const registerUser = async (userData) => {
   const { email, username, password } = userData;
 
   const existingUser = await userRepository.findUserByEmail(email);
   if (existingUser) {
-    throw new Error("User with the given email already exists.");
+    throw new Error('User with the given email already exists.');
   }
 
   const user = await userRepository.createUser({
@@ -22,7 +29,7 @@ const registerUser = async (userData) => {
   const token = jwt.sign(
     { userId: user._id, email: user.email },
     passportConfig.tokenSecret,
-    { expiresIn: "1h" }
+    { expiresIn: '1h' }
   );
 
   await sendVerificationEmail(email, token);
@@ -35,7 +42,7 @@ const registerAdminUser = async (userData) => {
 
   const existingUser = await userRepository.findUserByEmail(email);
   if (existingUser) {
-    throw new Error("User with the given email already exists.");
+    throw new Error('User with the given email already exists.');
   }
 
   const user = await userRepository.createUser({
@@ -43,13 +50,13 @@ const registerAdminUser = async (userData) => {
     username,
     password,
     isConfirmed: false,
-    userType: "admin",
+    userType: 'admin',
   });
 
   const token = jwt.sign(
     { userId: user._id, email: user.email },
     passportConfig.tokenSecret,
-    { expiresIn: "1h" }
+    { expiresIn: '1h' }
   );
 
   await sendVerificationEmail(email, token);
@@ -62,18 +69,30 @@ const verifyEmail = async (token) => {
     const decoded = jwt.verify(token, passportConfig.tokenSecret);
     await userRepository.updateUserConfirmation(decoded.email, true);
   } catch (error) {
-    throw new Error("Verification failed. Invalid or expired token.");
+    throw new Error('Verification failed. Invalid or expired token.');
   }
 };
 
 const sendVerificationEmail = async (email, token) => {
-  const verificationUrl = `${CLIENT_URL}/verify/${token}`;
-  const htmlContent = `<p>Please verify your email by clicking on the link: <a href="${verificationUrl}">${verificationUrl}</a></p>`;
+  const verificationUrl = `${client.url}/verify/${token}`;
+  const replacements = {
+    username: email,
+    verifyUrl: verificationUrl,
+  };
+  const htmlToSend = verifyEmailTemplate(replacements);
 
-  await sendMail({
+
+  await sendEMail({
     to: email,
-    subject: "Verify Your Email",
-    html: htmlContent,
+    subject: 'Please confirm your email address',
+    attachments: [
+      {
+        filename: "logo192.png",
+        path: __dirname + "/../templates/emailTemplates/logo192.png",
+        cid: "logo",
+      },
+    ],
+    html: htmlToSend,
   });
 };
 
@@ -90,7 +109,7 @@ const userService = {
   getUsersSortedBySolvedProblems,
   registerUser,
   verifyEmail,
-  registerAdminUser
+  registerAdminUser,
 };
 
 module.exports = userService;

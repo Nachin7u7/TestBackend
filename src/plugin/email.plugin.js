@@ -1,10 +1,11 @@
 const { config } = require('../config');
 
 const { email } = config;
-
+console.log('222229');
 let sendEmail;
 
 if (email.serviceProvider === 'nodemailer') {
+  console.log('222229');
   const nodemailer = require('nodemailer');
   const transporter = nodemailer.createTransport({
     service: email.service,
@@ -23,6 +24,7 @@ if (email.serviceProvider === 'nodemailer') {
       throw error;
     }
   };
+  console.log(sendEmail);
 } else {
   sendEmail = async (mailOptions) => {
     throw new Error('Email service provider not implemented.');
