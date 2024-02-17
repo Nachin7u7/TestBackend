@@ -1,5 +1,4 @@
 const userService = require("../services/userService");
-const passport = require('passport');
 
 const globalLeaderboard = async (req, res) => {
   try {
@@ -21,12 +20,9 @@ const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
     await userService.registerUser({ username, email, password });
-    res
-      .status(201)
-      .json({
-        message:
-          "Your account has been created successfully.",
-      });
+    res.status(201).json({
+      message: "Your account has been created successfully.",
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -37,17 +33,14 @@ const registerAdmin = async (req, res) => {
     const { username, email, password } = req.body;
 
     // TODO: Create Service with the name commented
-    
+
     // await userService.registerAdminUser({ username, email, password });
-    
-    res
-      .status(201)
-      .json({
-        message:
-          "A new ADMIN account has been created successfully.",
-      });
+
+    res.status(201).json({
+      message: "A new ADMIN account has been created successfully.",
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(409).json({ message: error.message});
   }
 };
 
