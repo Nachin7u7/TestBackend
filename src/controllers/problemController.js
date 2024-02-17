@@ -1,33 +1,49 @@
-const problemService = require("../services/problemService");
+const problemService = require('../services/problemService');
+const { buildLogger } = require('../plugin');
+const { HTTP_STATUS } = require('../constants');
+
+const logger = buildLogger('problemController');
+
 const getProblemsList = async (req, res) => {
   try {
     const problemsList = await problemService.getProblems();
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
-      problemsList,
+      data: problemsList,
     });
   } catch (err) {
-    return res.status(500).json({
+    logger.error(`Error getting problems list: ${err}`);
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Internal server error. Please try again.",
+      message: 'Unable to retrieve problems list. Please try again later.',
     });
   }
 };
+
 const getProblemData = async (req, res) => {
+  const { problemId } = req.query;
+  if (!problemId) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      success: false,
+      message: 'Problem ID is required.',
+    });
+  }
   try {
-    const problem = await problemService.getProblemById(req.query.problemId);
-    return res.status(200).json({
+    const problem = await problemService.getProblemById(problemId);
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
-      problem,
+      data: problem,
     });
   } catch (err) {
-    return res.status(500).json({
+    logger.error(`Error getting problem data for ID ${problemId}: ${err}`);
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Internal server error. Please try again.",
+      message: 'Internal server error. Please try again.',
     });
   }
 };
 
-const problemControllers = { getProblemsList, getProblemData };
-
-module.exports = problemControllers;
+module.exports = {
+  getProblemsList,
+  getProblemData,
+};
