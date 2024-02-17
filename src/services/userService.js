@@ -1,7 +1,7 @@
 const userRepository = require('../repositories/userRepository');
 const jwt = require('jsonwebtoken');
 const { readFileSync } = require("fs");
-const { sendEMail } = require('../plugin');
+const { sendVerificationEmail } = require('./emailService');
 const passport = require('passport');
 const { passport: passportConfig, CLIENT_URL } = require('../config/config');
 const { config } = require('../config');
@@ -71,29 +71,6 @@ const verifyEmail = async (token) => {
   } catch (error) {
     throw new Error('Verification failed. Invalid or expired token.');
   }
-};
-
-const sendVerificationEmail = async (email, token) => {
-  const verificationUrl = `${client.url}/verify/${token}`;
-  const replacements = {
-    username: email,
-    verifyUrl: verificationUrl,
-  };
-  const htmlToSend = verifyEmailTemplate(replacements);
-
-
-  await sendEMail({
-    to: email,
-    subject: 'Please confirm your email address',
-    attachments: [
-      {
-        filename: "logo192.png",
-        path: __dirname + "/../templates/emailTemplates/logo192.png",
-        cid: "logo",
-      },
-    ],
-    html: htmlToSend,
-  });
 };
 
 const getUsersSortedBySolvedProblems = async () => {

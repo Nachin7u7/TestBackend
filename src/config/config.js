@@ -40,7 +40,7 @@ const config = {
   },
   mongoDB: {
     uri: process.env.DB_HOST,
-    database: process.env.DB_NAME, // TODO: convert into env
+    database: process.env.DB_NAME,
   },
   joodle: {
     clientId: process.env.JDOODLE_CLIENT_ID,
