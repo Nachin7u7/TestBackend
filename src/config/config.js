@@ -50,6 +50,10 @@ const config = {
     sessionSecret: process.env.SESSION_SECRET,
     tokenSecret: process.env.TOKEN_SECRET,
   },
+  jwt: {
+    tokenSecret: process.env.TOKEN_SECRET,
+    tokenExpireIn: process.env.TOKEN_EXPIRES_IN
+  }
 };
 
 validateConfig(config);

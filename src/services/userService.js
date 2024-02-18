@@ -1,22 +1,10 @@
-const jwt = require('jsonwebtoken');
-const passport = require('passport');
-
 const userRepository = require('../repositories/userRepository');
 const { sendVerificationEmail } = require('./emailService');
-const { encrypt } = require('../utils');
+const { encrypt, jwtUtils } = require('../utils');
 const { buildLogger } = require('../plugin');
-const { passport: passportConfig, CLIENT_URL } = require('../config/config');
 const { ROLES } = require('../constants');
-const { config } = require('../config');
 
 const logger = buildLogger('userService');
-
-const generateToken = (user) =>
-  jwt.sign(
-    { userId: user._id, email: user.email },
-    passportConfig.tokenSecret,
-    { expiresIn: '1h' }
-  );
 
 const registerUser = async (userData) => {
   const { email, username, password } = userData;
@@ -42,7 +30,7 @@ const registerUser = async (userData) => {
       isConfirmed: false,
     });
 
-    const token = generateToken(user);
+    const token = jwtUtils.generateToken(user);
     await sendVerificationEmail(email, token);
 
     logger.info('User registered and verification email sent successfully', {
@@ -76,7 +64,7 @@ const registerAdminUser = async (userData) => {
     userType: ROLES.ADMIN,
   });
 
-  const token = generateToken(user);
+  const token = jwtUtils.generateToken(user);
   await sendVerificationEmail(email, token);
 
   return user;
@@ -84,10 +72,29 @@ const registerAdminUser = async (userData) => {
 
 const verifyEmail = async (token) => {
   try {
-    const decoded = jwt.verify(token, passportConfig.tokenSecret);
-    await userRepository.updateUserConfirmation(decoded.email, true);
+    const decoded = await jwtUtils.verifyToken(token);
+    logger.log('Token verification successful', { email: decoded.email });
+    const updateResult = await userRepository.updateUserConfirmation(
+      decoded.email,
+      true
+    );
+    logger.log('User email verification status updated successfully', {
+      email: decoded.email,
+    });
+    return updateResult;
   } catch (error) {
-    throw new Error('Verification failed. Invalid or expired token.');
+    if (error instanceof jwt.TokenExpiredError) {
+      logger.error('Email verification failed - Token expired', { token });
+      throw new Error(
+        'Verification link expired. Please request a new verification email.'
+      );
+    } else {
+      logger.error('Email verification failed', {
+        error: error.message,
+        token,
+      });
+      throw new Error('Verification failed. Invalid or expired token.');
+    }
   }
 };
 

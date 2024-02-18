@@ -1,3 +1,4 @@
-const encrypt = require('../utils');
+const encrypt = require('./encrypt');
+const jwtUtils = require('./jwtUtils');
 
-module.exports = { encrypt };
+module.exports = { encrypt, jwtUtils };
