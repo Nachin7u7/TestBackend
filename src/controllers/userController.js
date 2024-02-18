@@ -1,5 +1,8 @@
 const userService = require("../services/userService");
 const { HTTP_STATUS } = require("../constants");
+const { buildLogger } = require('../plugin');
+
+const logger = buildLogger('userController');
 
 const globalLeaderboard = async (req, res) => {
   try {
@@ -53,6 +56,7 @@ const verifyEmail = async (req, res) => {
       .status(HTTP_STATUS.OK)
       .json({ message: "Email verified successfully. You can now login." });
   } catch (error) {
+    logger.error('Error verifying email:', error);
     res
       .status(HTTP_STATUS.BAD_REQUEST)
       .json({ message: "Failed to verify email. Invalid or expired token." });
