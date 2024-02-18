@@ -1,3 +1,3 @@
-const HTTP_STATUS = require('./http.status');
+const HTTP_STATUS = require('./httpStatus');
 
 module.exports = { HTTP_STATUS };

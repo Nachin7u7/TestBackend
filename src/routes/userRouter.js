@@ -18,8 +18,6 @@ router.post(
   userController.registerAdmin
 );
 
-//! -------- FOR ALL USERS ROUTES --------
-
 router.get("/verify/:token", userController.verifyEmail);
 
 router.post(

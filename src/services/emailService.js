@@ -17,7 +17,7 @@ const sendVerificationEmail = async (email, token) => {
 
   await sendEMail({
     to: email,
-    subject: 'Please confirm your email address',
+    subject: 'Por favor, confirma tu dirección de correo electrónico.',
     attachments: [
       {
         filename: "logo192.png",

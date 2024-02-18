@@ -47,6 +47,46 @@
       .regards > p {
         margin: 5px 0;
       }
+
+      .button-36 {
+        background-image: linear-gradient(
+          92.88deg,
+          #455eb5 9.16%,
+          #5643cc 43.89%,
+          #673fd7 64.72%
+        );
+        border-radius: 8px;
+        border-style: none;
+        box-sizing: border-box;
+        color: #ffffff;
+        cursor: pointer;
+        flex-shrink: 0;
+        font-family: 'Inter UI', 'SF Pro Display', -apple-system,
+          BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+          'Open Sans', 'Helvetica Neue', sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        height: 2rem;
+        padding: 0.8rem;
+        margin: 0.8rem;
+        text-align: center;
+        text-shadow: rgba(0, 0, 0, 0.25) 0 3px 8px;
+        transition: all 0.5s;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+      }
+
+      .button-36:hover {
+        box-shadow: rgba(80, 63, 205, 0.5) 0 1px 30px;
+        transition-duration: 0.1s;
+      }
+
+      @media (min-width: 768px) {
+        .button-36 {
+          padding: 0 2.6rem;
+        }
+      }
     </style>
   </head>
   <body>
@@ -56,22 +96,26 @@
       </div>
       <div class="content">
         <div class="mail-details">
-          <p>Hi {{username}},</p>
+          <p>Hola {{username}},</p>
           <p>
-            Thanks for creating your Algoforces account! Before we get started, we need to verify your email
-            address. Please click on below button to verify your email address
+            Gracias por crear tu cuenta en Algoforces. Antes de comenzar,
+            necesitamos verificar tu dirección de correo electrónico. Por favor,
+            haz clic en el botón de abajo para verificar tu dirección de correo
+            electrónico.
           </p>
         </div>
         <div class="verify-button-container">
           <a href="{{verifyUrl}}">
-            <button class="verify-button">CONFIRM MY EMAIL</button>
+            <button class="button-36">CONFIRMAR CORREO</button>
           </a>
         </div>
-        <div class="ignore-mail-text">If this account was not created by you, please ignore this mail.</div>
+        <div class="ignore-mail-text">
+          Si esta cuenta no ha sido creado por ti, por favor ignore este correo.
+        </div>
 
         <div class="regards">
-          <p>Kind regards,</p>
-          <p>Algoforces Team</p>
+          <p>Saludos,</p>
+          <p>Equipo de Algoforces</p>
         </div>
       </div>
     </div>

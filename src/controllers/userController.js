@@ -1,4 +1,5 @@
 const userService = require("../services/userService");
+const { HTTP_STATUS } = require("../constants");
 
 const globalLeaderboard = async (req, res) => {
   try {
@@ -47,13 +48,13 @@ const registerAdmin = async (req, res) => {
 const verifyEmail = async (req, res) => {
   try {
     const { token } = req.params;
-    await userService.verifyEmail(token);
+    const verifcationResult = await userService.verifyEmail(token);
     res
-      .status(200)
+      .status(HTTP_STATUS.OK)
       .json({ message: "Email verified successfully. You can now login." });
   } catch (error) {
     res
-      .status(400)
+      .status(HTTP_STATUS.BAD_REQUEST)
       .json({ message: "Failed to verify email. Invalid or expired token." });
   }
 };
