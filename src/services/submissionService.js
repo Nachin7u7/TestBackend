@@ -1,9 +1,10 @@
 const submissionRepository = require('../repositories/submissionRepository');
 const User = require('../repositories/userRepository');
-const Problem = require('../repositories/problemRepository');
+const problemRepository = require('../repositories/problemRepository');
 const { config } = require('../config');
 const compileAndRun = require('./jdoodleService');
 const { buildLogger } = require('../plugin');
+const { LANGUAGE_CONFIG, VERDICTS } = require('../constants');
 
 const { jdoodle } = config;
 const logger = buildLogger('submissionService');
@@ -34,30 +35,18 @@ const getAcceptedProblemIdSubmissions = async (req) => {
   }
 };
 
+const getLanguageConfig = (lang) =>
+  LANGUAGE_CONFIG[lang] || { language: lang, versionIndex: '0' };
+
 const postSubmission = async (req) => {
   try {
-    // Prepare
-    let verdictName = 'ac';
-    let verdictLabel = 'Accepted!';
-    const problemId = req.body.problemId;
-    const isSample = req.body.isSample;
-    const code = req.body.code;
-    let language = req.body.language;
-    let versionIndex = 0;
-    if (language === 'cpp') {
-      language = 'cpp17';
-      versionIndex = '1';
-    } else if (language === 'java') {
-      language = 'java';
-      versionIndex = 4;
-    } else if (language === 'python') {
-      language = 'python3';
-      versionIndex = 4;
-    }
-    // Fetch
-    let problem = await Problem.findOne(
+    const { problemId, isSample, code, language } = req.body;
+    const { language: lang, versionIndex } = getLanguageConfig(language);
+
+    // TODO: verificar para que sirve el  published
+    let problem = await problemRepository.findOne(
       {
-        problemId: problemId,
+        problemId,
         isPublished: true,
       },
       {
@@ -69,17 +58,23 @@ const postSubmission = async (req) => {
       }
     );
 
+    if (!problem) {
+      throw new Error('Problem not found or not published.');
+    }
+
+    let verdict = VERDICTS.ACCEPTED;
+     
     // For each test case
     problemJSON = JSON.parse(JSON.stringify(problem));
     const timeLimit = problemJSON.published.config.timelimit / 1000;
     const memoryLimit = problemJSON.published.config.memorylimit * 1000;
     const checkerCode = problemJSON.published.checkerCode;
-    let maxTime = 0,
-      maxMemory = 0;
+    
+    let maxTime = 0, maxMemory = 0;
     for (let i = 0; i < problemJSON.published.testcases.length; i++) {
       // If user has clicked on "Run" button then we will only run the code on sample testcases.
       if (
-        isSample == true &&
+        isSample &&
         problemJSON.published.testcases[i].isSample == false
       )
         continue;

@@ -1,6 +1,6 @@
 const HTTP_STATUS = require('./httpStatus');
 const ROLES = require('./roles');
-const VEREDICTS = require('./veredicts');
+const VERDICTS = require('./verdicts');
 const LANGUAGE_CONFIG = require('./languages');
 
-module.exports = { HTTP_STATUS, ROLES, VEREDICTS, LANGUAGE_CONFIG };
+module.exports = { HTTP_STATUS, ROLES, VERDICTS, LANGUAGE_CONFIG };
