@@ -101,9 +101,11 @@ const verifyEmail = async (token) => {
 const getUsersSortedBySolvedProblems = async () => {
   try {
     const leaderboard = await userRepository.findUsersBySolvedProblems();
+    logger.log('Successfully retrieved users sorted by solved problems.');
     return leaderboard;
   } catch (err) {
-    throw err;
+    logger.error('Failed to retrieve users sorted by solved problems:', err);
+    throw new Error('Failed to retrieve the leaderboard. Please try again later.');
   }
 };
 

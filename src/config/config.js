@@ -42,9 +42,16 @@ const config = {
     uri: process.env.DB_HOST,
     database: process.env.DB_NAME,
   },
-  joodle: {
+  jdoodle: {
     clientId: process.env.JDOODLE_CLIENT_ID,
     clientSecret: process.env.JDOODLE_CLIENT_SECRET,
+    url: process.env.JDOODLE_URL,
+    credentials: [
+      {
+        clientId: process.env.JDOODLE_CLIENT_ID,
+        clientSecret: process.env.JDOODLE_CLIENT_SECRET,
+      },
+    ],
   },
   passport: {
     sessionSecret: process.env.SESSION_SECRET,
@@ -52,8 +59,8 @@ const config = {
   },
   jwt: {
     tokenSecret: process.env.TOKEN_SECRET,
-    tokenExpireIn: process.env.TOKEN_EXPIRES_IN
-  }
+    tokenExpireIn: process.env.TOKEN_EXPIRES_IN,
+  },
 };
 
 validateConfig(config);
