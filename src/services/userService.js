@@ -21,7 +21,7 @@ const registerUser = async (userData) => {
       throw new Error('User with the given email already exists.');
     }
 
-    const hashedPassword = await encrypt.hashedPassword(password);
+    const hashedPassword = await encrypt.hashPassword(password);
 
     const user = await userRepository.createUser({
       email,
@@ -33,12 +33,13 @@ const registerUser = async (userData) => {
     const token = jwtUtils.generateToken(user);
     await sendVerificationEmail(email, token);
 
-    logger.info('User registered and verification email sent successfully', {
+    logger.log('User registered and verification email sent successfully', {
       email,
       userId: user.id,
     });
     return user;
   } catch (error) {
+    console.log(error);
     logger.error('Registration attempt failed due to an error.', {
       error: error.message,
       email,
@@ -105,7 +106,9 @@ const getUsersSortedBySolvedProblems = async () => {
     return leaderboard;
   } catch (err) {
     logger.error('Failed to retrieve users sorted by solved problems:', err);
-    throw new Error('Failed to retrieve the leaderboard. Please try again later.');
+    throw new Error(
+      'Failed to retrieve the leaderboard. Please try again later.'
+    );
   }
 };
 
