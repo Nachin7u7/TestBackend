@@ -1,15 +1,20 @@
 const submissionService = require("../services/submissionService");
+const { buildLogger } = require('../plugin');
+
+const logger = buildLogger('submissioControllers');
 
 const userSubmissionsList = async (req, res) => {
   try {
+    logger.log('Fetching user submissions list');
     const submissionsList =
       await submissionService.getUsernameProblemIdSubmissions(req);
+      logger.log('User submissions list fetched successfully');
     return res.status(200).json({
       success: true,
       submissionsList: submissionsList,
     });
   } catch (err) {
-    console.log(err);
+    logger.error('Error fetching user submissions list:', err);
     return res.status(500).json({
       success: false,
       message: "Internal server error. Please try again.",
@@ -19,15 +24,17 @@ const userSubmissionsList = async (req, res) => {
 
 const leaderboardProblemSubmissionsList = async (req, res) => {
   try {
+    logger.log('Fetching leaderboard problem submissions list');
     const submissions = await submissionService.getAcceptedProblemIdSubmissions(
       req
     );
+    logger.log('Leaderboard problem submissions list fetched successfully');
     return res.status(200).json({
       success: true,
       leaderboard: submissions,
     });
   } catch (err) {
-    console.log(err);
+    logger.error('Error fetching leaderboard problem submissions list:', err);
     return res.status(500).json({
       success: false,
       message: "Internal server error. Please try again.",
@@ -37,13 +44,15 @@ const leaderboardProblemSubmissionsList = async (req, res) => {
 
 const compileAndRun = async (req, res) => {
   try {
+    logger.log('Compiling and running submission');
     let veredict = await submissionService.postSubmission(req);
+    logger.log('Submission compiled and run successfully');
     return res.status(200).json({
       success: true,
       veredict: veredict,
     });
   } catch (err) {
-    console.log(err);
+    logger.error('Error compiling and running submission:', err);
     return res.status(500).json({
       success: false,
       message: "Internal server error. Please try again.",

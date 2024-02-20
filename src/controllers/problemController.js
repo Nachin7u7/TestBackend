@@ -6,7 +6,9 @@ const logger = buildLogger('problemController');
 
 const getProblemsList = async (req, res) => {
   try {
+    logger.log('Fetching problems list');
     const problemsList = await problemService.getProblems();
+    logger.log('Problems list fetched successfully');
     return res.status(HTTP_STATUS.OK).json({
       success: true,
       data: problemsList,
@@ -29,7 +31,9 @@ const getProblemData = async (req, res) => {
     });
   }
   try {
+    logger.log(`Fetching problem data for ID: ${problemId}`);
     const problem = await problemService.getProblemById(problemId);
+    logger.log(`Problem data fetched successfully for ID: ${problemId}`);
     return res.status(HTTP_STATUS.OK).json({
       success: true,
       data: problem,
