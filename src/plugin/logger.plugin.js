@@ -1,6 +1,8 @@
 const winston = require('winston');
 require('winston-daily-rotate-file');
 
+const { config } = require('../config');
+
 const logFormat = winston.format.combine(
   winston.format.timestamp({
     format: 'YYYY-MM-DD HH:mm:ss',
@@ -11,8 +13,10 @@ const logFormat = winston.format.combine(
   winston.format.colorize({ all: true })
 );
 
+const logsDirectory = config.env === 'development' ? './logs':'/tmp/logs' 
+
 const dailyRotateFileTransport = new winston.transports.DailyRotateFile({
-  filename: './logs/application-%DATE%.log',
+  filename: `${logsDirectory}/application-%DATE%.log`,
   datePattern: 'YYYY-MM-DD',
   zippedArchive: true,
   maxSize: '20m',
