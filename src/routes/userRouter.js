@@ -3,6 +3,8 @@ const router = express.Router();
 const userController = require("../controllers/userController");
 const validateRegisterInput = require("../middlewares/validateRegisterInput"); // Asumiendo que tienes este middleware
 const validateLoginInput = require("../middlewares/verifyLogin");
+const verifyPermissions = require("../middlewares/verifyPermissions");
+
 const passport = require("passport");
 
 //! -------- NORMAL USERS ROUTES --------
@@ -14,6 +16,7 @@ router.post("/register", validateRegisterInput, userController.register);
 // TODO: Add middleware role verification
 router.post(
   "/create-admin",
+  verifyPermissions('isAllowedToCreateAdmin'),
   validateRegisterInput,
   userController.registerAdmin
 );

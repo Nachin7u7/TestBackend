@@ -20,12 +20,17 @@ const compileAndRun = async (program) => {
     clientSecret,
   };
 
+  logger.log('Attempting to compile and run the program.');
+
   try {
     const response = await jdoodleAxios.post('/execute', payload);
+    logger.log('Successfully compiled and ran the program.');
     return { success: true, data: response.data };
   } catch (error) {
-    logger.error('Failed to execute program with Jdoodle:', error);
-    return { success: false, error: error.message };
+    logger.error('Failed to execute program with Jdoodle.', {
+      error: error.message,
+    });
+    throw new Error('Failed to execute program with Jdoodle: ' + error.message);
   }
 };
 

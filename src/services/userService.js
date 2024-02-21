@@ -37,6 +37,7 @@ const registerUser = async (userData) => {
       email,
       userId: user.id,
     });
+    
     return user;
   } catch (error) {
     console.log(error);
@@ -51,24 +52,45 @@ const registerUser = async (userData) => {
 
 const registerAdminUser = async (userData) => {
   const { email, username, password } = userData;
+  logger.log('Attempting to register admin user', { email, username });
 
-  const existingUser = await userRepository.findUserByEmail(email);
-  if (existingUser) {
-    throw new Error('User with the given email already exists.');
+  try {
+    const existingUser = await userRepository.findUserByEmail(email);
+    if (existingUser) {
+      logger.error(
+        'Registration attempt failed: Admin User with the given email already exists.',
+        { email }
+      );
+      throw new Error('Admin User with the given email already exists.');
+    }
+
+    const user = await userRepository.createUser({
+      email,
+      username,
+      password,
+      isConfirmed: false,
+      userType: ROLES.ADMIN,
+    });
+
+    const token = jwtUtils.generateToken(user);
+    await sendVerificationEmail(email, token);
+
+    logger.log(
+      'Admin User registered and verification email sent successfully',
+      {
+        email,
+        userId: user.id,
+      }
+    );
+    return user;
+  } catch (error) {
+    logger.error('Registration attempt failed due to an error.', {
+      error: error.message,
+      email,
+      username,
+    });
+    throw new Error('Registration attempt failed');
   }
-
-  const user = await userRepository.createUser({
-    email,
-    username,
-    password,
-    isConfirmed: false,
-    userType: ROLES.ADMIN,
-  });
-
-  const token = jwtUtils.generateToken(user);
-  await sendVerificationEmail(email, token);
-
-  return user;
 };
 
 const verifyEmail = async (token) => {

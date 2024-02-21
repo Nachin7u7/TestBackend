@@ -4,34 +4,59 @@ const problemRepository = require('../repositories/problemRepository');
 const { config } = require('../config');
 const compileAndRun = require('./jdoodleService');
 const { buildLogger } = require('../plugin');
-const { LANGUAGE_CONFIG, VERDICTS } = require('../constants');
-
 const { jdoodle } = config;
 const logger = buildLogger('submissionService');
 
-const getUsernameProblemIdSubmissions = async (req) => {
+const getUsernameProblemIdSubmissions = async (username, problemId) => {
+  logger.log('Attempting to fetch submissions for given username and problem id.', {
+    username: username,
+    problemId: problemId
+  });
   try {
     const submissionsList =
       await submissionRepository.getUsernameProblemIdSubmissions(
-        req.query.username,
-        req.query.problemId
+        username,
+        problemId
       );
+    logger.log(
+      'Successfully fetched submissions for given username and problem id.');
     return submissionsList;
   } catch (err) {
-    throw err;
+    logger.error(
+      'Error while fetching submissions for given username and problem id.',
+      {
+        error: err.message,
+        username: username,
+        problemId: problemId,
+      }
+    );
+    throw new Error(
+      'Failed to fetch submissions for the given username and problem id.'
+    );
   }
 };
 
-const getAcceptedProblemIdSubmissions = async (req) => {
+const getAcceptedProblemIdSubmissions = async (problemId) => {
+  logger.log('Attempting to fetch accepted submissions for given problem id.', {
+    problemId: problemId
+  });
   try {
     const submissions =
-      await submissionRepository.getAcceptedProblemIdSubmissions(
-        req.query.problemId
-      );
+      await submissionRepository.getAcceptedProblemIdSubmissions(problemId);
     submissions.sort((s1, s2) => s1.time - s2.time);
+    logger.log('Successfully fetched accepted submissions for given problem id.');
     return submissions;
   } catch (err) {
-    throw err;
+    logger.error(
+      'Error while fetching accepted submissions for given problem id.',
+      {
+        error: err.message,
+        problemId: problemId,
+      }
+    );
+    throw new Error(
+      'Failed to fetch accepted submissions for the given problem id.'
+    );
   }
 };
 
@@ -63,20 +88,17 @@ const postSubmission = async (req) => {
     }
 
     let verdict = VERDICTS.ACCEPTED;
-     
     // For each test case
     problemJSON = JSON.parse(JSON.stringify(problem));
     const timeLimit = problemJSON.published.config.timelimit / 1000;
     const memoryLimit = problemJSON.published.config.memorylimit * 1000;
     const checkerCode = problemJSON.published.checkerCode;
-    
-    let maxTime = 0, maxMemory = 0;
+
+    let maxTime = 0,
+      maxMemory = 0;
     for (let i = 0; i < problemJSON.published.testcases.length; i++) {
       // If user has clicked on "Run" button then we will only run the code on sample testcases.
-      if (
-        isSample &&
-        problemJSON.published.testcases[i].isSample == false
-      )
+      if (isSample && problemJSON.published.testcases[i].isSample == false)
         continue;
 
       let program = {

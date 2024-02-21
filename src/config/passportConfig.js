@@ -1,4 +1,5 @@
 // --------------- Passport Config ---------------
+const express = require('express');
 const passport = require('passport');
 const session = require('express-session');
 const LocalStrategy = require('passport-local').Strategy;
@@ -9,7 +10,7 @@ const env = config.env;
 const passportConfig = config.passport;
 
 // Function to configure authentication session options
-const configureSessionOptions = () => {
+const configureSessionOptions = (app) => {
   const sessionOptions = {
     secret: passportConfig.sessionSecret,
     resave: false,
@@ -31,23 +32,32 @@ const configureSessionOptions = () => {
 // Function to configure Passport
 const configurePassport = (app) => {
   // Configure authentication session options
-  const sessionOptions = configureSessionOptions();
+  const sessionOptions = configureSessionOptions(app);
   app.use(session(sessionOptions));
-
-  // Configure LocalStrategy
-  passport.use(
-    new LocalStrategy(
-      {
-        usernameField: 'username',
-        passwordField: 'password',
-      },
-      User.authenticate()
-    )
-  );
-
+  
   // Initialize Passport
   app.use(passport.initialize());
   app.use(passport.session());
+  app.use(express.static("./"));
+
+  // Configure LocalStrategy
+  passport.use(
+    new LocalStrategy(function verify(username, password, cb) {
+      User.findOne({ $or: [{ username: username }, { email: username }] }, function (err, user) {
+        if (err) {
+          return cb(err);
+        }
+        if (!user) {
+          return cb(null, false, { message: "Incorrect username." });
+        }
+        //TODO: Implement comparing hash passwords
+        // if (user.password !== password) {
+        //   return cb(null, false, { message: "Incorrect password."});
+        // }
+        return cb(null, user);
+      });
+    })
+  );
 
   // Serialize and deserialize user
   passport.serializeUser((user, done) => {
