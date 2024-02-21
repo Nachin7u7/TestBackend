@@ -1,68 +1,145 @@
-const userRepository = require("../repositories/userRepository");
-const jwt = require("jsonwebtoken");
-const { sendMail } = require("../utils/sendMail");
-const passport = require("passport");
-const { passport: passportConfig, CLIENT_URL} = require("../config/config");
+const userRepository = require('../repositories/userRepository');
+const { sendVerificationEmail } = require('./emailService');
+const { encrypt, jwtUtils } = require('../utils');
+const { buildLogger } = require('../plugin');
+const { ROLES } = require('../constants');
+
+const logger = buildLogger('userService');
 
 const registerUser = async (userData) => {
   const { email, username, password } = userData;
+  logger.log('Attempting to register user', { email, username });
 
-  const existingUser = await userRepository.findUserByEmail(email);
-  if (existingUser) {
-    throw new Error("User with the given email already exists.");
+  try {
+    const existingUser = await userRepository.findUserByEmail(email);
+
+    if (existingUser) {
+      logger.error(
+        'Registration attempt failed: User with the given email already exists.',
+        { email }
+      );
+      throw new Error('User with the given email already exists.');
+    }
+
+    const hashedPassword = await encrypt.hashPassword(password);
+
+    const user = await userRepository.createUser({
+      email,
+      username,
+      password: hashedPassword,
+      isConfirmed: false,
+    });
+
+    const token = jwtUtils.generateToken(user);
+    await sendVerificationEmail(email, token);
+
+    logger.log('User registered and verification email sent successfully', {
+      email,
+      userId: user.id,
+    });
+    
+    return user;
+
+  } catch (error) {
+    console.log(error);
+    logger.error('Registration attempt failed due to an error.', {
+      error: error.message,
+      email,
+      username,
+    });
+    throw new Error('Registration attempt failed');
   }
+};
 
-  const user = await userRepository.createUser({
-    email,
-    username,
-    password,
-    isConfirmed: false,
-  });
+const registerAdminUser = async (userData) => {
+  const { email, username, password } = userData;
+  logger.log('Attempting to register admin user', { email, username });
 
-  const token = jwt.sign(
-    { userId: user._id, email: user.email },
-    passportConfig.tokenSecret,
-    { expiresIn: "1h" }
-  );
+  try {
+    const existingUser = await userRepository.findUserByEmail(email);
+    if (existingUser) {
+      logger.error(
+        'Registration attempt failed: Admin User with the given email already exists.',
+        { email }
+      );
+      throw new Error('Admin User with the given email already exists.');
+    }
 
-  await sendVerificationEmail(email, token);
+    const user = await userRepository.createUser({
+      email,
+      username,
+      password,
+      isConfirmed: false,
+      userType: ROLES.ADMIN,
+    });
 
-  return user;
+    const token = jwtUtils.generateToken(user);
+    await sendVerificationEmail(email, token);
+
+    logger.log(
+      'Admin User registered and verification email sent successfully',
+      {
+        email,
+        userId: user.id,
+      }
+    );
+    return user;
+  } catch (error) {
+    logger.error('Registration attempt failed due to an error.', {
+      error: error.message,
+      email,
+      username,
+    });
+    throw new Error('Registration attempt failed');
+  }
 };
 
 const verifyEmail = async (token) => {
   try {
-    const decoded = jwt.verify(token, passportConfig.tokenSecret);
-    await userRepository.updateUserConfirmation(decoded.email, true);
+    const decoded = await jwtUtils.verifyToken(token);
+    logger.log('Token verification successful', { email: decoded.email });
+    const updateResult = await userRepository.updateUserConfirmation(
+      decoded.email,
+      true
+    );
+    logger.log('User email verification status updated successfully', {
+      email: decoded.email,
+    });
+    return updateResult;
   } catch (error) {
-    throw new Error("Verification failed. Invalid or expired token.");
+    if (error instanceof jwt.TokenExpiredError) {
+      logger.error('Email verification failed - Token expired', { token });
+      throw new Error(
+        'Verification link expired. Please request a new verification email.'
+      );
+    } else {
+      logger.error('Email verification failed', {
+        error: error.message,
+        token,
+      });
+      throw new Error('Verification failed. Invalid or expired token.');
+    }
   }
-};
-
-const sendVerificationEmail = async (email, token) => {
-  const verificationUrl = `${CLIENT_URL}/verify/${token}`;
-  const htmlContent = `<p>Please verify your email by clicking on the link: <a href="${verificationUrl}">${verificationUrl}</a></p>`;
-
-  await sendMail({
-    to: email,
-    subject: "Verify Your Email",
-    html: htmlContent,
-  });
 };
 
 const getUsersSortedBySolvedProblems = async () => {
   try {
     const leaderboard = await userRepository.findUsersBySolvedProblems();
+    logger.log('Successfully retrieved users sorted by solved problems.');
     return leaderboard;
   } catch (err) {
-    throw err;
+    logger.error('Failed to retrieve users sorted by solved problems:', err);
+    throw new Error(
+      'Failed to retrieve the leaderboard. Please try again later.'
+    );
   }
 };
 
 const userService = {
   getUsersSortedBySolvedProblems,
   registerUser,
-  verifyEmail
+  verifyEmail,
+  registerAdminUser,
 };
 
 module.exports = userService;

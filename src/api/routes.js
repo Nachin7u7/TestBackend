@@ -1,14 +1,12 @@
 const express = require('express');
 const router = express.Router();
 
-// --------------- Routes ---------------
-// --- Huguito
-const userRouter = require("../routes/userRouter");
-router.use("/users", userRouter);
-const problemCreationRouter = require("../routes/problemCreationRouter");
-router.use("/problemCreation", problemCreationRouter);
-// --- Ander
-const problemRouter = require("../routes/problemRouter");
-router.use("/problem", problemRouter);
+const { userRouter, problemRouter } = require('../routes');
+
+router.use('/users', userRouter);
+router.use('/problem', problemRouter);
+
+const problemCreationRouter = require('../routes/problemCreationRouter');
+router.use('/problemCreation', problemCreationRouter);
 
 module.exports = router;
