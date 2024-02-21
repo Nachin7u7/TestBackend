@@ -39,7 +39,6 @@ const registerUser = async (userData) => {
     });
     
     return user;
-
   } catch (error) {
     console.log(error);
     logger.error('Registration attempt failed due to an error.', {

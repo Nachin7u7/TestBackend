@@ -5,6 +5,7 @@ const handlebars = require("handlebars");
 const { config } = require('../config');
 const { sendEMail, buildLogger } = require('../plugin');
 
+
 const sourceHtmlPath = path.join(__dirname, "../templates/emailTemplates/confirmEmail.html");
 const sourceHtml = readFileSync(sourceHtmlPath, "utf-8").toString();
 

@@ -29,9 +29,12 @@ const userSubmissionsList = async (req, res) => {
 const leaderboardProblemSubmissionsList = async (req, res) => {
   try {
     const { problemId } = req.query;
+    logger.log('Fetching leaderboard problem submissions list');
+
     const submissions = await submissionService.getAcceptedProblemIdSubmissions(
       problemId
     );
+    logger.log('Leaderboard problem submissions list fetched successfully');
     return res.status(200).json({
       success: true,
       leaderboard: submissions,

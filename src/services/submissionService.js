@@ -4,8 +4,6 @@ const problemRepository = require('../repositories/problemRepository');
 const { config } = require('../config');
 const compileAndRun = require('./jdoodleService');
 const { buildLogger } = require('../plugin');
-const { LANGUAGE_CONFIG, VERDICTS } = require('../constants');
-
 const { jdoodle } = config;
 const logger = buildLogger('submissionService');
 
@@ -90,7 +88,6 @@ const postSubmission = async (req) => {
     }
 
     let verdict = VERDICTS.ACCEPTED;
-
     // For each test case
     problemJSON = JSON.parse(JSON.stringify(problem));
     const timeLimit = problemJSON.published.config.timelimit / 1000;
