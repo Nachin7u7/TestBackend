@@ -1,18 +1,24 @@
-const userService = require("../services/userService");
-const passport = require('passport');
+const userService = require('../services/userService');
+const { HTTP_STATUS } = require('../constants');
+const { buildLogger } = require('../plugin');
+const { jwtUtils } = require('../utils');
+
+const logger = buildLogger('userController');
 
 const globalLeaderboard = async (req, res) => {
   try {
+    logger.log('Fetching global leaderboard');
     const leaderboard = await userService.getUsersSortedBySolvedProblems();
+    logger.log('Global leaderboard fetched successfully');
     return res.status(200).json({
       success: true,
       leaderboard: leaderboard,
     });
   } catch (err) {
-    console.log(err);
+    logger.error('Error fetching global leaderboard:', err);
     return res.status(500).json({
       success: false,
-      message: "Internal server error. Please try again.",
+      message: 'Internal server error. Please try again.',
     });
   }
 };
@@ -20,41 +26,60 @@ const globalLeaderboard = async (req, res) => {
 const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
+    logger.log('Registering new user:', { username, email });
     await userService.registerUser({ username, email, password });
-    res
-      .status(201)
-      .json({
-        message:
-          "Your account has been created successfully.",
-      });
+    logger.log('User registered successfully');
+    res.status(201).json({
+      message: 'Your account has been created successfully.',
+    });
   } catch (error) {
+    logger.error('Error registering user:', error);
     res.status(500).json({ message: error.message });
+  }
+};
+
+const registerAdmin = async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    logger.log('Registering new admin user:', { username, email });
+    await userService.registerAdminUser({ username, email, password });
+    logger.log('Admin user registered successfully');
+    res.status(201).json({
+      message: 'A new ADMIN account has been created successfully.',
+    });
+  } catch (error) {
+    logger.error('Error registering admin user:', error);
+    res.status(409).json({ message: error.message });
   }
 };
 
 const verifyEmail = async (req, res) => {
   try {
     const { token } = req.params;
-    await userService.verifyEmail(token);
+    logger.log('Verifying email with token:', token);
+    const verifcationResult = await userService.verifyEmail(token);
+    logger.log('Email verified successfully');
     res
-      .status(200)
-      .json({ message: "Email verified successfully. You can now login." });
+      .status(HTTP_STATUS.OK)
+      .json({ message: 'Email verified successfully. You can now login.' });
   } catch (error) {
+    logger.error('Error verifying email:', error);
     res
-      .status(400)
-      .json({ message: "Failed to verify email. Invalid or expired token." });
+      .status(HTTP_STATUS.BAD_REQUEST)
+      .json({ message: 'Failed to verify email. Invalid or expired token.' });
   }
 };
 
 const login = (req, res) => {
+  const { user } = req;
+  logger.log('User logged in successfully:', { user: user });
+  const token = jwtUtils.generateToken(user);
+
   res.status(200).json({
-    message: "Logged in successfully",
-    user: {
-      _id: req.user._id,
-      username: req.user.username,
-      email: req.user.email,
-      userType: req.user.userType,
-      avatarUrl: req.user.avatarUrl,
+    message: 'Logged in successfully',
+    userCreds: {
+      id: user._id,
+      token: token
     },
   });
 };
@@ -62,19 +87,23 @@ const login = (req, res) => {
 const logout = (req, res) => {
   req.logout(function (err) {
     if (err) {
+      logger.error('Error logging out:', err);
       return next(err);
     }
-    res.status(200).json({ message: "Successfully logged out." });
+    logger.log('User logged out successfully');
+    res.status(200).json({ message: 'Successfully logged out.' });
   });
 };
 
 const checkAuthentication = (req, res) => {
   if (req.isAuthenticated()) {
+    logger.log('User is authenticated:', { user: req.user });
     res.status(200).json({
       isAuthenticated: true,
       user: req.user,
     });
   } else {
+    logger.log('User is not authenticated', { user: req.user });
     res.status(200).json({ isAuthenticated: false });
   }
 };
@@ -82,6 +111,7 @@ const checkAuthentication = (req, res) => {
 const userController = {
   globalLeaderboard,
   register,
+  registerAdmin,
   verifyEmail,
   login,
   logout,

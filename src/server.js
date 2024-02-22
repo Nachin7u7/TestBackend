@@ -1,37 +1,58 @@
-//! --------------- Prerequisites ---------------
-const express = require("express");
-const cors = require("cors");
-const { CLIENT_URL, env } = require("./config/config");
-require("dotenv").config();
-const routes = require("./api/routes");
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+require('dotenv').config();
 
-//! ------ App Creation and Port declaration ------
+const { config } = require('./config');
+const { buildLogger } = require('./plugin');
+const routes = require('./api/routes');
+const mongoConnectionInit = require('./config/dataSource');
+const configurePassport = require('./config/passportConfig');
+
+const logger = buildLogger('server.js');
 const app = express();
-const PORT = env.port;
 
-//! ----------- Services Importations -----------
-const mongoConnectionInit = require("./config/dataSource");
-const configurePassport = require("./config/passportConfig");
+app.use(helmet());
 
-//! ----------- Init App Configurations ---------
-app.use(
-  cors({
-    origin: "*", // Allow to server to accept request from different origin.
-    methods: "*",
-    credentials: true, // Allow session cookie from browser to pass through.
-  })
-);
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
+app.use(limiter);
+
+const { server, env } = config;
+const { port } = server;
+
+const corsOptions =
+  env === 'production'
+    ? {
+        origin: config.client,
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+        credentials: true,
+      }
+    : {
+        origin: '*',
+        methods: '*',
+        credentials: true,
+      };
+
+app.use(cors(corsOptions));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-mongoConnectionInit();
-
 configurePassport(app);
 
-app.use("/api/v1", routes);
+app.use('/api/v1', routes);
 
-
-//! --------------- Listen to given PORT ---------------
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+mongoConnectionInit()
+  .then(() => {
+    const { port } = config.server;
+    app.listen(port, () => {
+      logger.log(`Server is running on port ${port} - ${env}`);
+    });
+  })
+  .catch((error) => {
+    logger.error('Unable to connect to the database:', error);
+  });

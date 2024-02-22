@@ -2,7 +2,7 @@ const { userPermissions } = require("../utils/data");
 
 const verifyPermissions = (action) => {
     return (req, res, next) => {
-        const userType = req.session.passport.user.userType;
+        const userType = req.user.type;
 
         if (userPermissions[userType] && userPermissions[userType][action]) {
             next(); 
