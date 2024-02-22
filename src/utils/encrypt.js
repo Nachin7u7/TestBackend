@@ -11,4 +11,15 @@ const hashPassword = async (password) => {
   return hashedPassword;
 };
 
-module.exports = { hashPassword };
+/**
+ * Hashes a password using bcrypt.
+ * @param {string} password The password to hash.
+ * @param {string} hashedPassword The hashed password .
+ * @return {boolean} The veredict fo comparing passwords.
+ */
+const comparePasswords = (password, hashedPassword) => {
+  const veredict = bcrypt.compareSync(password, hashedPassword);
+  return veredict;
+};
+
+module.exports = { hashPassword, comparePasswords };

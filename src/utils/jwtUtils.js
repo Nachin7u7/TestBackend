@@ -8,7 +8,7 @@ const { config } = require('../config');
  */
 const generateToken = (user) => {
   return jwt.sign(
-    { userId: user._id, email: user.email },
+    { id: user._id, email: user.email, username: user.username, type: user.userType },
     config.jwt.tokenSecret,
     { expiresIn: config.jwt.tokenExpireIn }
   );

@@ -1,6 +1,8 @@
-const userService = require("../services/userService");
-const { HTTP_STATUS } = require("../constants");
+const userService = require('../services/userService');
+const { HTTP_STATUS } = require('../constants');
 const { buildLogger } = require('../plugin');
+const { jwtUtils } = require('../utils');
+
 
 const logger = buildLogger('userController');
 
@@ -17,7 +19,7 @@ const globalLeaderboard = async (req, res) => {
     logger.error('Error fetching global leaderboard:', err);
     return res.status(500).json({
       success: false,
-      message: "Internal server error. Please try again.",
+      message: 'Internal server error. Please try again.',
     });
   }
 };
@@ -29,7 +31,8 @@ const register = async (req, res) => {
     await userService.registerUser({ username, email, password });
     logger.log('User registered successfully');
     res.status(201).json({
-      message: "Your account has been created successfully.",
+      message: 'Your account has been created successfully.',
+
     });
   } catch (error) {
     logger.error('Error registering user:', error);
@@ -44,11 +47,11 @@ const registerAdmin = async (req, res) => {
     await userService.registerAdminUser({ username, email, password });
     logger.log('Admin user registered successfully');
     res.status(201).json({
-      message: "A new ADMIN account has been created successfully.",
+      message: 'A new ADMIN account has been created successfully.',
     });
   } catch (error) {
     logger.error('Error registering admin user:', error);
-    res.status(409).json({ message: error.message});
+    res.status(409).json({ message: error.message });
   }
 };
 
@@ -60,25 +63,24 @@ const verifyEmail = async (req, res) => {
     logger.log('Email verified successfully');
     res
       .status(HTTP_STATUS.OK)
-      .json({ message: "Email verified successfully. You can now login." });
+      .json({ message: 'Email verified successfully. You can now login.' });
   } catch (error) {
     logger.error('Error verifying email:', error);
     res
       .status(HTTP_STATUS.BAD_REQUEST)
-      .json({ message: "Failed to verify email. Invalid or expired token." });
+      .json({ message: 'Failed to verify email. Invalid or expired token.' });
   }
 };
 
 const login = (req, res) => {
-  logger.log('User logged in successfully:', { user: req.user });
+  const { user } = req;
+  logger.log('User logged in successfully:', { user: user });
+  const token = jwtUtils.generateToken(user);
   res.status(200).json({
-    message: "Logged in successfully",
-    user: {
-      _id: req.user._id,
-      username: req.user.username,
-      email: req.user.email,
-      userType: req.user.userType,
-      avatarUrl: req.user.avatarUrl,
+    message: 'Logged in successfully',
+    userCreds: {
+      id: user._id,
+      token: token
     },
   });
 };
@@ -90,7 +92,7 @@ const logout = (req, res) => {
       return next(err);
     }
     logger.log('User logged out successfully');
-    res.status(200).json({ message: "Successfully logged out." });
+    res.status(200).json({ message: 'Successfully logged out.' });
   });
 };
 
@@ -102,7 +104,7 @@ const checkAuthentication = (req, res) => {
       user: req.user,
     });
   } else {
-    logger.log('User is not authenticated',  { user: req.user });
+    logger.log('User is not authenticated', { user: req.user });
     res.status(200).json({ isAuthenticated: false });
   }
 };

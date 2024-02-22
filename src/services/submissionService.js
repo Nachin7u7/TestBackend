@@ -88,6 +88,7 @@ const postSubmission = async (req) => {
     }
 
     let verdict = VERDICTS.ACCEPTED;
+
     // For each test case
     problemJSON = JSON.parse(JSON.stringify(problem));
     const timeLimit = problemJSON.published.config.timelimit / 1000;

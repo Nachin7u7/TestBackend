@@ -12,7 +12,6 @@ const registerUser = async (userData) => {
 
   try {
     const existingUser = await userRepository.findUserByEmail(email);
-
     if (existingUser) {
       logger.error(
         'Registration attempt failed: User with the given email already exists.',
@@ -63,6 +62,8 @@ const registerAdminUser = async (userData) => {
       );
       throw new Error('Admin User with the given email already exists.');
     }
+
+    const hashedPassword = await encrypt.hashPassword(password);
 
     const user = await userRepository.createUser({
       email,

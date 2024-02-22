@@ -27,7 +27,7 @@ const { port } = server;
 const corsOptions =
   env === 'production'
     ? {
-        origin: config.allowedOrigins,
+        origin: config.client,
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         credentials: true,
       }
