@@ -7,6 +7,7 @@ exports.getMyProblems = async (req, res) => {
   try {
     const authorId = req.user.id;
     logger.log(`Fetching problems for user with ID: ${authorId}`);
+
     logger.log('Problems fetched successfully');
     const problems = await problemCreationService.getMyProblems(authorId);
     res.json({
@@ -50,6 +51,7 @@ exports.createProblem = async (req, res) => {
 exports.getProblemData = async (req, res) => {
   try {
     const authorId = req.user.id;
+
     const { _id } = req.query;
     logger.log(`Fetching data for problem with ID: ${_id} for user with ID: ${authorId}`);
     const problem = await problemCreationService.getProblemData(_id, authorId);
@@ -77,6 +79,7 @@ exports.getProblemData = async (req, res) => {
 exports.saveProblem = async (req, res) => {
   try {
     const authorId = req.user.id;
+
     const { _id, problem } = req.body;
     logger.log(`Saving problem with ID: ${_id} for user with ID: ${authorId}`);
     await problemCreationService.saveProblem(_id, authorId, problem);
@@ -97,6 +100,7 @@ exports.saveProblem = async (req, res) => {
 exports.saveAndPublishProblem = async (req, res) => {
   try {
     const authorId = req.user.id;
+
     const { _id, problem } = req.body; // Asume que estos datos están presentes en la solicitud
     logger.log(`Saving and publishing problem with ID: ${_id} for user with ID: ${authorId}`);
     await problemCreationService.saveAndPublishProblem(_id, authorId, problem);

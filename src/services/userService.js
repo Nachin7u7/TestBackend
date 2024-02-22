@@ -12,7 +12,6 @@ const registerUser = async (userData) => {
 
   try {
     const existingUser = await userRepository.findUserByEmail(email);
-
     if (existingUser) {
       logger.error(
         'Registration attempt failed: User with the given email already exists.',
@@ -39,7 +38,6 @@ const registerUser = async (userData) => {
     });
     
     return user;
-
   } catch (error) {
     console.log(error);
     logger.error('Registration attempt failed due to an error.', {

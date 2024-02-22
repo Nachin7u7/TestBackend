@@ -30,6 +30,7 @@ const configurePassport = (app) => {
       return done(null, user);
     })
   );
+
 };
 
 module.exports = configurePassport;

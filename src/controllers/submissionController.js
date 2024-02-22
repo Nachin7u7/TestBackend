@@ -34,6 +34,7 @@ const leaderboardProblemSubmissionsList = async (req, res) => {
     const submissions = await submissionService.getAcceptedProblemIdSubmissions(
       problemId
     );
+    logger.log('Leaderboard problem submissions list fetched successfully');
     return res.status(200).json({
       success: true,
       leaderboard: submissions,

@@ -1,6 +1,5 @@
-const express = require('express');
-const router = express.Router();
-const userController = require('../controllers/userController');
+const express = require("express");
+const router = express.Router();const userController = require('../controllers/userController');
 const {
   validateRegisterInput,
   validateLoginInput,
@@ -32,8 +31,5 @@ router.post(
   passport.authenticate('local', { session: false }),
   userController.login
 );
-
-router.get('/logout', userController.logout);
-router.get('/isLoggedIn', userController.checkAuthentication);
 
 module.exports = router;

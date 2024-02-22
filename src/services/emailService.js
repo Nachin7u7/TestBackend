@@ -31,7 +31,7 @@ const sendVerificationEmail = async (email, token) => {
       attachments: [
         {
           filename: "logo192.png",
-          path: path.join(__dirname, "../templates/emailTemplates/logo192.png"),
+          path: __dirname + "/../templates/emailTemplates/logo192.png",
           cid: "logo",
         },
       ],

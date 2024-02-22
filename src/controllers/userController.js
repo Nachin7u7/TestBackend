@@ -3,6 +3,7 @@ const { HTTP_STATUS } = require('../constants');
 const { buildLogger } = require('../plugin');
 const { jwtUtils } = require('../utils');
 
+
 const logger = buildLogger('userController');
 
 const globalLeaderboard = async (req, res) => {
@@ -31,6 +32,7 @@ const register = async (req, res) => {
     logger.log('User registered successfully');
     res.status(201).json({
       message: 'Your account has been created successfully.',
+
     });
   } catch (error) {
     logger.error('Error registering user:', error);
@@ -74,7 +76,6 @@ const login = (req, res) => {
   const { user } = req;
   logger.log('User logged in successfully:', { user: user });
   const token = jwtUtils.generateToken(user);
-
   res.status(200).json({
     message: 'Logged in successfully',
     userCreds: {
