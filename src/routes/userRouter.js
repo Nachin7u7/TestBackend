@@ -32,4 +32,7 @@ router.post(
   userController.login
 );
 
+router.get('/logout', userController.logout);
+router.get('/isLoggedIn', userController.checkAuthentication);
+
 module.exports = router;
