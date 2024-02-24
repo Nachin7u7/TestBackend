@@ -1,5 +1,6 @@
 const problemCreationService = require('../services/problemCreationService');
 const { buildLogger } = require('../plugin');
+const { HTTP_STATUS } = require('../constants');
 
 const logger = buildLogger('problemCreationController');
 
@@ -16,7 +17,7 @@ exports.getMyProblems = async (req, res) => {
     });
   } catch (error) {
     logger.error('Error fetching user problems:', error);
-    res.status(500).json({
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: error.message,
     });
@@ -34,14 +35,14 @@ exports.createProblem = async (req, res) => {
       sampleProblemData
     );
     logger.log('Problem created successfully');
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       success: true,
       message: 'Problem created successfully',
       data: problem,
     });
   } catch (error) {
     logger.error('Error creating problem:', error);
-    res.status(400).json({
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });
@@ -57,19 +58,19 @@ exports.getProblemData = async (req, res) => {
     const problem = await problemCreationService.getProblemData(_id, authorId);
     if (!problem) {
       logger.log(`Problem not found with ID: ${_id}`);
-      return res.status(404).json({
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
         success: false,
         message: 'Problem not found',
       });
     }
     logger.log('Problem data fetched successfully');
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       success: true,
       data: problem,
     });
   } catch (error) {
     logger.error('Error fetching problem data:', error);
-    res.status(500).json({
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: error.message,
     });
@@ -84,13 +85,13 @@ exports.saveProblem = async (req, res) => {
     logger.log(`Saving problem with ID: ${_id} for user with ID: ${authorId}`);
     await problemCreationService.saveProblem(_id, authorId, problem);
     logger.log('Problem saved successfully');
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       success: true,
       message: 'Problem saved successfully',
     });
   } catch (error) {
     logger.error('Error saving problem:', error);
-    res.status(500).json({
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: error.message,
     });
@@ -105,13 +106,13 @@ exports.saveAndPublishProblem = async (req, res) => {
     logger.log(`Saving and publishing problem with ID: ${_id} for user with ID: ${authorId}`);
     await problemCreationService.saveAndPublishProblem(_id, authorId, problem);
     logger.log('Problem saved and published successfully');
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       success: true,
       message: 'Problem saved and published successfully',
     });
   } catch (error) {
     logger.error('Error saving and publishing problem:', error);
-    res.status(500).json({
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: error.message,
     });

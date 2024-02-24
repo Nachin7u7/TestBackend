@@ -1,5 +1,6 @@
 const submissionService = require('../services/submissionService');
 const { buildLogger } = require('../plugin');
+const { HTTP_STATUS } = require('../constants');
 
 const logger = buildLogger('submissioControllers');
 
@@ -13,13 +14,13 @@ const userSubmissionsList = async (req, res) => {
         problemId
       );
     logger.log('User submissions list fetched successfully');
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
       submissionsList: submissionsList,
     });
   } catch (err) {
     logger.error('Error fetching user submissions list:', err);
-    return res.status(500).json({
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: 'Internal server error. Please try again.',
     });
@@ -35,13 +36,13 @@ const leaderboardProblemSubmissionsList = async (req, res) => {
       problemId
     );
     logger.log('Leaderboard problem submissions list fetched successfully');
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
       leaderboard: submissions,
     });
   } catch (err) {
     logger.error('Error fetching leaderboard problem submissions list:', err);
-    return res.status(500).json({
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: 'Internal server error. Please try again.',
     });
@@ -53,13 +54,13 @@ const compileAndRun = async (req, res) => {
     logger.log('Compiling and running submission');
     let veredict = await submissionService.postSubmission(req);
     logger.log('Submission compiled and run successfully');
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
       veredict: veredict,
     });
   } catch (err) {
     logger.error('Error compiling and running submission:', err);
-    return res.status(500).json({
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: 'Internal server error. Please try again.',
     });
