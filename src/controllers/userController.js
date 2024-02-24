@@ -2,8 +2,6 @@ const userService = require('../services/userService');
 const { HTTP_STATUS } = require('../constants');
 const { buildLogger } = require('../plugin');
 const { jwtUtils } = require('../utils');
-const { HTTP_STATUS } = require('../constants');
-
 
 const logger = buildLogger('userController');
 
