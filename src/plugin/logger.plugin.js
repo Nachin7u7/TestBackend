@@ -7,9 +7,15 @@ const logFormat = winston.format.combine(
   winston.format.timestamp({
     format: 'YYYY-MM-DD HH:mm:ss',
   }),
-  winston.format.printf(
-    (info) => `${info.timestamp} ${info.level}: ${info.message} ${info.service}`
-  ),
+  winston.format.printf((info) => {
+    let customInfo = Object.assign({}, info);
+    delete customInfo.timestamp;
+    delete customInfo.level;
+    delete customInfo.message;
+    delete customInfo.service;
+    let additionalInfo = Object.keys(customInfo).length ? JSON.stringify(customInfo, null, 4) : '';
+    return `${info.timestamp} [${info.level}][${info.service}]: ${info.message} ${additionalInfo}`
+  }),
   winston.format.colorize({ all: true })
 );
 
@@ -45,11 +51,11 @@ const expressLoggerMiddleware = (req, res, next) => {
 
 module.exports = function buildLogger(service) {
   return {
-    log: (message) => {
-      logger.info({ message, service });
+    log: (message, obj = {}) => {
+      logger.info({ message, ...obj, service });
     },
-    error: (message) => {
-      logger.error({ message, service });
+    error: (message, obj = {}) => {
+      logger.error({ message, ...obj, service });
     },
   };
 };

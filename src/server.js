@@ -24,20 +24,20 @@ app.use(limiter);
 const { server, env } = config;
 const { port } = server;
 
-const corsOptions =
-  env === 'production'
-    ? {
-        origin: config.client,
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-        credentials: true,
-      }
-    : {
-        origin: '*',
-        methods: '*',
-        credentials: true,
-      };
+// const corsOptions =
+//   env === 'production'
+//     ? {
+//         origin: config.client,
+//         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+//         credentials: true,
+//       }
+//     : {
+//         origin: '*',
+//         methods: '*',
+//         credentials: true,
+//       };
 
-app.use(cors(corsOptions));
+app.use(cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -48,7 +48,6 @@ app.use('/api/v1', routes);
 
 mongoConnectionInit()
   .then(() => {
-    const { port } = config.server;
     app.listen(port, () => {
       logger.log(`Server is running on port ${port} - ${env}`);
     });

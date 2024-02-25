@@ -1,4 +1,4 @@
-const problemRepository = require('../repositories/problemRepository');
+const { getPublishedProblems } = require('../repositories/problemRepository');
 const { buildLogger } = require('../plugin');
 
 const logger = buildLogger('problemService');
@@ -6,7 +6,7 @@ const logger = buildLogger('problemService');
 const getProblems = async () => {
   logger.log('Attempting to fetch the list of problems.');
   try {
-    let problemsList = await problemRepository.getPublishedProblems(true);
+    let problemsList = await getPublishedProblems(true);
     problemsList = JSON.parse(JSON.stringify(problemsList));
     for (let i = 0; i < problemsList.length; i++) {
       if (problemsList[i].totalSubmissions >= 1)
@@ -15,7 +15,7 @@ const getProblems = async () => {
           100;
       else problemsList[i].acceptance = 0;
     }
-    logger.log('Successfully fetched the list of problems.');
+    logger.log('Successfully fetched the list of problems.', problemsList );
     return problemsList;
   } catch (err) {
     logger.error('Error while fetching the list of problems.', {

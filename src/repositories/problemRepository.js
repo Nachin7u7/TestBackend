@@ -25,7 +25,7 @@ const getPublishedProblems = async (isPublished) => {
   } catch (error) {
     logger.error('Error while fetching problems by isPublished status.', {
       error: error.message,
-      isPublished: isPublished
+      isPublished: isPublished,
     });
     throw new Error('Failed to fetch published problems: ' + error.message);
   }
@@ -63,6 +63,28 @@ const getProblemByIdAndPublished = async (problemId, isPublished) => {
   }
 };
 
-const problemRepository = { getPublishedProblems, getProblemByIdAndPublished };
+const findPublishedProblemById = async (problemId) => {
+  logger.log('Attempting to fetch problem by id and published status.', {
+    problemId: problemId,
+  });
+  try {
+    const query = { problemId, isPublished: true };
+    const fields = {
+      'published.testcases': 1,
+      'published.config': 1,
+      'published.checkerCode': 1,
+      solvedCount: 1,
+      totalSubmissions: 1,
+    };
+    return await this.db.findOne(query, fields);
+  } catch (error) {
+    console.error('Error fetching problem from repository:', error);
+    throw error;
+  }
+};
 
-module.exports = problemRepository;
+module.exports = {
+  getPublishedProblems,
+  getProblemByIdAndPublished,
+  findPublishedProblemById,
+};
