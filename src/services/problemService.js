@@ -1,4 +1,4 @@
-const { getPublishedProblems } = require('../repositories/problemRepository');
+const { getPublishedProblems, getProblemByIdAndPublished } = require('../repositories/problemRepository');
 const { buildLogger } = require('../plugin');
 
 const logger = buildLogger('problemService');
@@ -30,7 +30,7 @@ const getProblemById = async (problemId) => {
     problemId: problemId,
   });
   try {
-    const problem = await problemRepository.getProblemByIdAndPublished(
+    const problem = await getProblemByIdAndPublished(
       problemId,
       true
     );
