@@ -6,7 +6,7 @@ const userAuth = async (req, res, next) => {
   if (!authHeader) {
     return res.status(401).json({
       success: false,
-      message: "Access denied. No token provided.",
+      message: 'Access denied. No token provided.',
     });
   }
 
