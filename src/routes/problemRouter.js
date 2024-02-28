@@ -6,10 +6,10 @@ const submissionController = require('../controllers/submissionController');
 const userControllers = require('../controllers/userController');
 
 router.get('/getProblemsList', problemController.getProblemsList);
-router.get('/admin/getMyProblems', userAuth, problemController.getMyProblemsList);
+router.get('/admin/getMyProblems', userAuth, verifyPermissions('isAllowedToCreateProblem'), problemController.getMyProblemsList);
 
 router.get('/getProblemData', problemController.getProblemData);
-router.get('/admin/getProblemData', userAuth, problemController.getMyProblemData);
+router.get('/admin/getProblemData', userAuth, verifyPermissions('isAllowedToCreateProblem'), problemController.getMyProblemData);
 
 router.post('/admin/create', userAuth, verifyPermissions('isAllowedToCreateProblem'), problemController.createNewProblem);
 router.post('/admin/save', userAuth, verifyPermissions('isAllowedToCreateProblem'), problemController.saveProblem);
