@@ -2,12 +2,12 @@ const validateRegisterInput = require('./validateRegisterInput'); // Asumiendo q
 const validateLoginInput = require('./verifyLogin');
 const verifyPermissions = require('./verifyPermissions');
 const userAuth = require('./userAuth')
-const adminMatchCredentials = require('./adminMatchCredentials')
+const verifyAdminIdMatch = require('./verifyAdminIdMatchMiddleware')
 
 module.exports = {
   validateRegisterInput,
   validateLoginInput,
   verifyPermissions,
   userAuth,
-  adminMatchCredentials
+  verifyAdminIdMatch
 };

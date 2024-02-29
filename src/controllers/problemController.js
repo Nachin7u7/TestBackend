@@ -1,7 +1,7 @@
 const {
   getProblems,
   getProblemById,
-  getMyProblems,
+  getProblemsByAuthor,
   createProblem,
   getProblemWithAuthor,
   saveProblemData,
@@ -56,11 +56,10 @@ const getProblemData = async (req, res) => {
 };
 const getMyProblemsList = async (req, res) => {
   try {
-    const authorId = req.user.id;
+    const { id: authorId } = req.user;
     logger.log(`Fetching problems for user with ID: ${authorId}`);
-
+    const problems = await getProblemsByAuthor(authorId);
     logger.log('Problems fetched successfully');
-    const problems = await getMyProblems(authorId);
     res.json({
       success: true,
       data: problems,
@@ -76,7 +75,7 @@ const getMyProblemsList = async (req, res) => {
 
 const createNewProblem = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const {id: userId} = req.user;
     const { problemName, sampleProblemData } = req.body;
     logger.log(`Creating problem for user with ID: ${userId}`);
     const problem = await createProblem(
@@ -85,7 +84,7 @@ const createNewProblem = async (req, res) => {
       sampleProblemData
     );
     logger.log('Problem created successfully');
-    res.status(HTTP_STATUS.OK).json({
+    res.status(HTTP_STATUS.CREATED).json({
       success: true,
       message: 'Problem created successfully',
       data: problem,
@@ -101,8 +100,7 @@ const createNewProblem = async (req, res) => {
 
 const saveProblem = async (req, res) => {
   try {
-    const authorId = req.user.id;
-
+    const { id: authorId } = req.user;
     const { _id, problem } = req.body;
     logger.log(`Saving problem with ID: ${_id} for user with ID: ${authorId}`);
     await saveProblemData(_id, authorId, problem);
@@ -122,7 +120,7 @@ const saveProblem = async (req, res) => {
 
 const saveAndPublishProblem = async (req, res) => {
   try {
-    const authorId = req.user.id;
+    const { id: authorId } = req.user.id;
 
     const { _id, problem } = req.body; // Asume que estos datos están presentes en la solicitud
     logger.log(`Saving and publishing problem with ID: ${_id} for user with ID: ${authorId}`);
@@ -143,7 +141,7 @@ const saveAndPublishProblem = async (req, res) => {
 
 const getMyProblemData = async (req, res) => {
   try {
-    const authorId = req.user.id;
+    const { id: authorId } = req.user;
     const { problemId } = req.query;
     if(!problemId){
       return res.status(HTTP_STATUS.BAD_REQUEST).json({

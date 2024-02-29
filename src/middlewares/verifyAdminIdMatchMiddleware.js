@@ -1,6 +1,6 @@
 const { HTTP_STATUS } = require('../constants');
-const adminMatchCredentials = async (req, res, next) => {
-    const authorId = req.user.id;
+const verifyAdminIdMatch = async (req, res, next) => {
+    const { id } = req.user;
     const { adminId } = req.query;
     if(!adminId){
         return res.status(HTTP_STATUS.BAD_REQUEST).json({
@@ -8,7 +8,7 @@ const adminMatchCredentials = async (req, res, next) => {
           message: 'Make sure to pass the query parameter adminId',
         });
     }
-    if(adminId !== authorId){
+    if(adminId !== id){
         return res.status(HTTP_STATUS.FORBIDDEN).json({
           success: false,
           message: 'Request rejected, credentials do not match',
@@ -17,4 +17,4 @@ const adminMatchCredentials = async (req, res, next) => {
     next();
 }
 
-module.exports = adminMatchCredentials;
+module.exports = verifyAdminIdMatch;

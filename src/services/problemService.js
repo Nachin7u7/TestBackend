@@ -13,6 +13,10 @@ const { buildLogger } = require('../plugin');
 
 const logger = buildLogger('problemService');
 
+/**
+ * Fetches the list of all published problems.
+ * @returns {Promise<Array>} A promise that resolves to an array of problems with their acceptance rates calculated.
+ */
 const getProblems = async () => {
   logger.log('Attempting to fetch the list of problems.');
   try {
@@ -35,6 +39,11 @@ const getProblems = async () => {
   }
 };
 
+/**
+ * Fetches a specific problem by its ID if it's published.
+ * @param {String} problemId - The ID of the problem to fetch.
+ * @returns {Promise<Object>} A promise that resolves to the problem object.
+ */
 const getProblemById = async (problemId) => {
   logger.log('Attempting to fetch the problem by id.', {
     problemId: problemId,
@@ -54,13 +63,18 @@ const getProblemById = async (problemId) => {
   }
 };
 
-const getMyProblems = async (authorId) => {
+/**
+ * Fetches problems created by a specific author.
+ * @param {String} authorId - The ID of the author whose problems to fetch.
+ * @returns {Promise<Array>} A promise that resolves to an array of problems created by the specified author.
+ */
+const getProblemsByAuthor = async (authorId) => {
   logger.log('Attempting to fetch problems for given author id.', {
     authorId: authorId,
   });
   try {
     const problems = await findProblemsByAuthor(authorId);
-    logger.log('Successfully fetched problems for given author id');
+    logger.log('Successfully fetched problems for given author id', { authorId });    
     return problems;
   } catch (error) {
     logger.error('Error while fetching problems for given author id', {
@@ -71,6 +85,13 @@ const getMyProblems = async (authorId) => {
   }
 };
 
+/**
+ * Attempts to create a new problem checking first if one with the same name exists.
+ * @param {String} userId - The ID of the user creating the problem.
+ * @param {String} problemName - The name of the problem to create.
+ * @param {Object} sampleProblemData - The sample data for the problem.
+ * @returns {Promise<Object>} A promise that resolves to the newly created problem object.
+ */
 const createProblem = async (userId, problemName, sampleProblemData) => {
   logger.log('Attempting to create a new problem.');
   try {
@@ -114,6 +135,12 @@ const createProblem = async (userId, problemName, sampleProblemData) => {
   }
 };
 
+/**
+ * Fetches problem data for a given problem ID and author ID.
+ * @param {String} problemId - The ID of the problem to fetch.
+ * @param {String} authorId - The ID of the author of the problem.
+ * @returns {Promise<Object>} A promise that resolves to the problem data object.
+ */
 const getProblemWithAuthor = async (problemId, authorId) => {
   logger.log(
     'Attempting to fetch problem data for given problem id and author id.',
@@ -138,6 +165,13 @@ const getProblemWithAuthor = async (problemId, authorId) => {
   }
 };
 
+/**
+ * Updates problem data for a given problem ID and author ID with provided update data.
+ * @param {String} problemId - The ID of the problem to update.
+ * @param {String} authorId - The ID of the author of the problem.
+ * @param {Object} updateData - The data to update the problem with.
+ * @returns {Promise<Object>} A promise that resolves to the updated problem object.
+ */
 const saveProblemData = async (problemId, authorId, updateData) => {
   logger.log(
     'Attempting to update problem data for given problem id, author id and updateData.',
@@ -169,6 +203,13 @@ const saveProblemData = async (problemId, authorId, updateData) => {
   }
 };
 
+/**
+ * Saves and publishes problem data for a given problem ID and author ID with provided update data.
+ * @param {String} problemId - The ID of the problem to save and publish.
+ * @param {String} authorId - The ID of the author of the problem.
+ * @param {Object} updateData - The data to save and publish the problem with.
+ * @returns {Promise<Object>} A promise that resolves to the published problem object.
+ */
 const saveAndPublishProblemData = async (problemId, authorId, updateData) => {
   logger.log(
     'Attempting to save and publish problem data for given problem id, author id and updateData.',
@@ -207,7 +248,7 @@ const saveAndPublishProblemData = async (problemId, authorId, updateData) => {
 const problemService = {
   getProblems,
   getProblemById,
-  getMyProblems,
+  getProblemsByAuthor,
   createProblem,
   getProblemWithAuthor,
   saveProblemData,

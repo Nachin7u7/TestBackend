@@ -96,14 +96,15 @@ const logout = (req, res) => {
 };
 
 const checkAuthentication = (req, res) => {
-  if (req.user) {
+  const { user } = req;
+  if (user) {
     logger.log('User is authenticated:', { user: req.user });
     res.status(HTTP_STATUS.OK).json({
       isAuthenticated: true,
-      user: req.user,
+      user: user,
     });
   } else {
-    logger.log('User is not authenticated', { user: req.user });
+    logger.log('User is not authenticated');
     res.status(HTTP_STATUS.OK).json({ isAuthenticated: false });
   }
 };

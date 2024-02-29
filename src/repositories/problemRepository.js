@@ -3,6 +3,12 @@ const Counter = require("../models/counter.model");
 const { buildLogger } = require('../plugin');
 
 const logger = buildLogger('problemRepository');
+
+/**
+ * Fetches problems based on their published status.
+ * @param {Boolean} isPublished - The publication status to filter the problems by.
+ * @returns {Promise<Array>} A promise that resolves to an array of problem documents.
+ */
 const findProblemsByPublished = async (isPublished) => {
   logger.log('Attempting to fetch problems by isPublished status.', {
     isPublished: isPublished,
@@ -32,6 +38,12 @@ const findProblemsByPublished = async (isPublished) => {
   }
 };
 
+/**
+ * Fetches a specific problem by its ID and published status.
+ * @param {String} problemId - The ID of the problem to fetch.
+ * @param {Boolean} isPublished - The published status to match.
+ * @returns {Promise<Object>} A promise that resolves to the problem document.
+ */
 const findProblemByIdAndPublished = async (problemId, isPublished) => {
   logger.log('Attempting to fetch problem by id and published status.', {
     problemId: problemId,
@@ -64,6 +76,11 @@ const findProblemByIdAndPublished = async (problemId, isPublished) => {
   }
 };
 
+/**
+ * Fetches a published problem by its ID.
+ * @param {String} problemId - The ID of the problem to fetch.
+ * @returns {Promise<Object>} A promise that resolves to the problem document if found.
+ */
 const findPublishedProblemById = async (problemId) => {
   logger.log('Attempting to fetch problem by id and published status.', {
     problemId: problemId,
@@ -84,7 +101,11 @@ const findPublishedProblemById = async (problemId) => {
   }
 };
 
-
+/**
+ * Finds problems created by a specific author.
+ * @param {String} authorId - The ID of the author whose problems are being sought.
+ * @returns {Promise<Array>} A promise that resolves to an array of problems created by the author.
+ */
 const findProblemsByAuthor = async (authorId) => {
   logger.log('Attempting to find problems by author.');
   try {
@@ -97,6 +118,11 @@ const findProblemsByAuthor = async (authorId) => {
   }
 };
 
+/**
+ * Creates a new problem in the database.
+ * @param {Object} problemData - The data for the new problem.
+ * @returns {Promise<Object>} The saved problem document.
+ */
 const createNewProblem = async (problemData) => {
   logger.log('Attempting to create a new problem.');
   try {
@@ -110,6 +136,12 @@ const createNewProblem = async (problemData) => {
   }
 };
 
+/**
+ * Finds a problem by its ID and author.
+ * @param {String} problemId - The ID of the problem.
+ * @param {String} authorId - The ID of the author.
+ * @returns {Promise<Object>} A promise that resolves to the problem document if found.
+ */
 const findProblemByIdAndAuthor = async (problemId, authorId) => {
   logger.log('Attempting to find problem by id and author.', { problemId, authorId });
   try {
@@ -122,6 +154,12 @@ const findProblemByIdAndAuthor = async (problemId, authorId) => {
   }
 };
 
+/**
+ * Updates a problem document with new data.
+ * @param {String} problemId - The ID of the problem to update.
+ * @param {Object} updateData - The data to update the problem with.
+ * @returns {Promise<Object>} A promise that resolves to the updated problem document.
+ */
 const updateProblem = async (problemId, updateData) => {
   logger.log('Attempting to update problem.', { problemId: problemId });
   try {
@@ -134,6 +172,11 @@ const updateProblem = async (problemId, updateData) => {
   }
 };
 
+/**
+ * Attempts to find a problem by its name.
+ * @param {String} problemName - The name of the problem to find.
+ * @returns {Promise<Object>} A promise that resolves to the problem document if found.
+ */
 const findProblemByName = async (problemName) => {
   logger.log('Attempting to find problem by name.', { problemName: problemName });
   try {
@@ -146,6 +189,10 @@ const findProblemByName = async (problemName) => {
   }
 };
 
+/**
+ * Increments the problem ID counter in the database.
+ * @returns {Promise<Number>} A promise that resolves to the updated sequence number.
+ */
 const incrementProblemIdCounter = async () => {
   logger.log('Attempting to increment problem id counter.');
   try {
@@ -162,6 +209,12 @@ const incrementProblemIdCounter = async () => {
   }
 };
 
+/**
+ * Publishes a problem by updating its document with publication data.
+ * @param {String} problemId - The ID of the problem to publish.
+ * @param {Object} updateData - The publication data to update the problem with.
+ * @returns {Promise<Object>} A promise that resolves to the published problem document.
+ */
 const publishProblem = async (problemId, updateData) => {
   logger.log('Attempting to publish problem.', { problemId });
   try {
