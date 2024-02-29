@@ -96,7 +96,7 @@ const logout = (req, res) => {
 };
 
 const checkAuthentication = (req, res) => {
-  if (req.isAuthenticated()) {
+  if (req.user) {
     logger.log('User is authenticated:', { user: req.user });
     res.status(HTTP_STATUS.OK).json({
       isAuthenticated: true,

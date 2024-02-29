@@ -144,11 +144,17 @@ const saveAndPublishProblem = async (req, res) => {
 const getMyProblemData = async (req, res) => {
   try {
     const authorId = req.user.id;
-    const { _id } = req.query;
-    logger.log(`Fetching data for problem with ID: ${_id} for user with ID: ${authorId}`);
-    const problem = await getProblemWithAuthor(_id, authorId);
+    const { problemId } = req.query;
+    if(!problemId){
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        message: 'Make sure to pass the query parameter problemId',
+      });
+    }
+    logger.log(`Fetching data for problem with ID: ${problemId} for user with ID: ${authorId}`);
+    const problem = await getProblemWithAuthor(problemId, authorId);
     if (!problem) {
-      logger.log(`Problem not found with ID: ${_id}`);
+      logger.log(`Problem not found with ID: ${problemId}`);
       return res.status(HTTP_STATUS.NOT_FOUND).json({
         success: false,
         message: 'Problem not found',

@@ -16,14 +16,12 @@ const userAuth = async (req, res, next) => {
     const decoded = await jwtUtils.verifyToken(token);
     req.user = decoded;
     next();
-  } catch (ex) {
+  } catch (err) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: 'Invalid token.',
     });
   }
 };
-
-const jwt = require('jsonwebtoken');
 
 module.exports = userAuth;

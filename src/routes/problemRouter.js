@@ -4,16 +4,17 @@ const verifyPermissions = require("../middlewares/verifyPermissions");
 const problemController = require('../controllers/problemController');
 const submissionController = require('../controllers/submissionController');
 const userControllers = require('../controllers/userController');
+const { adminMatchCredentials } = require('../middlewares');
 
 router.get('/getProblemsList', problemController.getProblemsList);
-router.get('/admin/getMyProblems', userAuth, verifyPermissions('isAllowedToCreateProblem'), problemController.getMyProblemsList);
+router.get('/getMyProblems', userAuth, verifyPermissions('isAllowedToCreateProblem'), problemController.getMyProblemsList);
 
 router.get('/getProblemData', problemController.getProblemData);
-router.get('/admin/getProblemData', userAuth, verifyPermissions('isAllowedToCreateProblem'), problemController.getMyProblemData);
+router.get('/getAdminProblemData', userAuth, adminMatchCredentials, verifyPermissions('isAllowedToCreateProblem'), problemController.getMyProblemData);
 
-router.post('/admin/create', userAuth, verifyPermissions('isAllowedToCreateProblem'), problemController.createNewProblem);
-router.post('/admin/save', userAuth, verifyPermissions('isAllowedToCreateProblem'), problemController.saveProblem);
-router.post('/admin/saveandpublish', userAuth, verifyPermissions('isAllowedToCreateProblem'), problemController.saveAndPublishProblem);
+router.post('/create', userAuth, verifyPermissions('isAllowedToCreateProblem'), problemController.createNewProblem);
+router.post('/save', userAuth, verifyPermissions('isAllowedToCreateProblem'), problemController.saveProblem);
+router.post('/saveandpublish', userAuth, verifyPermissions('isAllowedToCreateProblem'), problemController.saveAndPublishProblem);
 
 router.post('/compileAndRun', userAuth, submissionController.compileAndRun);
 
