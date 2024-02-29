@@ -1,10 +1,15 @@
 const { buildLogger } = require('../plugin');
 const { successHandler } = require('../handlers');
+const { verifyRefreshToken } = require('../services/authService');
+const { HTTP_STATUS } = require('../constants');
+
 const logger = buildLogger('authController');
 
 const refreshToken = async (req, res) => {
   try {
     logger.log('Refresh Token');
+    const { token } = req.body;
+    const tokenService = await verifyRefreshToken(token);
     return successHandler.sendOkResponse(res, { token: 'true' });
   } catch (err) {
     logger.error(`Error getting new Token: ${err}`);
