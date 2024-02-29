@@ -1,11 +1,15 @@
 const { jwtUtils } = require('../utils');
+const { buildLogger } = require('../plugin');
 
+const logger = buildLogger('authService');
 const verifyRefreshToken = async (refreshToken) => {
   try {
     const decoded = await jwtUtils.verifyToken(refreshToken);
-    console.log(decoded);
+    logger.log('Token verification successful', { decoded });
+    return decoded;
   } catch (error) {
-    throw new Error('Error Refresh Token');
+    logger.error('Error verifying refresh token', { error: error.message });
+    throw new Error('Error verifying refresh token');
   }
 };
 
