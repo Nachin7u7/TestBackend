@@ -9,8 +9,8 @@ const refreshToken = async (req, res) => {
   try {
     logger.log('Refresh Token');
     const { token } = req.body;
-    const tokenService = await verifyRefreshToken(token);
-    return successHandler.sendOkResponse(res, { token: 'true' });
+    const tokenResponse = await verifyRefreshToken(token);
+    return successHandler.sendOkResponse(res, tokenResponse);
   } catch (err) {
     logger.error(`Error getting new Token: ${err}`);
     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
