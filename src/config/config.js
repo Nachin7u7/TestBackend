@@ -60,6 +60,7 @@ const config = {
   jwt: {
     tokenSecret: process.env.TOKEN_SECRET,
     tokenExpireIn: process.env.TOKEN_EXPIRES_IN,
+    tokenRefreshExpireIn: process.env.TOKEN_REFRESH_EXPIRES_IN,
   },
   allowedOrigins: [process.env.CLIENT_URL]
 };
