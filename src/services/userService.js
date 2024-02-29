@@ -36,7 +36,7 @@ const registerUser = async (userData) => {
       email,
       userId: user.id,
     });
-    
+
     return user;
   } catch (error) {
     console.log(error);
@@ -135,11 +135,39 @@ const getUsersSortedBySolvedProblems = async () => {
   }
 };
 
+const authenticateUser = async (username, password) => {
+  const user = await userRepository.findUserByUsernameOrEmail(
+    username,
+    username
+  );
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const isMatch = await encrypt.comparePasswords(password, user.password);
+  if (!isMatch) {
+    throw new Error('Invalid credentials');
+  }
+
+  const accessToken = jwtUtils.generateAccessToken(user);
+  const refreshToken = jwtUtils.generateRefreshToken(user);
+
+  return {
+    userCreds: {
+      id: user._id,
+      token: accessToken,
+      refreshToken: refreshToken,
+    },
+  };
+};
+
 const userService = {
   getUsersSortedBySolvedProblems,
   registerUser,
   verifyEmail,
   registerAdminUser,
+  authenticateUser,
 };
 
 module.exports = userService;
