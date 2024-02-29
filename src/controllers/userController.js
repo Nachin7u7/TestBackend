@@ -31,11 +31,12 @@ const register = async (req, res) => {
     logger.log('User registered successfully');
     res.status(HTTP_STATUS.CREATED).json({
       message: 'Your account has been created successfully.',
-
     });
   } catch (error) {
     logger.error('Error registering user:', error);
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message: error.message });
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
   }
 };
 
@@ -75,11 +76,13 @@ const login = (req, res) => {
   const { user } = req;
   logger.log('User logged in successfully:', { user: user });
   const token = jwtUtils.generateToken(user);
+  const refreshToken = jwtUtils.generateRefreshToken(user);
   res.status(HTTP_STATUS.OK).json({
     message: 'Logged in successfully',
     userCreds: {
       id: user._id,
-      token: token
+      token,
+      refreshToken,
     },
   });
 };
