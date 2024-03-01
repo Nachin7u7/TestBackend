@@ -2,6 +2,7 @@ const userService = require('../services/userService');
 const { HTTP_STATUS } = require('../constants');
 const { buildLogger } = require('../plugin');
 const { jwtUtils } = require('../utils');
+const {successHandler} = require('../handlers')
 
 const logger = buildLogger('userController');
 
@@ -72,19 +73,17 @@ const verifyEmail = async (req, res) => {
   }
 };
 
-const login = (req, res) => {
-  const { user } = req;
-  logger.log('User logged in successfully:', { user: user });
-  const token = jwtUtils.generateToken(user);
-  const refreshToken = jwtUtils.generateRefreshToken(user);
-  res.status(HTTP_STATUS.OK).json({
-    message: 'Logged in successfully',
-    userCreds: {
-      id: user._id,
-      token,
-      refreshToken,
-    },
-  });
+
+const login = async  (req, res) => {
+  try {
+    const { username, password } = req.body;
+    logger.log('Loggin User:', { user: username });
+    const loginResponseData =  await userService.authenticateUser(username, password);
+
+    successHandler.sendOkResponse(res, loginResponseData);
+  } catch  (error) {
+    res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: error.message });
+  }
 };
 
 const logout = (req, res) => {

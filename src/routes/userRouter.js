@@ -28,7 +28,6 @@ router.get('/verify/:token', userController.verifyEmail);
 router.post(
   '/login',
   validateLoginInput,
-  passport.authenticate('local', { session: false }),
   userController.login
 );
 
