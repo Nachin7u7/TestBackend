@@ -7,7 +7,4 @@ router.use('/users', userRouter);
 router.use('/problem', problemRouter);
 router.use('/auth', authRouter);
 
-const problemCreationRouter = require('../routes/problemCreationRouter');
-router.use('/problemCreation', problemCreationRouter);
-
 module.exports = router;

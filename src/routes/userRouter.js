@@ -33,6 +33,6 @@ router.post(
 );
 
 router.get('/logout', userController.logout);
-router.get('/isLoggedIn', userController.checkAuthentication);
+router.get('/isLoggedIn', userAuth, userController.checkAuthentication);
 
 module.exports = router;
