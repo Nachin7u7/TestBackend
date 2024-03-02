@@ -74,7 +74,9 @@ const getProblemsByAuthor = async (authorId) => {
   });
   try {
     const problems = await findProblemsByAuthor(authorId);
-    logger.log('Successfully fetched problems for given author id', { authorId });    
+    logger.log('Successfully fetched problems for given author id', {
+      authorId,
+    });
     return problems;
   } catch (error) {
     logger.error('Error while fetching problems for given author id', {
@@ -93,24 +95,20 @@ const getProblemsByAuthor = async (authorId) => {
  * @returns {Promise<Object>} A promise that resolves to the newly created problem object.
  */
 const createProblem = async (userId, problemName, sampleProblemData) => {
-  logger.log('Attempting to create a new problem.');
+  logger.log('Attempting to create a new problem for user:', userId);
   try {
-    // Verificar si el problema con el mismo nombre ya existe
     const existingProblem = await findProblemByName(problemName);
+
     if (existingProblem) {
       logger.error(
-        'Creation attempt failed: A problem with the same name already exists.',
-        {
-          problemName: problemName,
-        }
+        'Creation attempt failed: Problem with the same name already exists.',
+        { problemName }
       );
       throw new Error('A problem with the same name already exists.');
     }
 
-    // Incrementar el contador de ID de problema
     const problemId = await incrementProblemIdCounter();
 
-    // Crear el problema
     const problemData = {
       author: userId,
       problemId: problemId,
@@ -123,15 +121,18 @@ const createProblem = async (userId, problemName, sampleProblemData) => {
     logger.log('Successfully created a new problem.', {
       problemId: problemId,
     });
-
-    return await createNewProblem(problemData);
+    const newProblem = await createNewProblem(problemData);
+    logger.log('Successfully created a new problem.', {
+      problemId: newProblem.problemId,
+    });
+    return newProblem;
   } catch (error) {
     logger.error('Error while creating a new problem.', {
       error: error.message,
       problemName: problemName,
       authorId: userId,
     });
-    throw error; // Propagar el error para manejo específico en el controlador
+    throw error;
   }
 };
 
