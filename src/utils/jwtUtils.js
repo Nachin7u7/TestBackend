@@ -25,7 +25,7 @@ const generateRefreshToken = (user) => {
   return jwt.sign(
     { id: user._id, email: user.email, username: user.username, type: user.userType },
     config.jwt.tokenSecret,
-    { expiresIn: config.jwt.tokenRefreshExpireIn }
+    { expiresIn: config.jwt.refreshTokenExpireIn }
   );
 };
 

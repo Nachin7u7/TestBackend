@@ -58,10 +58,10 @@ const config = {
     tokenSecret: process.env.TOKEN_SECRET,
   },
   jwt: {
-    tokenSecret: process.env.TOKEN_SECRET,
-    tokenExpireIn: process.env.TOKEN_EXPIRES_IN,
-    accessTokenExpireIn: process.env.ACCESS_TOKEN_EXPIRES_IN,
-    refreshTokenExpireIn: process.env.REFRESH_TOKEN_EXPIRES_IN
+    tokenSecret: process.env.TOKEN_SECRET ,
+    tokenExpireIn: process.env.TOKEN_EXPIRES_IN || '1h',
+    accessTokenExpireIn: process.env.ACCESS_TOKEN_EXPIRES_IN || '1h',
+    refreshTokenExpireIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '30h'
   },
   allowedOrigins: [process.env.CLIENT_URL]
 };
