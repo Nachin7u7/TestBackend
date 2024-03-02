@@ -82,7 +82,11 @@ const login = async (req, res) => {
       password
     );
 
-    successHandler.sendOkResponse(res, { ...loginResponseData });
+    successHandler.sendOkResponse(
+      res,
+      { ...loginResponseData },
+      'Logged in successfully'
+    );
   } catch (error) {
     res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: error.message });
   }

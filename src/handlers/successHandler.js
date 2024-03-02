@@ -1,9 +1,10 @@
 const { HTTP_STATUS } = require('../constants');
 
-const sendOkResponse = (res, data, statusCode = HTTP_STATUS.OK) => {
+const sendOkResponse = (res, data, message, statusCode = HTTP_STATUS.OK) => {
   res.status(statusCode).json({
     success: true,
     result: data,
+    message,
   });
 };
 
