@@ -94,14 +94,8 @@ const login = async (req, res) => {
 };
 
 const logout = (req, res) => {
-  req.logout(function (err) {
-    if (err) {
-      logger.error('Error logging out:', err);
-      return next(err);
-    }
-    logger.log('User logged out successfully');
-    res.status(HTTP_STATUS.OK).json({ message: 'Successfully logged out.' });
-  });
+  logger.log('User logged out successfully');
+  res.status(HTTP_STATUS.OK).json({ message: 'Successfully logged out.' });
 };
 
 const checkAuthentication = (req, res) => {
