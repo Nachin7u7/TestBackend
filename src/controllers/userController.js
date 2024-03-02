@@ -76,7 +76,7 @@ const verifyEmail = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { username, password } = req.body;
-    logger.log('Loggin User:', { user: username });
+    logger.log('Attempting to log in user:', { user: username });
     const loginResponseData = await userService.authenticateUser(
       username,
       password
@@ -84,10 +84,11 @@ const login = async (req, res) => {
 
     successHandler.sendOkResponse(
       res,
-      { ...loginResponseData },
+      loginResponseData,
       'Logged in successfully'
     );
   } catch (error) {
+    logger.error('Login error', { error: error.message });
     res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: error.message });
   }
 };
