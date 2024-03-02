@@ -154,11 +154,13 @@ const authenticateUser = async (username, password) => {
   const refreshToken = jwtUtils.generateRefreshToken(user);
 
   return {
-    userCreds: {
-      id: user._id,
-      token: accessToken,
-      refreshToken: refreshToken,
-    },
+    id: user._id,
+    token: accessToken,
+    refreshToken: refreshToken,
+    username: user.username,
+    email: user.email,
+    userType: user.userType,
+    avatarUrl: user.avatarUrl,
   };
 };
 

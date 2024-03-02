@@ -2,7 +2,7 @@ const userService = require('../services/userService');
 const { HTTP_STATUS } = require('../constants');
 const { buildLogger } = require('../plugin');
 const { jwtUtils } = require('../utils');
-const {successHandler} = require('../handlers')
+const { successHandler } = require('../handlers');
 
 const logger = buildLogger('userController');
 
@@ -73,15 +73,17 @@ const verifyEmail = async (req, res) => {
   }
 };
 
-
-const login = async  (req, res) => {
+const login = async (req, res) => {
   try {
     const { username, password } = req.body;
     logger.log('Loggin User:', { user: username });
-    const loginResponseData =  await userService.authenticateUser(username, password);
+    const loginResponseData = await userService.authenticateUser(
+      username,
+      password
+    );
 
-    successHandler.sendOkResponse(res, loginResponseData);
-  } catch  (error) {
+    successHandler.sendOkResponse(res, { ...loginResponseData });
+  } catch (error) {
     res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: error.message });
   }
 };
