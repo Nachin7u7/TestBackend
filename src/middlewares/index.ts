@@ -4,6 +4,7 @@ import verifyPermissions from './verifyPermissions';
 import userAuth from './userAuth';
 import verifyAdminIdMatch from './verifyAdminIdMatchMiddleware';
 import { validateRefreshToken } from './authValidation';
+import validateForgotPasswordInput from './validateForgotPasswordInput';
 
 export {
   validateRegisterInput,
@@ -12,4 +13,5 @@ export {
   userAuth,
   verifyAdminIdMatch,
   validateRefreshToken,
+  validateForgotPasswordInput,
 };
