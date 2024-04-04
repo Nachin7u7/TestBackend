@@ -5,9 +5,12 @@ import { config } from '../config';
 import { sendEmail, buildLogger } from '../plugin';
 
 const sourceHtmlPath: string = path.join(__dirname, "../templates/emailTemplates/confirmEmail.html");
+const sourceForgotHtmlPath: string = path.join(__dirname, "../templates/emailTemplates/forgotPasswordEmail.html");
 const sourceHtml: string = readFileSync(sourceHtmlPath, "utf-8").toString();
+const sourceForgotHtml: string = readFileSync(sourceForgotHtmlPath, "utf-8").toString();
 
 const verifyEmailTemplate = handlebars.compile(sourceHtml);
+const forgotPasswordTemplate = handlebars.compile(sourceForgotHtml);
 const { client } = config;
 
 const logger = buildLogger('emailService');
@@ -56,7 +59,7 @@ const sendForgotPassword = async (email: string, token: string): Promise<void> =
       username: email,
       resetUrl: `${client.url}/reset-password/${token}`,
     };
-    const htmlToSend: string = verifyEmailTemplate(replacements);
+    const htmlToSend: string = forgotPasswordTemplate(replacements);
     await sendEmail({
       to: email,
       subject: 'Restablecer contraseña',
