@@ -10,6 +10,7 @@ const {
   checkTokenToMail,
   authenticateUser,
   sendForgotPasswordEmail,
+  resetUserPassword,
 } = services;
 
 const logger = buildLogger('userController');
@@ -136,6 +137,22 @@ const forgotPassword = async (req: any, res: any) => {
   }
 };
 
+const resetPassword = async (req: any, res: any) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+    logger.log('Resetting password for token:', token);
+    await resetUserPassword(token, password);
+    logger.log('Password reset successfully');
+    successHandler.sendOkResponse(res, null, 'Password reset successfully');
+  } catch (error: any) {
+    logger.error('Error resetting password:', error);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      message: 'Failed to reset password. Please try again.',
+    });
+  }
+};
+
 export {
   globalLeaderboard,
   register,
@@ -145,4 +162,5 @@ export {
   logout,
   checkAuthentication,
   forgotPassword,
+  resetPassword,
 };
