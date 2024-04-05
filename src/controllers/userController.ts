@@ -123,15 +123,11 @@ const forgotPassword = async (req: any, res: any) => {
     logger.log('Forgot password request for email:', email);
     await sendForgotPasswordEmail(email);
     logger.log('Forgot password email sent successfully');
-    res
-      .status(HTTP_STATUS.OK)
-      .json(
-        successHandler.sendOkResponse(
-          res,
-          null,
-          'Forgot password email sent successfully'
-        )
-      );
+    successHandler.sendOkResponse(
+      res,
+      null,
+      'Forgot password email sent successfully'
+    );
   } catch (error: any) {
     logger.error('Error sending forgot password email:', error);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
