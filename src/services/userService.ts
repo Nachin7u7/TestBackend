@@ -67,7 +67,10 @@ const registerAdminUser = async (userData: any): Promise<any> => {
   try {
     const existingUser: any = await findUserByEmail(email);
     if (existingUser) {
-      logger.error('Registration attempt failed: Admin User with the given email already exists.', { email });
+      logger.error(
+        'Registration attempt failed: Admin User with the given email already exists.',
+        { email }
+      );
       throw new Error('Admin User with the given email already exists.');
     }
 
@@ -83,10 +86,17 @@ const registerAdminUser = async (userData: any): Promise<any> => {
     const token: string = generateToken(user);
     await sendVerificationEmail(email, token);
 
-    logger.log('Admin User registered and verification email sent successfully', { email, userId: user.id });
+    logger.log(
+      'Admin User registered and verification email sent successfully',
+      { email, userId: user.id }
+    );
     return user;
   } catch (error: any) {
-    logger.error('Registration attempt failed due to an error.', { error: error.message, email, username });
+    logger.error('Registration attempt failed due to an error.', {
+      error: error.message,
+      email,
+      username,
+    });
     throw new Error('Registration attempt failed');
   }
 };
@@ -96,14 +106,21 @@ const checkTokenToMail = async (token: string): Promise<any> => {
     const decoded: any = await verifyToken(token);
     logger.log('Token verification successful', { email: decoded.email });
     const updateResult: any = await updateUserConfirmation(decoded.email, true);
-    logger.log('User email verification status updated successfully', { email: decoded.email });
+    logger.log('User email verification status updated successfully', {
+      email: decoded.email,
+    });
     return updateResult;
   } catch (error: any) {
     if (error instanceof jwt.TokenExpiredError) {
       logger.error('Email verification failed - Token expired', { token });
-      throw new Error('Verification link expired. Please request a new verification email.');
+      throw new Error(
+        'Verification link expired. Please request a new verification email.'
+      );
     } else {
-      logger.error('Email verification failed', { error: error.message, token });
+      logger.error('Email verification failed', {
+        error: error.message,
+        token,
+      });
       throw new Error('Verification failed. Invalid or expired token.');
     }
   }
@@ -115,12 +132,19 @@ const getUsersSortedBySolvedProblems = async (): Promise<any> => {
     logger.log('Successfully retrieved users sorted by solved problems.');
     return leaderboard;
   } catch (err: any) {
-    logger.error('Failed to retrieve users sorted by solved problems:', { error: err.message });
-    throw new Error('Failed to retrieve the leaderboard. Please try again later.');
+    logger.error('Failed to retrieve users sorted by solved problems:', {
+      error: err.message,
+    });
+    throw new Error(
+      'Failed to retrieve the leaderboard. Please try again later.'
+    );
   }
 };
 
-const authenticateUser = async (username: string, password: string): Promise<any> => {
+const authenticateUser = async (
+  username: string,
+  password: string
+): Promise<any> => {
   const user: any = await findUserByUsernameOrEmail(username, username);
   if (!user) {
     throw new Error('User not found');
@@ -155,6 +179,27 @@ const sendForgotPasswordEmail = async (email: string): Promise<any> => {
   await sendForgotPassword(email, token);
 };
 
+const resetUserPassword = async (
+  token: string,
+  password: string
+): Promise<any> => {
+  try {
+    const decoded: any = await verifyToken(token);
+    const hashedPassword: string = await hashPassword(password);
+    const user: any = await findUserByEmail(decoded.email);
+    user.password = hashedPassword;
+    await user.save();
+  } catch (error: any) {
+    if (error instanceof jwt.TokenExpiredError) {
+      throw new Error(
+        'Password reset link expired. Please request a new password reset email.'
+      );
+    } else {
+      throw new Error('Password reset failed. Invalid or expired token.');
+    }
+  }
+};
+
 export {
   getUsersSortedBySolvedProblems,
   registerUser,
@@ -162,4 +207,5 @@ export {
   registerAdminUser,
   authenticateUser,
   sendForgotPasswordEmail,
+  resetUserPassword,
 };
