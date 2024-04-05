@@ -1,5 +1,5 @@
 import { repositories } from '../repositories';
-import { sendVerificationEmail } from './emailService';
+import { sendVerificationEmail, sendForgotPassword } from './emailService';
 import { utils } from '../utils';
 import { buildLogger } from '../plugin';
 import { ROLES } from '../constants';
@@ -145,10 +145,21 @@ const authenticateUser = async (username: string, password: string): Promise<any
   };
 };
 
+const sendForgotPasswordEmail = async (email: string): Promise<any> => {
+  const user: any = await findUserByEmail(email);
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const token: string = generateToken(user);
+  await sendForgotPassword(email, token);
+};
+
 export {
   getUsersSortedBySolvedProblems,
   registerUser,
   checkTokenToMail,
   registerAdminUser,
   authenticateUser,
+  sendForgotPasswordEmail,
 };

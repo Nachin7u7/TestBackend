@@ -3,7 +3,14 @@ import { HTTP_STATUS } from '../constants';
 import { buildLogger } from '../plugin';
 import * as successHandler from '../handlers/successHandler'; // Adjust based on your actual file structure
 
-const {getUsersSortedBySolvedProblems, registerUser, registerAdminUser, checkTokenToMail, authenticateUser} = services;
+const {
+  getUsersSortedBySolvedProblems,
+  registerUser,
+  registerAdminUser,
+  checkTokenToMail,
+  authenticateUser,
+  sendForgotPasswordEmail,
+} = services;
 
 const logger = buildLogger('userController');
 
@@ -78,10 +85,7 @@ const login = async (req: any, res: any): Promise<any> => {
   try {
     const { username, password } = req.body;
     logger.log('Attempting to log in user:', { user: username });
-    const loginResponseData = await authenticateUser(
-      username,
-      password
-    );
+    const loginResponseData = await authenticateUser(username, password);
 
     successHandler.sendOkResponse(
       res,
@@ -113,6 +117,25 @@ const checkAuthentication = (req: any, res: any) => {
   }
 };
 
+const forgotPassword = async (req: any, res: any) => {
+  try {
+    const { email } = req.body;
+    logger.log('Forgot password request for email:', email);
+    await sendForgotPasswordEmail(email);
+    logger.log('Forgot password email sent successfully');
+    successHandler.sendOkResponse(
+      res,
+      null,
+      'Forgot password email sent successfully'
+    );
+  } catch (error: any) {
+    logger.error('Error sending forgot password email:', error);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      message: 'Failed to send email. Please try again.',
+    });
+  }
+};
+
 export {
   globalLeaderboard,
   register,
@@ -121,4 +144,5 @@ export {
   login,
   logout,
   checkAuthentication,
+  forgotPassword,
 };

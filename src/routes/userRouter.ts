@@ -5,6 +5,7 @@ import { userController } from '../controllers';
 import {
   validateRegisterInput,
   validateLoginInput,
+  validateForgotPasswordInput,
   verifyPermissions,
   userAuth,
 } from '../middlewares';
@@ -27,5 +28,6 @@ userRouter.post('/login', validateLoginInput, userController.login);
 
 userRouter.get('/logout', userController.logout);
 userRouter.get('/isLoggedIn', userAuth, userController.checkAuthentication);
+userRouter.post('/forgot-password', validateForgotPasswordInput, userController.forgotPassword);
 
 export default userRouter;
