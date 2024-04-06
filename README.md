@@ -27,29 +27,49 @@ These instructions will get you a copy of the project up and running on your loc
    git clone https://github.com/yourusername/Judge-core.git
    ```
 2. Navigate to the project directory:
-  ```
-    cd Judge-core
-  ```
+
+```
+  cd Judge-core
+```
+
 3. Install NPM packages:
-  ```
-    npm install
-  ```
+
+```
+  npm install
+```
+
 4. Copy the .env.example file to .env and adjust the environment variables to fit your setup:
-  ```
-    cp .env.example .env
-  ```
+
+```
+  cp .env.example .env
+```
+
 5. Start the server:
    ```
    npm start
    ```
+
 ### Running the Tests
-  To run the automated tests for this system:
-  ```
-  npm test
-  ```
+
+To run the automated tests for this system:
+
+```
+npm test
+```
+
 ### Built With
-  Node.js - The runtime environment
-  Express - The web framework
-  MongoDB - The database
-### Authors
-  Paul Landaeta - Plandaeta
+
+Node.js - The runtime environment
+Express - The web framework
+MongoDB - The database
+
+## Contributors
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
