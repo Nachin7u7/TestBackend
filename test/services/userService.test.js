@@ -61,4 +61,5 @@ describe('authenticateUser', () => {
       avatarUrl: mockUser.avatarUrl,
     });
   });
+
 });
