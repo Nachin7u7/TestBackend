@@ -1,13 +1,11 @@
-import { Document } from 'mongoose';
-
-export interface IUserModel extends Document {
+export interface IUserModel  {
     email: string;
     username: string;
-    password?: string;
-    isConfirmed: boolean;
-    userType: string;
-    avatarUrl: string;
-    stats: {
+    password: string;
+    isConfirmed?: boolean;
+    userType?: string;
+    avatarUrl?: string;
+    stats?: {
         solved: number[];
         unsolved: number[];
         solvedCount: number;

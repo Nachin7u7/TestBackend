@@ -2,10 +2,10 @@ import { Application } from 'express';
 import passport from 'passport';
 import { IVerifyOptions, Strategy as LocalStrategy } from 'passport-local';
 import { utils } from '../utils';
-import { repositories } from '../repositories';
+import { UserRepositoryImpl } from '../repositories/implements/userRepositoryImpl';
 
-const { findUserByUsernameOrEmail } = repositories;
 const { comparePasswords } = utils;
+const userRepository = new UserRepositoryImpl()
 
 const configurePassport = (app: Application): void => {
   app.use(passport.initialize());
@@ -21,7 +21,7 @@ const configurePassport = (app: Application): void => {
           options?: IVerifyOptions
         ) => void
       ) => {
-        const user = await findUserByUsernameOrEmail(username, username);
+        const user = await userRepository.findUserByUsernameOrEmail(username, username);
 
         if (!user) {
           return done(null, false, { message: 'Incorrect username.' });
