@@ -1,20 +1,8 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
+import { UserModel } from '../../models/UserModel';
 
-interface IUserModel extends Document {
-  email: string;
-  username: string;
-  password?: string;
-  isConfirmed: boolean;
-  userType: string;
-  avatarUrl: string;
-  stats: {
-    solved: number[];
-    unsolved: number[];
-    solvedCount: number;
-  };
-}
 
-const userSchema: Schema<IUserModel> = new mongoose.Schema({
+const userSchema: Schema<UserModel> = new mongoose.Schema({
   email: {
     type: String,
     required: true,
@@ -52,7 +40,6 @@ const userSchema: Schema<IUserModel> = new mongoose.Schema({
   timestamps: true,
 });
 
-// Creación del modelo.
-const User = mongoose.model<IUserModel>('User', userSchema);
+const User = mongoose.model<UserModel>('User', userSchema);
 
 export default User;
