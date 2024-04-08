@@ -1,18 +1,5 @@
-import mongoose, { Document, Schema } from 'mongoose';
-
-interface IUserModel extends Document {
-  email: string;
-  username: string;
-  password?: string;
-  isConfirmed: boolean;
-  userType: string;
-  avatarUrl: string;
-  stats: {
-    solved: number[];
-    unsolved: number[];
-    solvedCount: number;
-  };
-}
+import mongoose, { Schema } from 'mongoose';
+import { IUserModel } from '../entities/IUserEntity';
 
 const userSchema: Schema<IUserModel> = new mongoose.Schema({
   email: {
