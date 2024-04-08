@@ -11,7 +11,7 @@ jobs:
       
       - name: Set branch name
         id: branch-name
-        run: echo "BRANCH_NAME=$(echo ${{ github.head_ref }} | sed 's/refs\/heads\///')" >> $GITHUB_ENV
+        run: echo "BRANCH_NAME=$(echo ${{ github.head_ref }} | sed 's/refs/heads///')" >> $GITHUB_ENV
         
       - name: Discord Webhook Action for PR
         uses: tsickert/discord-webhook@v5.3.0
