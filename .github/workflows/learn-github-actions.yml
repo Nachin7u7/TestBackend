@@ -1,13 +1,39 @@
-name: learn-github-actions
-run-name: ${{ github.actor }} is learning GitHub Actions
-on: [push]
+name: Pull-Request-Notification
+on: [pull_request]
 jobs:
-  check-bats-version:
+  notify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set branch name
+        id: branch-name
+        run: echo "BRANCH_NAME=$(echo ${{ github.head_ref }} | sed 's/refs\/heads\///')" >> $GITHUB_ENV   
+
+      - name: Discord Webhook Action for PR
+        uses: tsickert/discord-webhook@v5.3.0
         with:
-          node-version: '20'
-      - run: npm install -g bats
-      - run: bats -v
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
+          embed-title: "🚀 Nuevo Pull Request 🚀"
+          embed-color: "16711680"
+          embed-description: |            
+            👤 Usuario: ${{ github.event.pull_request.user.login }}
+    
+            📜 Repositorio: ${{ github.event.repository.name }}
+
+            📝 PR ID: #${{ github.event.pull_request.number }}
+
+            📢 Título del PR: ${{ github.event.pull_request.title }}
+
+            🔗 URL del PR: ${{ github.event.pull_request.html_url }}
+
+            🔀 Branch origin: ${{ env.BRANCH_NAME }}
+
+            🔍 Cambios: [Ver Cambios](${{ github.event.pull_request._links.html.href }})
+
+          embed-author-name: "${{ github.event.pull_request.user.login }}"
+          embed-author-url: "${{ github.event.pull_request.user.html_url }}"
+          embed-author-icon-url: "${{ github.event.pull_request.user.avatar_url }}"
+          embed-title: "☁️ Para revisar"                                                                                                                                                                                                                                                   
+          embed-description: "Por favor, revisen el pull request y dejen sus comentarios. ¡Toda retroalimentación es bienvenida para asegurarse la calidad del código!"
