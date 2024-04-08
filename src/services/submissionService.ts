@@ -2,16 +2,18 @@ import { repositories } from '../repositories';
 import { compileAndRun } from './jdoodleService';
 import { buildLogger } from '../plugin';
 import { LANGUAGE_CONFIG, VERDICTS } from '../constants';
+import { UserRepositoryImpl } from '../repositories/implements/userRepositoryImpl';
 
 const {
   findPublishedProblemById,
   findUsernameProblemIdSubmissions,
   findAcceptedProblemIdSubmissions,
-  findUserById,
-  createSubmission,
+  createSubmission
 } = repositories;
 
 const logger = buildLogger('submissionService');
+
+const userRepository = new UserRepositoryImpl()
 
 const getUsernameProblemIdSubmissions = async (
   username: any,
@@ -188,7 +190,7 @@ const postSubmission = async (req: any): Promise<any> => {
       problem.totalSubmissions += 1;
       await problem.save();
 
-      const user = await findUserById(req.user.id);
+      const user:any = await userRepository.findUserById(req.user.id);
       if (verdict.name === 'ac') {
         if (user.stats.solved.indexOf(problemId) == -1) {
           user.stats.solved.push(problemId);

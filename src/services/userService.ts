@@ -4,14 +4,8 @@ import { utils } from '../utils';
 import { buildLogger } from '../plugin';
 import { ROLES } from '../constants';
 import jwt from 'jsonwebtoken';
+import { UserRepositoryImpl } from '../repositories/implements/userRepositoryImpl';
 
-const {
-  findUserByEmail,
-  createUser,
-  updateUserConfirmation,
-  findUsersBySolvedProblems,
-  findUserByUsernameOrEmail,
-} = repositories;
 const {
   generateToken,
   verifyToken,
@@ -22,11 +16,13 @@ const {
 } = utils;
 const logger = buildLogger('userService');
 
+const userRepository = new UserRepositoryImpl()
+
 const registerUser = async (userData: any): Promise<any> => {
   const { email, username, password } = userData;
   logger.log('Attempting to register user', { email, username });
   try {
-    const existingUser: any = await findUserByEmail(email);
+    const existingUser: any = await userRepository.findUserByEmail(email);
     if (existingUser) {
       logger.error(
         'Registration attempt failed: User with the given email already exists.',
@@ -36,7 +32,7 @@ const registerUser = async (userData: any): Promise<any> => {
     }
 
     const hashedPassword: string = await hashPassword(password);
-    const user: any = await createUser({
+    const user: any = await userRepository.createUser({
       email,
       username,
       password: hashedPassword,
@@ -65,7 +61,7 @@ const registerAdminUser = async (userData: any): Promise<any> => {
   const { email, username, password } = userData;
   logger.log('Attempting to register admin user', { email, username });
   try {
-    const existingUser: any = await findUserByEmail(email);
+    const existingUser: any = await userRepository.findUserByEmail(email);
     if (existingUser) {
       logger.error(
         'Registration attempt failed: Admin User with the given email already exists.',
@@ -75,7 +71,7 @@ const registerAdminUser = async (userData: any): Promise<any> => {
     }
 
     const hashedPassword: string = await hashPassword(password);
-    const user: any = await createUser({
+    const user: any = await userRepository.createUser({
       email,
       username,
       password: hashedPassword,
@@ -105,7 +101,7 @@ const checkTokenToMail = async (token: string): Promise<any> => {
   try {
     const decoded: any = await verifyToken(token);
     logger.log('Token verification successful', { email: decoded.email });
-    const updateResult: any = await updateUserConfirmation(decoded.email, true);
+    const updateResult: any = await userRepository.updateUserConfirmation(decoded.email, true);
     logger.log('User email verification status updated successfully', {
       email: decoded.email,
     });
@@ -128,7 +124,7 @@ const checkTokenToMail = async (token: string): Promise<any> => {
 
 const getUsersSortedBySolvedProblems = async (): Promise<any> => {
   try {
-    const leaderboard: any = await findUsersBySolvedProblems();
+    const leaderboard: any = await userRepository.findUsersBySolvedProblems();
     logger.log('Successfully retrieved users sorted by solved problems.');
     return leaderboard;
   } catch (err: any) {
@@ -145,7 +141,7 @@ const authenticateUser = async (
   username: string,
   password: string
 ): Promise<any> => {
-  const user: any = await findUserByUsernameOrEmail(username, username);
+  const user: any = await userRepository.findUserByUsernameOrEmail(username, username);
   if (!user) {
     throw new Error('User not found');
   }
@@ -170,7 +166,7 @@ const authenticateUser = async (
 };
 
 const sendForgotPasswordEmail = async (email: string): Promise<any> => {
-  const user: any = await findUserByEmail(email);
+  const user: any = await userRepository.findUserByEmail(email);
   if (!user) {
     throw new Error('User not found');
   }
@@ -186,7 +182,7 @@ const resetUserPassword = async (
   try {
     const decoded: any = await verifyToken(token);
     const hashedPassword: string = await hashPassword(password);
-    const user: any = await findUserByEmail(decoded.email);
+    const user: any = await userRepository.findUserByEmail(decoded.email);
     user.password = hashedPassword;
     await user.save();
   } catch (error: any) {

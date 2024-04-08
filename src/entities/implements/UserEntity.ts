@@ -1,7 +1,8 @@
 import mongoose, { Schema } from 'mongoose';
-import { IUserModel } from '../entities/IUserEntity';
+import { UserModel } from '../../models/UserModel';
 
-const userSchema: Schema<IUserModel> = new mongoose.Schema({
+
+const userSchema: Schema<UserModel> = new mongoose.Schema({
   email: {
     type: String,
     required: true,
@@ -39,7 +40,6 @@ const userSchema: Schema<IUserModel> = new mongoose.Schema({
   timestamps: true,
 });
 
-// Creación del modelo.
-const User = mongoose.model<IUserModel>('User', userSchema);
+const User = mongoose.model<UserModel>('User', userSchema);
 
 export default User;
