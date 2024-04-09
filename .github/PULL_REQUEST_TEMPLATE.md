@@ -26,6 +26,3 @@
 - [ ] He añadido tests que prueban que mi corrección es efectiva o que mi característica funciona
 - [ ] Los tests unitarios nuevos y existentes pasan localmente con mis cambios
 - [ ] Los cambios dependientes han sido fusionados y publicados en módulos relacionados
-
-asdsads
-asdasd
