@@ -1,18 +1,19 @@
+import { UserRepository } from './../repositories/userRepository';
 import { services } from '../services';
 import { HTTP_STATUS } from '../constants';
 import { buildLogger } from '../plugin';
+import { AuthService } from '../services/authService';
 import * as successHandler from '../handlers/successHandler'; // Adjust based on your actual file structure
+import { UserRepositoryImpl } from '../repositories/implements/userRepositoryImpl';
 
 const {
   getUsersSortedBySolvedProblems,
   registerUser,
   registerAdminUser,
   checkTokenToMail,
-  authenticateUser,
-  sendForgotPasswordEmail,
-  resetUserPassword,
 } = services;
-
+const userRepository = new UserRepositoryImpl(); 
+const authService = new AuthService(userRepository);
 const logger = buildLogger('userController');
 
 const globalLeaderboard = async (req: any, res: any): Promise<any> => {
@@ -86,7 +87,7 @@ const login = async (req: any, res: any): Promise<any> => {
   try {
     const { username, password } = req.body;
     logger.log('Attempting to log in user:', { user: username });
-    const loginResponseData = await authenticateUser(username, password);
+    const loginResponseData = await authService.authenticateUser(username, password);
 
     successHandler.sendOkResponse(
       res,
@@ -122,7 +123,7 @@ const forgotPassword = async (req: any, res: any) => {
   try {
     const { email } = req.body;
     logger.log('Forgot password request for email:', email);
-    await sendForgotPasswordEmail(email);
+    await authService.sendForgotPasswordEmail(email);
     logger.log('Forgot password email sent successfully');
     successHandler.sendOkResponse(
       res,
@@ -142,7 +143,7 @@ const resetPassword = async (req: any, res: any) => {
     const { token } = req.params;
     const { password } = req.body;
     logger.log('Resetting password for token:', token);
-    await resetUserPassword(token, password);
+    await authService.resetUserPassword(token, password);
     logger.log('Password reset successfully');
     successHandler.sendOkResponse(res, null, 'Password reset successfully');
   } catch (error: any) {

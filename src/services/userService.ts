@@ -137,71 +137,9 @@ const getUsersSortedBySolvedProblems = async (): Promise<any> => {
   }
 };
 
-const authenticateUser = async (
-  username: string,
-  password: string
-): Promise<any> => {
-  const user: any = await userRepository.findUserByUsernameOrEmail(username, username);
-  if (!user) {
-    throw new Error('User not found');
-  }
-
-  const isMatch: boolean = await comparePasswords(password, user.password);
-  if (!isMatch) {
-    throw new Error('Invalid credentials');
-  }
-
-  const accessToken: string = generateAccessToken(user);
-  const refreshToken: string = generateRefreshToken(user);
-
-  return {
-    id: user._id,
-    token: accessToken,
-    refreshToken: refreshToken,
-    username: user.username,
-    email: user.email,
-    userType: user.userType,
-    avatarUrl: user.avatarUrl,
-  };
-};
-
-const sendForgotPasswordEmail = async (email: string): Promise<any> => {
-  const user: any = await userRepository.findUserByEmail(email);
-  if (!user) {
-    throw new Error('User not found');
-  }
-
-  const token: string = generateToken(user);
-  await sendForgotPassword(email, token);
-};
-
-const resetUserPassword = async (
-  token: string,
-  password: string
-): Promise<any> => {
-  try {
-    const decoded: any = await verifyToken(token);
-    const hashedPassword: string = await hashPassword(password);
-    const user: any = await userRepository.findUserByEmail(decoded.email);
-    user.password = hashedPassword;
-    await user.save();
-  } catch (error: any) {
-    if (error instanceof jwt.TokenExpiredError) {
-      throw new Error(
-        'Password reset link expired. Please request a new password reset email.'
-      );
-    } else {
-      throw new Error('Password reset failed. Invalid or expired token.');
-    }
-  }
-};
-
 export {
   getUsersSortedBySolvedProblems,
   registerUser,
   checkTokenToMail,
   registerAdminUser,
-  authenticateUser,
-  sendForgotPasswordEmail,
-  resetUserPassword,
 };
