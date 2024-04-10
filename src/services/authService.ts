@@ -1,4 +1,3 @@
-import { UserRepositoryImpl } from './../repositories/implements/userRepositoryImpl';
 import { UserRepository } from './../repositories/userRepository';
 import { utils } from '../utils';
 import { buildLogger } from '../plugin';
@@ -19,9 +18,9 @@ const logger = buildLogger('authService');
 
 
 class AuthService {
-  private userRepository:UserRepositoryImpl;
+  private userRepository:UserRepository;
 
-  constructor(userRepository:UserRepositoryImpl){
+  constructor(userRepository:UserRepository){
     this.userRepository = userRepository;
   }
 
