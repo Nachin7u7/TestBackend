@@ -31,6 +31,9 @@ app.use(express.urlencoded({ extended: false }));
 configurePassport(app);
 
 app.use('/api/v1', routes);
+app.get('/', (req, res) => {
+  res.send('Server is running');
+});
 
 const { server, env } = config;
 const { port } = server;
