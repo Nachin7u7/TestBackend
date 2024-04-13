@@ -3,6 +3,7 @@ import { HTTP_STATUS } from '../constants';
 
 const verifyAdminIdMatch = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
     const { id } = req.user as any;
+    console.log(req.user);
     const adminId = req.query.adminId as string;
     if (!adminId) {
         return res.status(HTTP_STATUS.BAD_REQUEST).json({

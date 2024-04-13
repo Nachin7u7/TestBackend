@@ -55,7 +55,7 @@ const findProblemByIdAndPublished = async (
       { problemId, isPublished },
       { _id: 1, problemId: 1, problemName: 1, published: 1 }
     );
-    logger.log('Successfully fetched problem by id and published status.');
+    logger.log('Successfully fetched problem by id and published status =======.');
     return problem;
   } catch (error: any) {
     logger.error('Error while fetching problem by id and published status.', {
@@ -158,7 +158,7 @@ const findProblemByIdAndAuthor = async (
       _id: problemId,
       author: authorId,
     });
-    logger.log('Successfully found problem by id and author.');
+    logger.log('Successfully found problem by id and author.', {problem});
     return problem;
   } catch (error: any) {
     logger.error('Error while finding problem by id and author.', {
@@ -250,10 +250,18 @@ const incrementProblemIdCounter = async (): Promise<any> => {
  * @param {Object} updateData - The publication data to update the problem with.
  * @returns {Promise<Object>} A promise that resolves to the published problem document.
  */
-const publishProblem = async (problemId: number, updateData: any): Promise<any> => {
+const publishProblem = async (problemId: string, updateData: any): Promise<any> => {
   logger.log('Attempting to publish problem.', { problemId });
+  logger.log('updateData:', updateData);
   try {
-    const publishedProblem: any = await Problem.findByIdAndUpdate(problemId, { $set: updateData }, { new: true });
+    const publishedProblem: any = await Problem.findByIdAndUpdate(problemId,{
+      $set: { 
+        saved: updateData,
+        published: updateData,
+        isPublished: true,
+      }
+      },{ new: true }
+    );
     logger.log('Successfully published problem.');
     return publishedProblem;
   } catch (error: any) {

@@ -81,10 +81,9 @@ const getProblemsByAuthor = async (authorId: string): Promise<any> => {
  * Attempts to create a new problem checking first if one with the same name exists.
  * @param {String} userId - The ID of the user creating the problem.
  * @param {String} problemName - The name of the problem to create.
- * @param {Object} sampleProblemData - The sample data for the problem.
  * @returns {Promise<Object>} A promise that resolves to the newly created problem object.
  */
-const createProblem = async (userId: string, problemName: string, sampleProblemData: any): Promise<any> => {
+const createProblem = async (userId: string, problemName: string): Promise<any> => {
   logger.log('Attempting to create a new problem for user:', {userId});
   try {
     const existingProblem = await findProblemByName(problemName);
@@ -93,6 +92,24 @@ const createProblem = async (userId: string, problemName: string, sampleProblemD
       throw new Error('A problem with the same name already exists.');
     }
     const problemId = await incrementProblemIdCounter();
+    const sampleProblemData = {
+      statement: "",
+      inputFormat: "",
+      outputFormat: "",
+      constraints: "",
+      testcases: [],
+      explanation: "",
+      config: {
+        timelimit: 1000,
+        memorylimit: 256,
+        difficulty: {
+          value: 1,
+          label: "Easy",
+        },
+        tags: [],
+      },
+    };
+    
     const newProblem = await createNewProblem({
       author: userId,
       problemId,
@@ -162,12 +179,12 @@ const saveProblemData = async (problemId: number, authorId: string, updateData: 
 
 /**
  * Saves and publishes problem data for a given problem ID and author ID with provided update data.
- * @param {Number} problemId - The ID of the problem to save and publish.
+ * @param {String} problemId - The ID of the problem to save and publish.
  * @param {String} authorId - The ID of the author of the problem.
  * @param {Object} updateData - The data to save and publish the problem with.
  * @returns {Promise<Object>} A promise that resolves to the published problem object.
  */
-const saveAndPublishProblemData = async (problemId: number, authorId: string, updateData: any): Promise<any> => {
+const saveAndPublishProblemData = async (problemId: string, authorId: string, updateData: any): Promise<any> => {
   logger.log('Attempting to save and publish problem data for given problem id, author id and updateData.', { problemId, authorId });
   try {
     const publishedProblem = await publishProblem(problemId, updateData);
