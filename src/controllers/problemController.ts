@@ -73,12 +73,13 @@ const getMyProblemsList = async (req: any, res: any): Promise<any> => {
   }
 };
 
+
 const createNewProblem = async (req: any, res: any): Promise<any> => {
   try {
     const userId = req.user.id;
-    const { problemName, sampleProblemData } = req.body;
+    const { problemName } = req.body;
     logger.log(`Creating problem for user with ID: ${userId}`);
-    const problem = await createProblem(userId, problemName, sampleProblemData);
+    const problem = await createProblem(userId, problemName);
     logger.log('Problem created successfully');
     return res.status(HTTP_STATUS.CREATED).json({
       success: true,
@@ -118,10 +119,11 @@ const saveAndPublishProblem = async (req: any, res: any): Promise<any> => {
     const authorId = req.user.id;
     const { _id, problem } = req.body;
     logger.log(`Saving and publishing problem with ID: ${_id} for user with ID: ${authorId}`);
-    await saveAndPublishProblemData(_id, authorId, problem);
+    const problemUpdated = await saveAndPublishProblemData(_id, authorId, problem);
     logger.log('Problem saved and published successfully');
     return res.status(HTTP_STATUS.OK).json({
       success: true,
+      data: problemUpdated,
       message: 'Problem saved and published successfully',
     });
   } catch (error: any) {

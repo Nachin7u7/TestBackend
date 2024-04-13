@@ -18,7 +18,7 @@ problemRouter.get('/getProblemData', problemController.getProblemData);
 problemRouter.get(
   '/getAdminProblemData',
   userAuth,
-  verifyAdminIdMatch,
+  // verifyAdminIdMatch,
   verifyPermissions('isAllowedToCreateProblem'),
   problemController.getMyProblemData
 );
