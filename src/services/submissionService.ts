@@ -102,6 +102,7 @@ const executeTestCases = async (
     };
 
     const clientCodeResult = await compileAndRun(program);
+    console.log('🚀 ~ router.post ~ clientCodeResult:', clientCodeResult.body);
 
     maxTime = Math.max(maxTime, clientCodeResult.body.cpuTime || 0);
     maxMemory = Math.max(maxMemory, clientCodeResult.body.memory || 0);

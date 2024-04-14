@@ -6,10 +6,11 @@ import { config } from '../config';
 const { jdoodle } = config;
 
 const jdoodleAxios = axios.create({
-  baseURL: jdoodle.url, // Asume que jdoodle.url es un string.
+  baseURL: jdoodle.url, 
   headers: {
-    'Content-Type': 'application/json',
-  },
+    "Content-Type": "application/json",
+    "Accept-Encoding": "application/json",
+  }
 });
 
 export default jdoodleAxios;

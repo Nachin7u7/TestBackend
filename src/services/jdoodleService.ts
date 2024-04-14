@@ -25,8 +25,8 @@ const compileAndRun = async (program: any): Promise<any> => {
 
   try {
     const response = await jdoodleAxios.post('/execute', payload);
-    logger.log('Successfully compiled and ran the program.');
-    return { success: true, data: response.data };
+    logger.log('Successfully executed program with Jdoodle.', response.data);
+    return { success: true, body: response.data };
   } catch (error: any) {
     logger.error('Failed to execute program with Jdoodle.', {
       error: error.message,
