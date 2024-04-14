@@ -17,10 +17,11 @@ const logger = buildLogger('emailService');
 
 const sendVerificationEmail = async (email: string, token: string): Promise<void> => {
   try {
-    const verificationUrl: string = `${client.url}/#/verify/${token}`;
+    const verificationUrl: string = client.url;
     const replacements = {
       username: email,
       verifyUrl: verificationUrl,
+      token: token,
     };
     const htmlToSend: string = verifyEmailTemplate(replacements);
     logger.log('Attempting to send the verification email.', {
