@@ -17,7 +17,7 @@ const logger = buildLogger('emailService');
 
 const sendVerificationEmail = async (email: string, token: string): Promise<void> => {
   try {
-    const verificationUrl: string = `${client.url}/verify/${token}`;
+    const verificationUrl: string = `${client.url}/#/verify/${token}`;
     const replacements = {
       username: email,
       verifyUrl: verificationUrl,
@@ -57,7 +57,7 @@ const sendForgotPassword = async (email: string, token: string): Promise<void> =
     });
     const replacements = {
       username: email,
-      resetUrl: `${client.url}/reset-password/${token}`,
+      resetUrl: `${client.url}/#/reset-password/${token}`,
     };
     const htmlToSend: string = forgotPasswordTemplate(replacements);
     await sendEmail({
