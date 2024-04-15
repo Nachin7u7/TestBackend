@@ -58,7 +58,7 @@ const sendForgotPassword = async (email: string, token: string): Promise<void> =
     });
     const replacements = {
       username: email,
-      resetUrl: `${client.url}/#/reset-password/${token}`,
+      resetUrl: `${client.url}/reset-password/${token}`,
     };
     const htmlToSend: string = forgotPasswordTemplate(replacements);
     await sendEmail({
