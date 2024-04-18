@@ -1,5 +1,5 @@
-import Problem from '../models/problem.model';
-import Counter from '../models/counter.model';
+import Problem from '../entities/implements/ProblemEntity';
+import Counter from '../entities/implements/CounterEntity';
 import { buildLogger } from '../plugin';
 
 const logger = buildLogger('problemRepository');
