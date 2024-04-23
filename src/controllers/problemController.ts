@@ -32,12 +32,6 @@ const getProblemsList = async (req: any, res: any): Promise<any> => {
 };
 const getProblemData = async (req: any, res: any): Promise<any> => {
   const { problemId } = req.query;
-  if (!problemId) {
-    return res.status(HTTP_STATUS.BAD_REQUEST).json({
-      success: false,
-      message: 'Problem ID is required.',
-    });
-  }
   try {
     logger.log(`Fetching problem data for ID: ${problemId}`);
     const problem = await getProblemById(problemId);
@@ -139,12 +133,6 @@ const getMyProblemData = async (req: any, res: any): Promise<any> => {
   try {
     const authorId = req.user.id;
     const { problemId } = req.query;
-    if (!problemId) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        message: 'Problem ID is required.',
-      });
-    }
     logger.log(`Fetching data for problem with ID: ${problemId} for user with ID: ${authorId}`);
     const problem = await getProblemWithAuthor(problemId, authorId);
     if (!problem) {
