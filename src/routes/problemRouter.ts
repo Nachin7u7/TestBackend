@@ -1,10 +1,10 @@
 import express from 'express';
-import { problemController, submissionController, userController } from '../controllers';
+import {submissionController, userController, problemController } from '../controllers';
 import { userAuth, verifyAdminIdMatch, verifyPermissions } from '../middlewares';
 
 const problemRouter = express.Router();
 
-problemRouter.get('/getProblemsList', problemController.getProblemsList);
+problemRouter.get('/getProblemsList', problemController.getProblemList);
 
 problemRouter.get(
   '/getMyProblems',
