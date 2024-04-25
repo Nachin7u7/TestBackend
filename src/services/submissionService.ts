@@ -1,19 +1,16 @@
-import { repositories } from '../repositories';
 import { compileAndRun } from './jdoodleService';
 import { buildLogger } from '../plugin';
 import { LANGUAGE_CONFIG, VERDICTS } from '../constants';
 import { UserRepositoryImpl } from '../repositories/implements/userRepositoryImpl';
+import { SubmissionRepositoryImpl } from '../repositories/implements/submissionRepositoryImpl';
+import { ProblemRepositoryImpl } from '../repositories/implements/problemRepositoryImpl';
 
-const {
-  findPublishedProblemById,
-  findUsernameProblemIdSubmissions,
-  findAcceptedProblemIdSubmissions,
-  createSubmission
-} = repositories;
 
 const logger = buildLogger('submissionService');
 
-const userRepository = new UserRepositoryImpl()
+const userRepository = new UserRepositoryImpl();
+const submissionRepository = new SubmissionRepositoryImpl();
+const problemRepository = new ProblemRepositoryImpl();
 
 const getUsernameProblemIdSubmissions = async (
   username: any,
@@ -24,7 +21,7 @@ const getUsernameProblemIdSubmissions = async (
     { username, problemId }
   );
   try {
-    const submissionsList = await findUsernameProblemIdSubmissions(
+    const submissionsList = await submissionRepository.findUsernameProblemIdSubmissions(
       username,
       problemId
     );
@@ -49,7 +46,7 @@ const getAcceptedProblemIdSubmissions = async (
     problemId,
   });
   try {
-    const submissions: any = await findAcceptedProblemIdSubmissions(problemId);
+    const submissions: any = await submissionRepository.findAcceptedProblemIdSubmissions(problemId);
     submissions.sort((s1: any, s2: any) => s1.time - s2.time);
     logger.log(
       'Successfully fetched accepted submissions for given problem id.'
@@ -160,7 +157,7 @@ const postSubmission = async (req: any): Promise<any> => {
     const { problemId, isSample, code, language } = req.body;
     const { language: lang, versionIndex } = getLanguageConfig(language);
 
-    let problem = await findPublishedProblemById(problemId);
+    let problem = await problemRepository.findPublishedProblemById(problemId);
 
     if (!problem) {
       throw new Error('Problem not found or not published.');
@@ -175,7 +172,7 @@ const postSubmission = async (req: any): Promise<any> => {
     );
 
     if (!isSample) {
-      await createSubmission({
+      await submissionRepository.createSubmission({
         username: req.user.username,
         problemId: problemId,
         code: code,

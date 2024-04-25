@@ -1,8 +1,7 @@
-import { Document } from 'mongoose';
 import { ITestCaseEntity } from './ITestCaseEntity';
 import { IConfigEntity } from './IConfigEntity';
 
-export interface ISemiProblemEntity extends Document {
+export interface ISemiProblemEntity {
   statement: string;
   inputFormat: string;
   outputFormat: string;

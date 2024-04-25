@@ -1,6 +1,4 @@
-import { Document } from 'mongoose';
-
-export interface ISubmissionEntity extends Document {
+export interface ISubmissionEntity {
   username: string;
   problemId: number;
   code: string;

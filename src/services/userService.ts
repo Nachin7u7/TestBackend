@@ -1,4 +1,3 @@
-import { repositories } from '../repositories';
 import { sendVerificationEmail, sendForgotPassword } from './emailService';
 import { utils } from '../utils';
 import { buildLogger } from '../plugin';

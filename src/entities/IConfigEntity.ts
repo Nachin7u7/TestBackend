@@ -1,6 +1,4 @@
-import { Document } from 'mongoose';
-
-export interface IConfigEntity extends Document {
+export interface IConfigEntity {
   timelimit: number;
   memorylimit: number;
   difficulty: {
