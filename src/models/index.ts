@@ -1,6 +1,6 @@
-import Counter from './counter.model';
-import Problem from './problem.model';
+import Counter from '../entities/implements/CounterEntity';
+import Problem from '../entities/implements/ProblemEntity';
 import User from '../entities/implements/UserEntity';
-import Submission from './submission.model';
+import Submission from '../entities/implements/SubmissionEntity';
 
 export { Counter, Problem, User, Submission };

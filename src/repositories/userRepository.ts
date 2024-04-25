@@ -1,12 +1,12 @@
-import { IUserModel } from "../entities/IUserEntity";
+import { IUserEntity } from "../entities/IUserEntity";
 
 export interface UserRepository {
-  createUser(userData: IUserModel): Promise<IUserModel>;
-  findUserByEmail(email: string): Promise<IUserModel | null>;
-  findUserByUsernameOrEmail(username: string, email: string): Promise<IUserModel | null>;
-  updateUserConfirmation(email: string, isConfirmed: boolean): Promise<IUserModel | null>;
+  createUser(userData: IUserEntity): Promise<IUserEntity>;
+  findUserByEmail(email: string): Promise<IUserEntity | null>;
+  findUserByUsernameOrEmail(username: string, email: string): Promise<IUserEntity | null>;
+  updateUserConfirmation(email: string, isConfirmed: boolean): Promise<IUserEntity | null>;
   deleteUserIfUnconfirmed(email: string): Promise<{ deletedCount?: number }>;
-  findUsersBySolvedProblems(): Promise<IUserModel[]>;
-  findUserById(userId: string): Promise<IUserModel | null>;
+  findUsersBySolvedProblems(): Promise<IUserEntity[]>;
+  findUserById(userId: string): Promise<IUserEntity | null>;
 }
 

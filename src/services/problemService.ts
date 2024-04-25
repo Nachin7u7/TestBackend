@@ -1,17 +1,7 @@
-import {repositories} from '../repositories'
 import { buildLogger } from '../plugin';
-const {
-  findProblemsByPublished,
-  findProblemByIdAndPublished,
-  findProblemsByAuthor,
-  findProblemByIdAndAuthor,
-  updateProblem,
-  findProblemByName,
-  createNewProblem,
-  publishProblem,
-  incrementProblemIdCounter,
-} = repositories;
+import { ProblemRepositoryImpl } from '../repositories/implements/problemRepositoryImpl';
 
+const repositories = new ProblemRepositoryImpl()
 
 const logger = buildLogger('problemService');
 
@@ -22,7 +12,7 @@ const logger = buildLogger('problemService');
 const getProblems = async (): Promise<any> => {
   logger.log('Attempting to fetch the list of problems.');
   try {
-    let problemsList = await findProblemsByPublished(true);
+    let problemsList = await repositories.findProblemsByPublished(true);
     problemsList = JSON.parse(JSON.stringify(problemsList));
     problemsList.forEach((problem: any) => {
       problem.acceptance = problem.totalSubmissions >= 1 ? (problem.solvedCount / problem.totalSubmissions) * 100 : 0;
@@ -45,7 +35,7 @@ const getProblems = async (): Promise<any> => {
 const getProblemById = async (problemId: number): Promise<any> => {
   logger.log('Attempting to fetch the problem by id.', { problemId });
   try {
-    const problem = await findProblemByIdAndPublished(problemId, true);
+    const problem = await repositories.findProblemByIdAndPublished(problemId, true);
     logger.log('Successfully fetched the problem by id.', { problemId });
     return problem;
   } catch (err: any) {
@@ -65,7 +55,7 @@ const getProblemById = async (problemId: number): Promise<any> => {
 const getProblemsByAuthor = async (authorId: string): Promise<any> => {
   logger.log('Attempting to fetch problems for given author id.', { authorId });
   try {
-    const problems = await findProblemsByAuthor(authorId);
+    const problems = await repositories.findProblemsByAuthor(authorId);
     logger.log('Successfully fetched problems for given author id', { authorId });
     return problems;
   } catch (error: any) {
@@ -84,20 +74,21 @@ const getProblemsByAuthor = async (authorId: string): Promise<any> => {
  * @returns {Promise<Object>} A promise that resolves to the newly created problem object.
  */
 const createProblem = async (userId: string, problemName: string): Promise<any> => {
-  logger.log('Attempting to create a new problem for user:', {userId});
+  logger.log('Attempting to create a new problem for user:', { userId });
   try {
-    const existingProblem = await findProblemByName(problemName);
+    const existingProblem = await repositories.findProblemByName(problemName);
     if (existingProblem) {
       logger.error('Creation attempt failed: Problem with the same name already exists.', { problemName });
       throw new Error('A problem with the same name already exists.');
     }
-    const problemId = await incrementProblemIdCounter();
+    const problemId = await repositories.incrementProblemIdCounter();
     const sampleProblemData = {
       statement: "",
       inputFormat: "",
       outputFormat: "",
       constraints: "",
       testcases: [],
+      checkerCode: "",
       explanation: "",
       config: {
         timelimit: 1000,
@@ -109,14 +100,17 @@ const createProblem = async (userId: string, problemName: string): Promise<any> 
         tags: [],
       },
     };
-    
-    const newProblem = await createNewProblem({
-      author: userId,
+
+    const newProblem = await repositories.createNewProblem({
       problemId,
+      author: userId,
       problemName,
+      isPublished: false,
       saved: sampleProblemData,
       published: sampleProblemData,
-      isPublished: false,
+      submissions: [],
+      solvedCount: 0,
+      totalSubmissions: 0
     });
     logger.log('Successfully created a new problem.', { problemId: newProblem.problemId });
     return newProblem;
@@ -139,7 +133,7 @@ const createProblem = async (userId: string, problemName: string): Promise<any> 
 const getProblemWithAuthor = async (problemId: number, authorId: string): Promise<any> => {
   logger.log('Attempting to fetch problem data for given problem id and author id.', { problemId, authorId });
   try {
-    const problemData = await findProblemByIdAndAuthor(problemId, authorId);
+    const problemData = await repositories.findProblemByIdAndAuthor(problemId, authorId);
     logger.log('Successfully fetched problem data for given problem id and author id.');
     return problemData;
   } catch (error: any) {
@@ -163,7 +157,7 @@ const getProblemWithAuthor = async (problemId: number, authorId: string): Promis
 const saveProblemData = async (problemId: number, authorId: string, updateData: any): Promise<any> => {
   logger.log('Attempting to update problem data for given problem id, author id and updateData.', { problemId, authorId });
   try {
-    const savedProblem = await updateProblem(problemId, updateData);
+    const savedProblem = await repositories.updateProblem(problemId, updateData);
     logger.log('Successfully updating problem data for given problem id, author id and updateData.');
     return savedProblem;
   } catch (error: any) {
@@ -187,7 +181,7 @@ const saveProblemData = async (problemId: number, authorId: string, updateData: 
 const saveAndPublishProblemData = async (problemId: string, authorId: string, updateData: any): Promise<any> => {
   logger.log('Attempting to save and publish problem data for given problem id, author id and updateData.', { problemId, authorId });
   try {
-    const publishedProblem = await publishProblem(problemId, updateData);
+    const publishedProblem = await repositories.publishProblem(problemId, updateData);
     logger.log('Successfully saved and published problem data for given problem id, author id and updateData.');
     return publishedProblem;
   } catch (error: any) {

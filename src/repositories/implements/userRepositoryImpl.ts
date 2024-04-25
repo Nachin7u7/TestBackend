@@ -1,4 +1,4 @@
-import { IUserModel } from "../../entities/IUserEntity";
+import { IUserEntity } from "../../entities/IUserEntity";
 import User from "../../entities/implements/UserEntity";
 import { buildLogger } from '../../plugin';
 import { UserRepository } from "../userRepository";
@@ -7,7 +7,7 @@ export class UserRepositoryImpl implements UserRepository {
 
   private logger = buildLogger('userRepository');
 
-  async createUser(userData: IUserModel): Promise<IUserModel> {
+  async createUser(userData: IUserEntity): Promise<IUserEntity> {
     this.logger.log('Attempting to save a new user.');
     try {
       const user = new User(userData);
@@ -24,7 +24,7 @@ export class UserRepositoryImpl implements UserRepository {
     }
   }
 
-  async findUserByEmail(email: string): Promise<IUserModel | null> {
+  async findUserByEmail(email: string): Promise<IUserEntity | null> {
     this.logger.log('Attempting to find a user by email in database.');
     try {
       const user = await User.findOne({ email });
@@ -41,7 +41,7 @@ export class UserRepositoryImpl implements UserRepository {
     }
   }
 
-  async findUserByUsernameOrEmail(username: string, email: string): Promise<IUserModel | null> {
+  async findUserByUsernameOrEmail(username: string, email: string): Promise<IUserEntity | null> {
     this.logger.log('Attempting to find a user by username or email in database.');
     try {
       const user = await User.findOne({
@@ -61,7 +61,7 @@ export class UserRepositoryImpl implements UserRepository {
       throw new Error('Failed to find user by username or email: ' + error.message);
     }
   }
-  async updateUserConfirmation(email: string, isConfirmed: boolean): Promise<IUserModel | null> {
+  async updateUserConfirmation(email: string, isConfirmed: boolean): Promise<IUserEntity | null> {
     this.logger.log('Attempting to update a user confirmation in database.');
     try {
       const updatedUser = await User.findOneAndUpdate(
@@ -99,7 +99,7 @@ export class UserRepositoryImpl implements UserRepository {
       throw new Error('Failed to delete unconfirmed user: ' + error.message);
     }
   }
-  async findUsersBySolvedProblems(): Promise<IUserModel[]> {
+  async findUsersBySolvedProblems(): Promise<IUserEntity[]> {
     this.logger.log('Attempting to find users sorted by solved problems.');
     try {
       const users = await User.find(
@@ -119,7 +119,7 @@ export class UserRepositoryImpl implements UserRepository {
       throw new Error('Failed to find users sorted by solved problems: ' + error.message);
     }
   }
-  async findUserById(userId: string): Promise<IUserModel | null> {
+  async findUserById(userId: string): Promise<IUserEntity | null> {
     this.logger.log(`Attempting to find user by ID: ${userId}`);
     try {
       const user = await User.findById(userId);
