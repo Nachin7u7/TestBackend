@@ -1,5 +1,3 @@
-import { Document } from 'mongoose';
-
 export interface ISubmissionEntity {
   username: string;
   problemId: number;
