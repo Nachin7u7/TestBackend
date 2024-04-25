@@ -1,22 +1,15 @@
 import { services } from '../services';
 import { HTTP_STATUS } from '../constants';
 import { buildLogger } from '../plugin';
+import { ProblemService } from '../services/problemService';
+import { ProblemRepositoryImpl } from '../repositories/implements/problemRepositoryImpl';
 
 const logger = buildLogger('problemController');
-const {
-  getProblems,
-  getProblemById,
-  getProblemsByAuthor,
-  createProblem,
-  getProblemWithAuthor,
-  saveProblemData,
-  saveAndPublishProblemData,
-} = services;
-
+const problemServices = new ProblemService(new ProblemRepositoryImpl);
 const getProblemsList = async (req: any, res: any): Promise<any> => {
   try {
     logger.log('Fetching problems list');
-    const problemsList = await getProblems();
+    const problemsList = await problemServices.getProblems();
     logger.log('Problems list fetched successfully');
     return res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -34,7 +27,7 @@ const getProblemData = async (req: any, res: any): Promise<any> => {
   const { problemId } = req.query;
   try {
     logger.log(`Fetching problem data for ID: ${problemId}`);
-    const problem = await getProblemById(problemId);
+    const problem = await problemServices.getProblemById(problemId);
     logger.log(`Problem data fetched successfully for ID: ${problemId}`);
     return res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -52,7 +45,7 @@ const getMyProblemsList = async (req: any, res: any): Promise<any> => {
   try {
     const authorId = req.user.id;
     logger.log(`Fetching problems for user with ID: ${authorId}`);
-    const problems = await getProblemsByAuthor(authorId);
+    const problems = await problemServices.getProblemsByAuthor(authorId);
     logger.log('Problems fetched successfully');
     return res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -73,7 +66,7 @@ const createNewProblem = async (req: any, res: any): Promise<any> => {
     const userId = req.user.id;
     const { problemName } = req.body;
     logger.log(`Creating problem for user with ID: ${userId}`);
-    const problem = await createProblem(userId, problemName);
+    const problem = await problemServices.createProblem(userId, problemName);
     logger.log('Problem created successfully');
     return res.status(HTTP_STATUS.CREATED).json({
       success: true,
@@ -93,7 +86,7 @@ const saveProblem = async (req: any, res: any): Promise<any> => {
     const authorId = req.user.id;
     const { _id, problem } = req.body;
     logger.log(`Saving problem with ID: ${_id} for user with ID: ${authorId}`);
-    await saveProblemData(_id, authorId, problem);
+    await problemServices.saveProblemData(_id, authorId, problem);
     logger.log('Problem saved successfully');
     return res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -113,7 +106,7 @@ const saveAndPublishProblem = async (req: any, res: any): Promise<any> => {
     const authorId = req.user.id;
     const { _id, problem } = req.body;
     logger.log(`Saving and publishing problem with ID: ${_id} for user with ID: ${authorId}`);
-    const problemUpdated = await saveAndPublishProblemData(_id, authorId, problem);
+    const problemUpdated = await problemServices.saveAndPublishProblemData(_id, authorId, problem);
     logger.log('Problem saved and published successfully');
     return res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -134,7 +127,7 @@ const getMyProblemData = async (req: any, res: any): Promise<any> => {
     const authorId = req.user.id;
     const { problemId } = req.query;
     logger.log(`Fetching data for problem with ID: ${problemId} for user with ID: ${authorId}`);
-    const problem = await getProblemWithAuthor(problemId, authorId);
+    const problem = await problemServices.getProblemWithAuthor(problemId, authorId);
     if (!problem) {
       logger.log(`Problem not found with ID: ${problemId}`);
       return res.status(HTTP_STATUS.NOT_FOUND).json({
