@@ -78,7 +78,7 @@ export class SubmissionService {
     lang: any,
     versionIndex: any
   ): Promise<any> {
-    let verdict = VERDICTS.ACCEPTED;
+    let verdict = { name: 'ac', label: 'Accepted!' };
 
     // For each test case
     const problemJSON = JSON.parse(JSON.stringify(problem));
