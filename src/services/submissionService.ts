@@ -78,7 +78,7 @@ export class SubmissionService {
     lang: any,
     versionIndex: any
   ): Promise<any> {
-    let verdict = VERDICTS.ACCEPTED;
+    let verdict = { name: 'ac', label: 'Accepted!' };
 
     // For each test case
     const problemJSON = JSON.parse(JSON.stringify(problem));
@@ -108,7 +108,7 @@ export class SubmissionService {
       maxTime = Math.max(maxTime, clientCodeResult.body.cpuTime || 0);
       maxMemory = Math.max(maxMemory, clientCodeResult.body.memory || 0);
       // TimeOut JDoodle
-      if (clientCodeResult.body.output.includes('JDoodle - Timeout')) {
+      if (clientCodeResult.body.output.includes('JDoodle - output Limit reached.')) {
         verdict.name = 'tle';
         verdict.label = 'Time Limit Exceeded on Test Case ' + String(i + 1);
         break;
