@@ -139,15 +139,12 @@ export class SubmissionService {
       program.language = 'cpp17';
       program.versionIndex = '1';
       program.script = checkerCode;
-      program.stdin =
-        problemJSON.published.testcases[i].input.url +
-        ' ' +
-        clientCodeResult.body.output;
+      program.stdin = problemJSON.published.testcases[i].input.url;
+
       console.log('🚀 ~ router.post ~ program:', program);
       const checkerCodeResult = await compileAndRun(program);
       console.log('🚀 ~ router.post ~ checkerCodeResult:', checkerCodeResult);
-
-      if (checkerCodeResult.body.output[0] != '1') {
+      if (clientCodeResult.body.output !== checkerCodeResult.body.output) {
         verdict.name = 'wa';
         verdict.label = 'Wrong Answer on Test Case ' + String(i + 1);
         break;
