@@ -108,7 +108,7 @@ export class SubmissionService {
       maxTime = Math.max(maxTime, clientCodeResult.body.cpuTime || 0);
       maxMemory = Math.max(maxMemory, clientCodeResult.body.memory || 0);
       // TimeOut JDoodle
-      if (clientCodeResult.body.output.includes('JDoodle - Timeout')) {
+      if (clientCodeResult.body.output.includes('JDoodle - output Limit reached.')) {
         verdict.name = 'tle';
         verdict.label = 'Time Limit Exceeded on Test Case ' + String(i + 1);
         break;
@@ -139,15 +139,12 @@ export class SubmissionService {
       program.language = 'cpp17';
       program.versionIndex = '1';
       program.script = checkerCode;
-      program.stdin =
-        problemJSON.published.testcases[i].input.url +
-        ' ' +
-        clientCodeResult.body.output;
+      program.stdin = problemJSON.published.testcases[i].input.url;
+
       console.log('🚀 ~ router.post ~ program:', program);
       const checkerCodeResult = await compileAndRun(program);
       console.log('🚀 ~ router.post ~ checkerCodeResult:', checkerCodeResult);
-
-      if (checkerCodeResult.body.output[0] != '1') {
+      if (clientCodeResult.body.output !== checkerCodeResult.body.output) {
         verdict.name = 'wa';
         verdict.label = 'Wrong Answer on Test Case ' + String(i + 1);
         break;
