@@ -16,6 +16,26 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
+## 1.1 System Requirements
+
+- Processor:
+A dual-core processor with a speed of at least 1GHz is recommended.
+
+- RAM:
+4GB is suggested for acceptable performance, but 8GB is recommended for smoother operation.
+
+- Storage:
+
+A minimum of 10GB of space is required, although this requirement may increase over time.
+
+- OS:
+The project is compatible with Linux, Windows and macOS.
+
+- Internet connection:
+A stable connection is recommended to access online services, if necessary.
+
+## 1.2 Required Software Requirements
+
 - Node.js (version 12.x or higher recommended)
 - MongoDB (version 4.x or higher recommended)
 - Docker (for sandboxed execution environments)
