@@ -25,7 +25,6 @@ A dual-core processor with a speed of at least 1GHz is recommended.
 4GB is suggested for acceptable performance, but 8GB is recommended for smoother operation.
 
 - Storage:
-
 A minimum of 10GB of space is required, although this requirement may increase over time.
 
 - OS:
