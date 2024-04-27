@@ -1,8 +1,12 @@
 import { buildLogger } from '../plugin';
 import { HTTP_STATUS } from '../constants';
 import { services } from '../services';
+import { SubmissionService } from '../services/submissionService';
+import { SubmissionRepositoryImpl } from '../repositories/implements/submissionRepositoryImpl';
+import { ProblemRepositoryImpl } from '../repositories/implements/problemRepositoryImpl';
+import { UserRepositoryImpl } from '../repositories/implements/userRepositoryImpl';
 
-const {getUsernameProblemIdSubmissions, getAcceptedProblemIdSubmissions, postSubmission} = services;
+const submissionServices = new SubmissionService(new SubmissionRepositoryImpl, new ProblemRepositoryImpl, new UserRepositoryImpl);
 
 const logger = buildLogger('submissioControllers');
 
@@ -10,7 +14,7 @@ const userSubmissionsList = async (req: any, res: any): Promise<any> => {
   try {
     logger.log('Fetching user submissions list');
     const { username, problemId } = req.query; // Using 'as any' to bypass TypeScript's type checking
-    const submissionsList = await getUsernameProblemIdSubmissions(username, problemId);
+    const submissionsList = await submissionServices.getUsernameProblemIdSubmissions(username, problemId);
     logger.log('User submissions list fetched successfully');
     return res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -30,7 +34,7 @@ const leaderboardProblemSubmissionsList = async (req: any, res: any): Promise<an
     const { problemId } = req.query;
     logger.log('Fetching leaderboard problem submissions list');
 
-    const submissions = await getAcceptedProblemIdSubmissions(problemId);
+    const submissions = await submissionServices.getAcceptedProblemIdSubmissions(problemId);
     logger.log('Leaderboard problem submissions list fetched successfully');
     return res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -48,7 +52,7 @@ const leaderboardProblemSubmissionsList = async (req: any, res: any): Promise<an
 const compileAndRun = async (req: any, res: any): Promise<any> => {
   try {
     logger.log('Compiling and running submission');
-    const verdict = await postSubmission(req);
+    const verdict = await submissionServices.postSubmission(req);
     logger.log('Submission compiled and run successfully');
     return res.status(HTTP_STATUS.OK).json({
       success: true,

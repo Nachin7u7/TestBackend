@@ -1,34 +1,31 @@
 import { services } from '../services';
 import { HTTP_STATUS } from '../constants';
 import { buildLogger } from '../plugin';
+import { ProblemService } from '../services/problemService';
+import { ProblemRepositoryImpl } from '../repositories/implements/problemRepositoryImpl';
 import { Router } from 'express';
 import { userAuth, verifyPermissions } from '../middlewares';
 import { submissionController, userController } from '.';
 
-//const logger = buildLogger('problemController');
-const {
-  getProblems,
-  getProblemById,
-  getProblemsByAuthor,
-  createProblem,
-  getProblemWithAuthor,
-  saveProblemData,
-  saveAndPublishProblemData,
-} = services;
+
+//const problemServices = new ProblemService(new ProblemRepositoryImpl);
+
 export class ProblemController{
   public router: Router;
   private logger
-
+  private problemServices: ProblemService;
+  
   constructor(){
     this.router = Router();
     this.logger = buildLogger('problemController')
+    this.problemServices = new ProblemService(new ProblemRepositoryImpl());
     this.routes()
   }
   
   async getProblemList (req: any, res: any): Promise<any>{
     try {
       this.logger.log('Fetching problems list');
-      const problemsList = await getProblems();
+      const problemsList = await this.problemServices.getProblems();
       this.logger.log('Problems list fetched successfully');
       return res.status(HTTP_STATUS.OK).json({
         success: true,
@@ -44,15 +41,9 @@ export class ProblemController{
   }
   async getProblemData (req: any, res: any): Promise<any>{
     const { problemId } = req.query;
-  if (!problemId) {
-    return res.status(HTTP_STATUS.BAD_REQUEST).json({
-      success: false,
-      message: 'Problem ID is required.',
-    });
-  }
   try {
     this.logger.log(`Fetching problem data for ID: ${problemId}`);
-    const problem = await getProblemById(problemId);
+    const problem = await this.problemServices.getProblemById(problemId);
     this.logger.log(`Problem data fetched successfully for ID: ${problemId}`);
     return res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -70,7 +61,7 @@ export class ProblemController{
     try {
       const authorId = req.user.id;
       this.logger.log(`Fetching problems for user with ID: ${authorId}`);
-      const problems = await getProblemsByAuthor(authorId);
+      const problems = await this.problemServices.getProblemsByAuthor(authorId);
       this.logger.log('Problems fetched successfully');
       return res.status(HTTP_STATUS.OK).json({
         success: true,
@@ -89,7 +80,7 @@ export class ProblemController{
       const userId = req.user.id;
       const { problemName } = req.body;
       this.logger.log(`Creating problem for user with ID: ${userId}`);
-      const problem = await createProblem(userId, problemName);
+      const problem = await this.problemServices.createProblem(userId, problemName);
       this.logger.log('Problem created successfully');
       return res.status(HTTP_STATUS.CREATED).json({
         success: true,
@@ -109,7 +100,7 @@ export class ProblemController{
       const authorId = req.user.id;
       const { _id, problem } = req.body;
       this.logger.log(`Saving problem with ID: ${_id} for user with ID: ${authorId}`);
-      await saveProblemData(_id, authorId, problem);
+      await this.problemServices.saveProblemData(_id, authorId, problem);
       this.logger.log('Problem saved successfully');
       return res.status(HTTP_STATUS.OK).json({
         success: true,
@@ -128,7 +119,7 @@ export class ProblemController{
       const authorId = req.user.id;
       const { _id, problem } = req.body;
       this.logger.log(`Saving and publishing problem with ID: ${_id} for user with ID: ${authorId}`);
-      const problemUpdated = await saveAndPublishProblemData(_id, authorId, problem);
+      const problemUpdated = await this.problemServices.saveAndPublishProblemData(_id, authorId, problem);
       this.logger.log('Problem saved and published successfully');
       return res.status(HTTP_STATUS.OK).json({
         success: true,
@@ -147,14 +138,8 @@ export class ProblemController{
     try {
       const authorId = req.user.id;
       const { problemId } = req.query;
-      if (!problemId) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({
-          success: false,
-          message: 'Problem ID is required.',
-        });
-      }
       this.logger.log(`Fetching data for problem with ID: ${problemId} for user with ID: ${authorId}`);
-      const problem = await getProblemWithAuthor(problemId, authorId);
+      const problem = await this.problemServices.getProblemWithAuthor(problemId, authorId);
       if (!problem) {
         this.logger.log(`Problem not found with ID: ${problemId}`);
         return res.status(HTTP_STATUS.NOT_FOUND).json({

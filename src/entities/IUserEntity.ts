@@ -1,4 +1,4 @@
-export interface IUserModel  {
+export interface IUserEntity  {
     email: string;
     username: string;
     password: string;

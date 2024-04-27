@@ -14,7 +14,7 @@ const authService = new AuthService(userRepository)
 const authController = new AuthController(authService)
 
 router.use('/users', userRouter);
-router.use('/problem', problemRouter);
+router.use('/problem', problemController.router);
 router.use('/auth', authController.router)
 
 export default router;
