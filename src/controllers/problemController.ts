@@ -5,24 +5,30 @@ import { ProblemService } from '../services/problemService';
 import { ProblemRepositoryImpl } from '../repositories/implements/problemRepositoryImpl';
 import { Router } from 'express';
 import { userAuth, verifyPermissions } from '../middlewares';
-import { submissionController, userController } from '.';
+import { userController } from '.';
+import { SubmissionController } from './submissionController';
+import { SubmissionService } from '../services/submissionService';
+import { SubmissionRepositoryImpl } from '../repositories/implements/submissionRepositoryImpl';
+import { UserRepositoryImpl } from '../repositories/implements/userRepositoryImpl';
 
 
 //const problemServices = new ProblemService(new ProblemRepositoryImpl);
 
-export class ProblemController{
+export class ProblemController {
   public router: Router;
   private logger
   private problemServices: ProblemService;
-  
-  constructor(){
+  private submissionController: SubmissionController;
+
+  constructor() {
     this.router = Router();
     this.logger = buildLogger('problemController')
     this.problemServices = new ProblemService(new ProblemRepositoryImpl());
+    this.submissionController = new SubmissionController(new SubmissionService(new SubmissionRepositoryImpl(), new ProblemRepositoryImpl(), new UserRepositoryImpl()));
     this.routes()
   }
-  
-  async getProblemList (req: any, res: any): Promise<any>{
+
+  async getProblemList(req: any, res: any): Promise<any> {
     try {
       this.logger.log('Fetching problems list');
       const problemsList = await this.problemServices.getProblems();
@@ -39,25 +45,25 @@ export class ProblemController{
       });
     }
   }
-  async getProblemData (req: any, res: any): Promise<any>{
+  async getProblemData(req: any, res: any): Promise<any> {
     const { problemId } = req.query;
-  try {
-    this.logger.log(`Fetching problem data for ID: ${problemId}`);
-    const problem = await this.problemServices.getProblemById(problemId);
-    this.logger.log(`Problem data fetched successfully for ID: ${problemId}`);
-    return res.status(HTTP_STATUS.OK).json({
-      success: true,
-      data: problem,
-    });
-  } catch (err: any) {
-    this.logger.error(`Error getting problem data for ID ${problemId}: ${err}`);
-    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: 'Internal server error. Please try again.',
-    });
+    try {
+      this.logger.log(`Fetching problem data for ID: ${problemId}`);
+      const problem = await this.problemServices.getProblemById(problemId);
+      this.logger.log(`Problem data fetched successfully for ID: ${problemId}`);
+      return res.status(HTTP_STATUS.OK).json({
+        success: true,
+        data: problem,
+      });
+    } catch (err: any) {
+      this.logger.error(`Error getting problem data for ID ${problemId}: ${err}`);
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Internal server error. Please try again.',
+      });
+    }
   }
-  }
-  async getMyProblemsList (req: any, res: any): Promise<any>{
+  async getMyProblemsList(req: any, res: any): Promise<any> {
     try {
       const authorId = req.user.id;
       this.logger.log(`Fetching problems for user with ID: ${authorId}`);
@@ -75,7 +81,7 @@ export class ProblemController{
       });
     }
   }
-  async createNewProblem (req: any, res: any): Promise<any>{
+  async createNewProblem(req: any, res: any): Promise<any> {
     try {
       const userId = req.user.id;
       const { problemName } = req.body;
@@ -95,7 +101,7 @@ export class ProblemController{
       });
     }
   }
-  async saveProblem (req: any, res: any): Promise<any>{
+  async saveProblem(req: any, res: any): Promise<any> {
     try {
       const authorId = req.user.id;
       const { _id, problem } = req.body;
@@ -114,7 +120,7 @@ export class ProblemController{
       });
     }
   }
-  async saveAndPublishProblem (req: any, res: any): Promise<any>{
+  async saveAndPublishProblem(req: any, res: any): Promise<any> {
     try {
       const authorId = req.user.id;
       const { _id, problem } = req.body;
@@ -134,7 +140,7 @@ export class ProblemController{
       });
     }
   }
-  async getMyProblemData (req: any, res: any): Promise<any>{
+  async getMyProblemData(req: any, res: any): Promise<any> {
     try {
       const authorId = req.user.id;
       const { problemId } = req.query;
@@ -160,17 +166,17 @@ export class ProblemController{
       });
     }
   }
-  routes(){
+  routes() {
     this.router.get('/getProblemsList', this.getProblemList.bind(this));
     this.router.get('/getMyProblems', userAuth, verifyPermissions('isAllowedToCreateProblem'), this.getMyProblemsList.bind(this));
     this.router.get('/getProblemData', this.getProblemData.bind(this));
-    this.router.get('/getAdminProblemData',userAuth,verifyPermissions('isAllowedToCreateProblem'),this.getMyProblemData.bind(this));
-    this.router.post('/',userAuth, verifyPermissions('isAllowedToCreateProblem'), this.createNewProblem.bind(this));
+    this.router.get('/getAdminProblemData', userAuth, verifyPermissions('isAllowedToCreateProblem'), this.getMyProblemData.bind(this));
+    this.router.post('/', userAuth, verifyPermissions('isAllowedToCreateProblem'), this.createNewProblem.bind(this));
     this.router.post('/save', userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveProblem.bind(this));
     this.router.post('/saveandpublish', userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveAndPublishProblem.bind(this));
-    this.router.post('/compileAndRun', userAuth,submissionController.compileAndRun.bind(this)); 
-    this.router.get('/submissionsList', userAuth, submissionController.userSubmissionsList.bind(this)); 
-    this.router.get('/leaderboard', submissionController.leaderboardProblemSubmissionsList.bind(this));
+    this.router.post('/compileAndRun', userAuth, this.submissionController.compileAndRun.bind(this));
+    this.router.get('/submissionsList', userAuth, this.submissionController.userSubmissionsList.bind(this));
+    this.router.get('/leaderboard', this.submissionController.leaderboardProblemSubmissionsList.bind(this));
     this.router.get('/globalLeaderboard', userController.globalLeaderboard.bind(this));
   }
 }

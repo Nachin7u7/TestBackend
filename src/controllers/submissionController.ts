@@ -1,77 +1,78 @@
 import { buildLogger } from '../plugin';
 import { HTTP_STATUS } from '../constants';
-import { services } from '../services';
+import { Request, Response } from 'express';
 import { SubmissionService } from '../services/submissionService';
 import { SubmissionRepositoryImpl } from '../repositories/implements/submissionRepositoryImpl';
 import { ProblemRepositoryImpl } from '../repositories/implements/problemRepositoryImpl';
 import { UserRepositoryImpl } from '../repositories/implements/userRepositoryImpl';
 
-const submissionServices = new SubmissionService(new SubmissionRepositoryImpl, new ProblemRepositoryImpl, new UserRepositoryImpl);
+export class SubmissionController {
 
-const logger = buildLogger('submissioControllers');
+  private logger;
 
-const userSubmissionsList = async (req: any, res: any): Promise<any> => {
-  try {
-    logger.log('Fetching user submissions list');
-    const { username, problemId } = req.query; // Using 'as any' to bypass TypeScript's type checking
-    const submissionsList = await submissionServices.getUsernameProblemIdSubmissions(username, problemId);
-    logger.log('User submissions list fetched successfully');
-    return res.status(HTTP_STATUS.OK).json({
-      success: true,
-      submissionsList,
-    });
-  } catch (err: any) {
-    logger.error('Error fetching user submissions list:', { error: err.message });
-    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: 'Internal server error. Please try again.',
-    });
-  }
-};
+  constructor(private submissionService: SubmissionService) {
+    this.submissionService = new SubmissionService(new SubmissionRepositoryImpl(), new ProblemRepositoryImpl(), new UserRepositoryImpl());
+    this.logger = buildLogger('submissioControllers');
 
-const leaderboardProblemSubmissionsList = async (req: any, res: any): Promise<any> => {
-  try {
-    const { problemId } = req.query;
-    logger.log('Fetching leaderboard problem submissions list');
+  };
+  async userSubmissionsList (req: Request, res: Response) {
+    try {
+      this.logger.log('Fetching user submissions list');
+      const { username, problemId } = req.query; // Using 'as any' to bypass TypeScript's type checking
+      const submissionsList = await this.submissionService.getUsernameProblemIdSubmissions(username, problemId);
+      this.logger.log('User submissions list fetched successfully');
+      return res.status(HTTP_STATUS.OK).json({
+        success: true,
+        submissionsList,
+      });
+    } catch (err: any) {
+      this.logger.error('Error fetching user submissions list:', { error: err.message });
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Internal server error. Please try again.',
+      });
+    }
+  };
 
-    const submissions = await submissionServices.getAcceptedProblemIdSubmissions(problemId);
-    logger.log('Leaderboard problem submissions list fetched successfully');
-    return res.status(HTTP_STATUS.OK).json({
-      success: true,
-      leaderboard: submissions,
-    });
-  } catch (err: any) {
-    logger.error('Error fetching leaderboard problem submissions list:', { error: err.message });
-    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: 'Internal server error. Please try again.',
-    });
-  }
-};
+  async leaderboardProblemSubmissionsList(req: Request, res: Response) {
+    try {
+      const { problemId } = req.query;
+      this.logger.log('Fetching leaderboard problem submissions list');
+      if (typeof problemId !== 'string' || problemId === undefined) {
+        throw new Error('Invalid problemId');
 
-const compileAndRun = async (req: any, res: any): Promise<any> => {
-  try {
-    logger.log('Compiling and running submission');
-    const verdict = await submissionServices.postSubmission(req);
-    logger.log('Submission compiled and run successfully');
-    return res.status(HTTP_STATUS.OK).json({
-      success: true,
-      verdict,
-    });
-  } catch (err: any) {
-    logger.error('Error compiling and running submission:', { error: err.message });
-    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: 'Internal server error. Please try again.',
-    });
-  }
-};
+      }
+      const submissions = await this.submissionService.getAcceptedProblemIdSubmissions(parseInt(problemId));
+      this.logger.log('Leaderboard problem submissions list fetched successfully');
+      return res.status(HTTP_STATUS.OK).json({
+        success: true,
+        leaderboard: submissions,
+      });
+    } catch (err: any) {
+      this.logger.error('Error fetching leaderboard problem submissions list:', { error: err.message });
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Internal server error. Please try again.',
+      });
+    }
+  };
 
-
-export {
-  userSubmissionsList,
-  leaderboardProblemSubmissionsList,
-  compileAndRun,
-};
-
+  async compileAndRun(req: Request, res: Response) {
+    try {
+      this.logger.log('Compiling and running submission');
+      const verdict = await this.submissionService.postSubmission(req);
+      this.logger.log('Submission compiled and run successfully');
+      return res.status(HTTP_STATUS.OK).json({
+        success: true,
+        verdict,
+      });
+    } catch (err: any) {
+      this.logger.error('Error compiling and running submission:', { error: err.message });
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Internal server error. Please try again.',
+      });
+    }
+  };
+}
 
