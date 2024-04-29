@@ -103,7 +103,7 @@ export class SubmissionService {
       };
 
       const clientCodeResult = await compileAndRun(program);
-      console.log('🚀 ~ router.post ~ clientCodeResult:', clientCodeResult.body);
+      this.logger.log('Client code result:', clientCodeResult.body);
 
       maxTime = Math.max(maxTime, clientCodeResult.body.cpuTime || 0);
       maxMemory = Math.max(maxMemory, clientCodeResult.body.memory || 0);
@@ -141,9 +141,9 @@ export class SubmissionService {
       program.script = checkerCode;
       program.stdin = problemJSON.published.testcases[i].input.url;
 
-      console.log('🚀 ~ router.post ~ program:', program);
+      this.logger.log('Program:', program);
       const checkerCodeResult = await compileAndRun(program);
-      console.log('🚀 ~ router.post ~ checkerCodeResult:', checkerCodeResult);
+      this.logger.log('Checker code result:', checkerCodeResult);
       if (clientCodeResult.body.output !== checkerCodeResult.body.output) {
         verdict.name = 'wa';
         verdict.label = 'Wrong Answer on Test Case ' + String(i + 1);
@@ -218,5 +218,4 @@ export class SubmissionService {
       throw err;
     }
   };
-
-}  
+}
