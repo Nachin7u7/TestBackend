@@ -106,7 +106,7 @@ export class SubmissionService {
       };
 
       const clientCodeResult = await compileAndRun(userProgram);
-      console.log('🚀 ~ router.post ~ clientCodeResult:', clientCodeResult.body);
+      this.logger.log('Client code result:', clientCodeResult.body);
 
       maxTime = Math.max(maxTime, clientCodeResult.body.cpuTime || 0);
       maxMemory = Math.max(maxMemory, clientCodeResult.body.memory || 0);
@@ -118,9 +118,9 @@ export class SubmissionService {
         versionIndex: '1'
       }
 
-      console.log('🚀 ~ router.post ~ program:', checkerProgram);
+      this.logger.log('Checker Program:', checkerProgram);
       const checkerCodeResult = await compileAndRun(checkerProgram);
-      console.log('🚀 ~ router.post ~ checkerCodeResult:', checkerCodeResult);
+      this.logger.log('Checker code result:', checkerCodeResult);
 
       verdict = veredictTestCaseHelper(i, clientCodeResult, checkerCodeResult, {memoryLimit, timeLimit})
       if(verdict !== null)
