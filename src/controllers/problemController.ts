@@ -10,6 +10,9 @@ import { SubmissionController } from './submissionController';
 import { SubmissionService } from '../services/submissionService';
 import { SubmissionRepositoryImpl } from '../repositories/implements/submissionRepositoryImpl';
 import { UserRepositoryImpl } from '../repositories/implements/userRepositoryImpl';
+import { CreateNewProblemDTO } from '../dtos/createNewProblemDto';
+import { SaveAndPublishProblemDTO } from '../dtos/saveAndPublishProblemDto';
+import { SaveProblemDTO } from '../dtos/saveProblemDto';
 
 
 //const problemServices = new ProblemService(new ProblemRepositoryImpl);
@@ -84,7 +87,7 @@ export class ProblemController {
   async createNewProblem(req: any, res: any): Promise<any> {
     try {
       const userId = req.user.id;
-      const { problemName } = req.body;
+      const { problemName }: CreateNewProblemDTO = req.body;
       this.logger.log(`Creating problem for user with ID: ${userId}`);
       const problem = await this.problemServices.createProblem(userId, problemName);
       this.logger.log('Problem created successfully');
@@ -104,7 +107,7 @@ export class ProblemController {
   async saveProblem(req: any, res: any): Promise<any> {
     try {
       const authorId = req.user.id;
-      const { _id, problem } = req.body;
+      const { _id, problem }: SaveProblemDTO = req.body;
       this.logger.log(`Saving problem with ID: ${_id} for user with ID: ${authorId}`);
       await this.problemServices.saveProblemData(_id, authorId, problem);
       this.logger.log('Problem saved successfully');
@@ -123,7 +126,7 @@ export class ProblemController {
   async saveAndPublishProblem(req: any, res: any): Promise<any> {
     try {
       const authorId = req.user.id;
-      const { _id, problem } = req.body;
+      const { _id, problem }: SaveAndPublishProblemDTO = req.body;
       this.logger.log(`Saving and publishing problem with ID: ${_id} for user with ID: ${authorId}`);
       const problemUpdated = await this.problemServices.saveAndPublishProblemData(_id, authorId, problem);
       this.logger.log('Problem saved and published successfully');

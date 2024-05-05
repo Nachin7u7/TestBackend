@@ -4,6 +4,7 @@ import { LANGUAGE_CONFIG, VERDICTS } from '../constants';
 import { UserRepositoryImpl } from '../repositories/implements/userRepositoryImpl';
 import { SubmissionRepositoryImpl } from '../repositories/implements/submissionRepositoryImpl';
 import { ProblemRepositoryImpl } from '../repositories/implements/problemRepositoryImpl';
+import { veredictTestCaseHelper } from '../helper/veredictTestCaseHelper';
 
 export class SubmissionService {
 
@@ -71,6 +72,8 @@ export class SubmissionService {
     return LANGUAGE_CONFIG[lang] || { language: lang, versionIndex: '0' };
   };
 
+  
+
   async executeTestCases(
     problem: any,
     isSample: any,
@@ -78,7 +81,7 @@ export class SubmissionService {
     lang: any,
     versionIndex: any
   ): Promise<any> {
-    let verdict = { name: 'ac', label: 'Accepted!' };
+    let verdict = null;
 
     // For each test case
     const problemJSON = JSON.parse(JSON.stringify(problem));
@@ -95,61 +98,40 @@ export class SubmissionService {
       if (isSample && problemJSON.published.testcases[i].isSample == false)
         continue;
 
-      let program = {
+      const userProgram = {
         script: code,
         stdin: problemJSON.published.testcases[i].input.url,
         language: lang,
         versionIndex: versionIndex,
       };
 
-      const clientCodeResult = await compileAndRun(program);
-      console.log('🚀 ~ router.post ~ clientCodeResult:', clientCodeResult.body);
+      const clientCodeResult = await compileAndRun(userProgram);
+      this.logger.log('Client code result:', clientCodeResult.body);
 
       maxTime = Math.max(maxTime, clientCodeResult.body.cpuTime || 0);
       maxMemory = Math.max(maxMemory, clientCodeResult.body.memory || 0);
-      // TimeOut JDoodle
-      if (clientCodeResult.body.output.includes('JDoodle - output Limit reached.')) {
-        verdict.name = 'tle';
-        verdict.label = 'Time Limit Exceeded on Test Case ' + String(i + 1);
-        break;
-      }
-      // Compilation Error
-      if (
-        clientCodeResult.body.memory == null ||
-        clientCodeResult.body.output.includes('File "/home/')
-      ) {
-        verdict.name = 'ce';
-        verdict.label = 'Compilation Error';
-        break;
+
+      const checkerProgram = {
+        script: checkerCode,
+        stdin: problemJSON.published.testcases[i].input.url,
+        language: 'cpp17',
+        versionIndex: '1'
       }
 
-      // Memory Limit
-      if (clientCodeResult.body.memory > memoryLimit) {
-        verdict.name = 'mle';
-        verdict.label = 'Memory Limit Exceeded on Test Case ' + String(i + 1);
-        break;
-      }
-      // TLE
-      if (clientCodeResult.body.cpuTime > timeLimit) {
-        verdict.name = 'tle';
-        verdict.label = 'Time Limit Exceeded on Test Case ' + String(i + 1);
-        break;
-      }
+      this.logger.log('Checker Program:', checkerProgram);
+      const checkerCodeResult = await compileAndRun(checkerProgram);
+      this.logger.log('Checker code result:', checkerCodeResult);
 
-      program.language = 'cpp17';
-      program.versionIndex = '1';
-      program.script = checkerCode;
-      program.stdin = problemJSON.published.testcases[i].input.url;
-
-      console.log('🚀 ~ router.post ~ program:', program);
-      const checkerCodeResult = await compileAndRun(program);
-      console.log('🚀 ~ router.post ~ checkerCodeResult:', checkerCodeResult);
-      if (clientCodeResult.body.output !== checkerCodeResult.body.output) {
-        verdict.name = 'wa';
-        verdict.label = 'Wrong Answer on Test Case ' + String(i + 1);
-        break;
-      }
+      verdict = veredictTestCaseHelper(i, clientCodeResult, checkerCodeResult, {memoryLimit, timeLimit})
+      if(verdict !== null)
+        break
     }
+
+    // AC
+    if(!verdict){
+      verdict = { name: 'ac', label: 'Accepted!' }
+    }
+    
     return { verdict, maxTime, maxMemory };
   };
 
