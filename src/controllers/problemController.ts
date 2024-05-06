@@ -1,33 +1,21 @@
-import { services } from '../services';
 import { HTTP_STATUS } from '../constants';
 import { buildLogger } from '../plugin';
 import { ProblemService } from '../services/problemService';
-import { ProblemRepositoryImpl } from '../repositories/implements/problemRepositoryImpl';
 import { Router } from 'express';
 import { userAuth, verifyPermissions } from '../middlewares';
 import { userController } from '.';
-import { SubmissionController } from './submissionController';
-import { SubmissionService } from '../services/submissionService';
-import { SubmissionRepositoryImpl } from '../repositories/implements/submissionRepositoryImpl';
-import { UserRepositoryImpl } from '../repositories/implements/userRepositoryImpl';
 import { CreateNewProblemDTO } from '../dtos/createNewProblemDto';
 import { SaveAndPublishProblemDTO } from '../dtos/saveAndPublishProblemDto';
 import { SaveProblemDTO } from '../dtos/saveProblemDto';
 
 
-//const problemServices = new ProblemService(new ProblemRepositoryImpl);
-
 export class ProblemController {
   public router: Router;
-  private logger
-  private problemServices: ProblemService;
-  private submissionController: SubmissionController;
+  private logger;
 
-  constructor() {
+  constructor(private problemServices: ProblemService) {
     this.router = Router();
     this.logger = buildLogger('problemController')
-    this.problemServices = new ProblemService(new ProblemRepositoryImpl());
-    this.submissionController = new SubmissionController(new SubmissionService(new SubmissionRepositoryImpl(), new ProblemRepositoryImpl(), new UserRepositoryImpl()));
     this.routes()
   }
 
@@ -177,9 +165,6 @@ export class ProblemController {
     this.router.post('/', userAuth, verifyPermissions('isAllowedToCreateProblem'), this.createNewProblem.bind(this));
     this.router.post('/save', userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveProblem.bind(this));
     this.router.post('/saveandpublish', userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveAndPublishProblem.bind(this));
-    this.router.post('/compileAndRun', userAuth, this.submissionController.compileAndRun.bind(this));
-    this.router.get('/submissionsList', userAuth, this.submissionController.userSubmissionsList.bind(this));
-    this.router.get('/leaderboard', this.submissionController.leaderboardProblemSubmissionsList.bind(this));
     this.router.get('/globalLeaderboard', userController.globalLeaderboard.bind(this));
   }
 }
