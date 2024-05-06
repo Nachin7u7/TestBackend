@@ -1,19 +1,17 @@
 import { buildLogger } from '../plugin';
 import { HTTP_STATUS } from '../constants';
-import { Request, Response } from 'express';
+import { Request, Response, Router } from 'express';
 import { SubmissionService } from '../services/submissionService';
-import { SubmissionRepositoryImpl } from '../repositories/implements/submissionRepositoryImpl';
-import { ProblemRepositoryImpl } from '../repositories/implements/problemRepositoryImpl';
-import { UserRepositoryImpl } from '../repositories/implements/userRepositoryImpl';
+import { userAuth } from '../middlewares';
 
 export class SubmissionController {
-
   private logger;
+  public router: Router;
 
   constructor(private submissionService: SubmissionService) {
-    this.submissionService = new SubmissionService(new SubmissionRepositoryImpl(), new ProblemRepositoryImpl(), new UserRepositoryImpl());
+    this.router = Router();
     this.logger = buildLogger('submissioControllers');
-
+    this.routes()
   };
   async userSubmissionsList (req: Request, res: Response) {
     try {
@@ -60,6 +58,7 @@ export class SubmissionController {
   async compileAndRun(req: Request, res: Response) {
     try {
       this.logger.log('Compiling and running submission');
+      console.log(this.submissionService)
       const verdict = await this.submissionService.postSubmission(req);
       this.logger.log('Submission compiled and run successfully');
       return res.status(HTTP_STATUS.OK).json({
@@ -74,5 +73,11 @@ export class SubmissionController {
       });
     }
   };
+
+  routes(){
+    this.router.post('/compileAndRun', userAuth, this.compileAndRun.bind(this));
+    this.router.get('/submissionsList', userAuth, this.userSubmissionsList.bind(this));
+    this.router.get('/leaderboard', this.leaderboardProblemSubmissionsList.bind(this));
+  }
 }
 

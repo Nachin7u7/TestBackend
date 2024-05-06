@@ -1,20 +1,32 @@
 import express from 'express';
-import { problemRouter} from '../routes';
 import { AuthController } from '../controllers/authController';
 import userRouter from '../routes/userRouter';
 import { AuthService } from '../services/authService';
 import { UserRepositoryImpl } from '../repositories/implements/userRepositoryImpl';
 import { ProblemController } from '../controllers/problemController';
+import { SubmissionRepositoryImpl } from '../repositories/implements/submissionRepositoryImpl';
+import { ProblemRepositoryImpl } from '../repositories/implements/problemRepositoryImpl';
+import { ProblemService } from '../services/problemService';
+import { SubmissionService } from '../services/submissionService';
+import { SubmissionController } from '../controllers/submissionController';
 
 const router = express.Router();
 
-const problemController = new ProblemController();
 const userRepository = new UserRepositoryImpl()
+const problemRepository = new ProblemRepositoryImpl()
+const submissionRepository = new SubmissionRepositoryImpl()
+
 const authService = new AuthService(userRepository)
+const problemService = new ProblemService(problemRepository);
+const submissionService = new SubmissionService(submissionRepository, problemRepository, userRepository);
+
+const submissionController = new SubmissionController(submissionService)
 const authController = new AuthController(authService)
+const problemController = new ProblemController(problemService);
 
 router.use('/users', userRouter);
 router.use('/problem', problemController.router);
+router.use('/problem', submissionController.router);
 router.use('/auth', authController.router)
 
 export default router;
