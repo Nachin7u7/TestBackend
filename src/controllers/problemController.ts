@@ -1,12 +1,18 @@
+import { createValidator } from 'express-joi-validation';
+
 import { HTTP_STATUS } from '../constants';
 import { buildLogger } from '../plugin';
 import { ProblemService } from '../services/problemService';
 import { Router } from 'express';
-import { userAuth, verifyPermissions } from '../middlewares';
+import { userAuth, verifyAdminIdMatch, verifyPermissions } from '../middlewares';
 import { userController } from '.';
 import { CreateNewProblemDTO } from '../dtos/createNewProblemDto';
 import { SaveAndPublishProblemDTO } from '../dtos/saveAndPublishProblemDto';
 import { SaveProblemDTO } from '../dtos/saveProblemDto';
+import { createValidatorForSchema } from '../middlewares/schemaValidator';
+import problemIdSchema from '../middlewares/schemas/problemIdSchema';
+import { newProblemSchema } from '../middlewares/schemas/newProblemSchema';
+import { problemDataSchema } from '../middlewares/schemas/problemDataSchema';
 
 
 export class ProblemController {
@@ -158,13 +164,15 @@ export class ProblemController {
     }
   }
   routes() {
+    const validator = createValidator()
+    
     this.router.get('/getProblemsList', this.getProblemList.bind(this));
     this.router.get('/getMyProblems', userAuth, verifyPermissions('isAllowedToCreateProblem'), this.getMyProblemsList.bind(this));
-    this.router.get('/getProblemData', this.getProblemData.bind(this));
-    this.router.get('/getAdminProblemData', userAuth, verifyPermissions('isAllowedToCreateProblem'), this.getMyProblemData.bind(this));
-    this.router.post('/', userAuth, verifyPermissions('isAllowedToCreateProblem'), this.createNewProblem.bind(this));
-    this.router.post('/save', userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveProblem.bind(this));
-    this.router.post('/saveandpublish', userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveAndPublishProblem.bind(this));
+    this.router.get('/getProblemData', validator.query(problemIdSchema),this.getProblemData.bind(this));
+    this.router.get('/getAdminProblemData', validator.query(problemIdSchema),userAuth, verifyAdminIdMatch, verifyPermissions('isAllowedToCreateProblem'), this.getMyProblemData.bind(this));
+    this.router.post('/', createValidatorForSchema(newProblemSchema),userAuth, verifyPermissions('isAllowedToCreateProblem'), this.createNewProblem.bind(this));
+    this.router.post('/save', createValidatorForSchema(problemDataSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveProblem.bind(this));
+    this.router.post('/saveandpublish',createValidatorForSchema(problemDataSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveAndPublishProblem.bind(this));
     this.router.get('/globalLeaderboard', userController.globalLeaderboard.bind(this));
   }
 }
