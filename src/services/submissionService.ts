@@ -5,6 +5,7 @@ import { UserRepositoryImpl } from '../repositories/implements/userRepositoryImp
 import { SubmissionRepositoryImpl } from '../repositories/implements/submissionRepositoryImpl';
 import { ProblemRepositoryImpl } from '../repositories/implements/problemRepositoryImpl';
 import { veredictTestCaseHelper } from '../helper/veredictTestCaseHelper';
+import { PostSubmissionDto } from '../dtos/postSubmissionDto';
 
 export class SubmissionService {
 
@@ -135,12 +136,11 @@ export class SubmissionService {
     return { verdict, maxTime, maxMemory };
   };
 
-  async postSubmission(req: any): Promise<any> {
+  async postSubmission(userInfo: any , postSubmissionDto: PostSubmissionDto): Promise<any> {
     try {
-      const { problemId, isSample, code, language } = req.body;
-      const { language: lang, versionIndex } = this.getLanguageConfig(language);
+      const { language: lang, versionIndex } = this.getLanguageConfig(postSubmissionDto.language);
 
-      let problem = await this.problemRepository.findPublishedProblemById(problemId);
+      let problem = await this.problemRepository.findPublishedProblemById(postSubmissionDto.problemId);
 
       if (!problem) {
         throw new Error('Problem not found or not published.');
@@ -148,18 +148,18 @@ export class SubmissionService {
 
       const { verdict, maxTime, maxMemory } = await this.executeTestCases(
         problem,
-        isSample,
-        code,
+        postSubmissionDto.isSample,
+        postSubmissionDto.code,
         lang,
         versionIndex
       );
 
-      if (!isSample) {
+      if (!postSubmissionDto.isSample) {
         await this.submissionRepository.createSubmission({
-          username: req.user.username,
-          problemId: problemId,
-          code: code,
-          language: language,
+          username: userInfo.username,
+          problemId: postSubmissionDto.problemId,
+          code: postSubmissionDto.code,
+          language: postSubmissionDto.language,
           verdict: verdict.label,
           time: maxTime,
           memory: maxMemory,
@@ -171,23 +171,23 @@ export class SubmissionService {
         problem.totalSubmissions += 1;
         await problem.save();
 
-        const user: any = await this.userRepository.findUserById(req.user.id);
+        const user: any = await this.userRepository.findUserById(userInfo.id);
         if (verdict.name === 'ac') {
-          if (user.stats.solved.indexOf(problemId) == -1) {
-            user.stats.solved.push(problemId);
+          if (user.stats.solved.indexOf(postSubmissionDto.problemId) == -1) {
+            user.stats.solved.push(postSubmissionDto.problemId);
             user.stats.solvedCount += 1;
 
-            let index = user.stats.unsolved.indexOf(problemId);
+            let index = user.stats.unsolved.indexOf(postSubmissionDto.problemId);
             if (index !== -1) {
               user.stats.unsolved.splice(index, 1);
             }
           }
         } else {
           if (
-            user.stats.solved.indexOf(problemId) == -1 &&
-            user.stats.unsolved.indexOf(problemId) == -1
+            user.stats.solved.indexOf(postSubmissionDto.problemId) == -1 &&
+            user.stats.unsolved.indexOf(postSubmissionDto.problemId) == -1
           ) {
-            user.stats.unsolved.push(problemId);
+            user.stats.unsolved.push(postSubmissionDto.problemId);
           }
         }
         await user.save();

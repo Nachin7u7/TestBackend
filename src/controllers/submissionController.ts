@@ -3,6 +3,7 @@ import { HTTP_STATUS } from '../constants';
 import { Request, Response, Router } from 'express';
 import { SubmissionService } from '../services/submissionService';
 import { userAuth } from '../middlewares';
+import { PostSubmissionDto } from '../dtos/postSubmissionDto';
 
 export class SubmissionController {
   private logger;
@@ -57,9 +58,10 @@ export class SubmissionController {
 
   async compileAndRun(req: Request, res: Response) {
     try {
+      const postSubmissionDto: PostSubmissionDto = req.body;
       this.logger.log('Compiling and running submission');
       console.log(this.submissionService)
-      const verdict = await this.submissionService.postSubmission(req);
+      const verdict = await this.submissionService.postSubmission(req.user!, postSubmissionDto);
       this.logger.log('Submission compiled and run successfully');
       return res.status(HTTP_STATUS.OK).json({
         success: true,
