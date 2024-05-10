@@ -1,7 +1,7 @@
 import { HTTP_STATUS } from '../constants';
 import { buildLogger } from '../plugin';
 import { ProblemService } from '../services/problemService';
-import { Router } from 'express';
+import { Request, Response, Router } from 'express';
 import { userAuth, verifyPermissions } from '../middlewares';
 import { userController } from '.';
 import { CreateNewProblemDTO } from '../dtos/createNewProblemDto';
@@ -12,6 +12,7 @@ import { SaveProblemDTO } from '../dtos/saveProblemDto';
 export class ProblemController {
   public router: Router;
   private logger;
+  
 
   constructor(private problemServices: ProblemService) {
     this.router = Router();
@@ -19,7 +20,7 @@ export class ProblemController {
     this.routes()
   }
 
-  async getProblemList(req: any, res: any): Promise<any> {
+  async getProblemList(req: Request, res: Response): Promise<any> {
     try {
       this.logger.log('Fetching problems list');
       const problemsList = await this.problemServices.getProblems();
@@ -36,8 +37,8 @@ export class ProblemController {
       });
     }
   }
-  async getProblemData(req: any, res: any): Promise<any> {
-    const { problemId } = req.query;
+  async getProblemData(req: Request, res: Response): Promise<any> {
+    const problemId = parseInt(req.query.problemId as string, 10);
     try {
       this.logger.log(`Fetching problem data for ID: ${problemId}`);
       const problem = await this.problemServices.getProblemById(problemId);
@@ -54,7 +55,7 @@ export class ProblemController {
       });
     }
   }
-  async getMyProblemsList(req: any, res: any): Promise<any> {
+  async getMyProblemsList(req: Request, res: Response): Promise<any> {
     try {
       const authorId = req.user.id;
       this.logger.log(`Fetching problems for user with ID: ${authorId}`);
@@ -72,7 +73,7 @@ export class ProblemController {
       });
     }
   }
-  async createNewProblem(req: any, res: any): Promise<any> {
+  async createNewProblem(req: Request, res: Response): Promise<any> {
     try {
       const userId = req.user.id;
       const { problemName }: CreateNewProblemDTO = req.body;
@@ -92,7 +93,7 @@ export class ProblemController {
       });
     }
   }
-  async saveProblem(req: any, res: any): Promise<any> {
+  async saveProblem(req: Request, res: Response): Promise<any> {
     try {
       const authorId = req.user.id;
       const { _id, problem }: SaveProblemDTO = req.body;
@@ -111,7 +112,7 @@ export class ProblemController {
       });
     }
   }
-  async saveAndPublishProblem(req: any, res: any): Promise<any> {
+  async saveAndPublishProblem(req: Request, res: Response): Promise<any> {
     try {
       const authorId = req.user.id;
       const { _id, problem }: SaveAndPublishProblemDTO = req.body;
@@ -131,10 +132,10 @@ export class ProblemController {
       });
     }
   }
-  async getMyProblemData(req: any, res: any): Promise<any> {
+  async getMyProblemData(req: Request, res: Response): Promise<any> {
     try {
       const authorId = req.user.id;
-      const { problemId } = req.query;
+      const problemId = parseInt(req.query.problemId as string, 10);
       this.logger.log(`Fetching data for problem with ID: ${problemId} for user with ID: ${authorId}`);
       const problem = await this.problemServices.getProblemWithAuthor(problemId, authorId);
       if (!problem) {
@@ -168,3 +169,4 @@ export class ProblemController {
     this.router.get('/globalLeaderboard', userController.globalLeaderboard.bind(this));
   }
 }
+
