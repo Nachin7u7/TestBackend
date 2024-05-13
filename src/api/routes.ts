@@ -1,6 +1,5 @@
 import express from 'express';
 import { AuthController } from '../controllers/authController';
-import userRouter from '../routes/userRouter';
 import { AuthService } from '../services/authService';
 import { UserRepositoryImpl } from '../repositories/implements/userRepositoryImpl';
 import { ProblemController } from '../controllers/problemController';
@@ -9,6 +8,7 @@ import { ProblemRepositoryImpl } from '../repositories/implements/problemReposit
 import { ProblemService } from '../services/problemService';
 import { SubmissionService } from '../services/submissionService';
 import { SubmissionController } from '../controllers/submissionController';
+import { UserController } from '../controllers/userController';
 
 const router = express.Router();
 
@@ -23,8 +23,9 @@ const submissionService = new SubmissionService(submissionRepository, problemRep
 const submissionController = new SubmissionController(submissionService)
 const authController = new AuthController(authService)
 const problemController = new ProblemController(problemService);
+const userController = new UserController();
 
-router.use('/users', userRouter);
+router.use('/users', userController.router);
 router.use('/problem', problemController.router);
 router.use('/problem', submissionController.router);
 router.use('/auth', authController.router)

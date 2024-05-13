@@ -1,11 +1,9 @@
 import { createValidator } from 'express-joi-validation';
-
 import { HTTP_STATUS } from '../constants';
 import { buildLogger } from '../plugin';
 import { ProblemService } from '../services/problemService';
-import { Router } from 'express';
+import { Request, Response, Router } from 'express';
 import { userAuth, verifyAdminIdMatch, verifyPermissions } from '../middlewares';
-import { userController } from '.';
 import { CreateNewProblemDTO } from '../dtos/createNewProblemDto';
 import { SaveAndPublishProblemDTO } from '../dtos/saveAndPublishProblemDto';
 import { SaveProblemDTO } from '../dtos/saveProblemDto';
@@ -13,19 +11,39 @@ import { createValidatorForSchema } from '../middlewares/schemaValidator';
 import problemIdSchema from '../middlewares/schemas/problemIdSchema';
 import { newProblemSchema } from '../middlewares/schemas/newProblemSchema';
 import { problemDataSchema } from '../middlewares/schemas/problemDataSchema';
+import { services } from '../services';
 
-
+const { getUsersSortedBySolvedProblems } = services
 export class ProblemController {
   public router: Router;
   private logger;
+
 
   constructor(private problemServices: ProblemService) {
     this.router = Router();
     this.logger = buildLogger('problemController')
     this.routes()
+
+  }
+  async globalLeaderboard(req: Request, res: Response): Promise<any> {
+    try {
+      this.logger.log('Fetching global leaderboard');
+      const leaderboard = await getUsersSortedBySolvedProblems();
+      this.logger.log('Global leaderboard fetched successfully');
+      return res.status(HTTP_STATUS.OK).json({
+        success: true,
+        leaderboard: [],
+      });
+    } catch (err: any) {
+      this.logger.error('Error fetching global leaderboard:', { error: err.message });
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Internal server error. Please try again.',
+      });
+    }
   }
 
-  async getProblemList(req: any, res: any): Promise<any> {
+  async getProblemList(req: Request, res: Response): Promise<any> {
     try {
       this.logger.log('Fetching problems list');
       const problemsList = await this.problemServices.getProblems();
@@ -42,8 +60,8 @@ export class ProblemController {
       });
     }
   }
-  async getProblemData(req: any, res: any): Promise<any> {
-    const { problemId } = req.query;
+  async getProblemData(req: Request, res: Response): Promise<any> {
+    const problemId = parseInt(req.query.problemId as string, 10);
     try {
       this.logger.log(`Fetching problem data for ID: ${problemId}`);
       const problem = await this.problemServices.getProblemById(problemId);
@@ -60,7 +78,7 @@ export class ProblemController {
       });
     }
   }
-  async getMyProblemsList(req: any, res: any): Promise<any> {
+  async getMyProblemsList(req: Request, res: Response): Promise<any> {
     try {
       const authorId = req.user.id;
       this.logger.log(`Fetching problems for user with ID: ${authorId}`);
@@ -78,7 +96,7 @@ export class ProblemController {
       });
     }
   }
-  async createNewProblem(req: any, res: any): Promise<any> {
+  async createNewProblem(req: Request, res: Response): Promise<any> {
     try {
       const userId = req.user.id;
       const { problemName }: CreateNewProblemDTO = req.body;
@@ -98,7 +116,7 @@ export class ProblemController {
       });
     }
   }
-  async saveProblem(req: any, res: any): Promise<any> {
+  async saveProblem(req: Request, res: Response): Promise<any> {
     try {
       const authorId = req.user.id;
       const { _id, problem }: SaveProblemDTO = req.body;
@@ -117,7 +135,7 @@ export class ProblemController {
       });
     }
   }
-  async saveAndPublishProblem(req: any, res: any): Promise<any> {
+  async saveAndPublishProblem(req: Request, res: Response): Promise<any> {
     try {
       const authorId = req.user.id;
       const { _id, problem }: SaveAndPublishProblemDTO = req.body;
@@ -137,10 +155,10 @@ export class ProblemController {
       });
     }
   }
-  async getMyProblemData(req: any, res: any): Promise<any> {
+  async getMyProblemData(req: Request, res: Response): Promise<any> {
     try {
       const authorId = req.user.id;
-      const { problemId } = req.query;
+      const problemId = parseInt(req.query.problemId as string, 10);
       this.logger.log(`Fetching data for problem with ID: ${problemId} for user with ID: ${authorId}`);
       const problem = await this.problemServices.getProblemWithAuthor(problemId, authorId);
       if (!problem) {
@@ -165,14 +183,15 @@ export class ProblemController {
   }
   routes() {
     const validator = createValidator()
-    
+
     this.router.get('/getProblemsList', this.getProblemList.bind(this));
     this.router.get('/getMyProblems', userAuth, verifyPermissions('isAllowedToCreateProblem'), this.getMyProblemsList.bind(this));
-    this.router.get('/getProblemData', validator.query(problemIdSchema),this.getProblemData.bind(this));
-    this.router.get('/getAdminProblemData', validator.query(problemIdSchema),userAuth, verifyAdminIdMatch, verifyPermissions('isAllowedToCreateProblem'), this.getMyProblemData.bind(this));
-    this.router.post('/', createValidatorForSchema(newProblemSchema),userAuth, verifyPermissions('isAllowedToCreateProblem'), this.createNewProblem.bind(this));
+    this.router.get('/getProblemData', validator.query(problemIdSchema), this.getProblemData.bind(this));
+    this.router.get('/getAdminProblemData', validator.query(problemIdSchema), userAuth, verifyAdminIdMatch, verifyPermissions('isAllowedToCreateProblem'), this.getMyProblemData.bind(this));
+    this.router.post('/', createValidatorForSchema(newProblemSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.createNewProblem.bind(this));
     this.router.post('/save', createValidatorForSchema(problemDataSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveProblem.bind(this));
-    this.router.post('/saveandpublish',createValidatorForSchema(problemDataSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveAndPublishProblem.bind(this));
-    this.router.get('/globalLeaderboard', userController.globalLeaderboard.bind(this));
+    this.router.post('/saveandpublish', createValidatorForSchema(problemDataSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveAndPublishProblem.bind(this));
+    this.router.get('/globalLeaderboard', this.globalLeaderboard.bind(this));
   }
 }
+
