@@ -17,6 +17,7 @@ const { getUsersSortedBySolvedProblems } = services
 export class ProblemController {
   public router: Router;
   private logger;
+  
 
 
   constructor(private problemServices: ProblemService) {
