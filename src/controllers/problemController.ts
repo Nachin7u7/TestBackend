@@ -1,11 +1,9 @@
 import { createValidator } from 'express-joi-validation';
-
 import { HTTP_STATUS } from '../constants';
 import { buildLogger } from '../plugin';
 import { ProblemService } from '../services/problemService';
 import { Request, Response, Router } from 'express';
 import { userAuth, verifyAdminIdMatch, verifyPermissions } from '../middlewares';
-import { userController } from '.';
 import { CreateNewProblemDTO } from '../dtos/createNewProblemDto';
 import { SaveAndPublishProblemDTO } from '../dtos/saveAndPublishProblemDto';
 import { SaveProblemDTO } from '../dtos/saveProblemDto';
@@ -13,17 +11,37 @@ import { createValidatorForSchema } from '../middlewares/schemaValidator';
 import problemIdSchema from '../middlewares/schemas/problemIdSchema';
 import { newProblemSchema } from '../middlewares/schemas/newProblemSchema';
 import { problemDataSchema } from '../middlewares/schemas/problemDataSchema';
+import { services } from '../services';
 
-
+const { getUsersSortedBySolvedProblems } = services
 export class ProblemController {
   public router: Router;
   private logger;
   
 
+
   constructor(private problemServices: ProblemService) {
     this.router = Router();
     this.logger = buildLogger('problemController')
     this.routes()
+
+  }
+  async globalLeaderboard(req: Request, res: Response): Promise<any> {
+    try {
+      this.logger.log('Fetching global leaderboard');
+      const leaderboard = await getUsersSortedBySolvedProblems();
+      this.logger.log('Global leaderboard fetched successfully');
+      return res.status(HTTP_STATUS.OK).json({
+        success: true,
+        leaderboard: [],
+      });
+    } catch (err: any) {
+      this.logger.error('Error fetching global leaderboard:', { error: err.message });
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Internal server error. Please try again.',
+      });
+    }
   }
 
   async getProblemList(req: Request, res: Response): Promise<any> {
@@ -166,15 +184,15 @@ export class ProblemController {
   }
   routes() {
     const validator = createValidator()
-    
+
     this.router.get('/getProblemsList', this.getProblemList.bind(this));
     this.router.get('/getMyProblems', userAuth, verifyPermissions('isAllowedToCreateProblem'), this.getMyProblemsList.bind(this));
-    this.router.get('/getProblemData', validator.query(problemIdSchema),this.getProblemData.bind(this));
-    this.router.get('/getAdminProblemData', validator.query(problemIdSchema),userAuth, verifyAdminIdMatch, verifyPermissions('isAllowedToCreateProblem'), this.getMyProblemData.bind(this));
-    this.router.post('/', createValidatorForSchema(newProblemSchema),userAuth, verifyPermissions('isAllowedToCreateProblem'), this.createNewProblem.bind(this));
+    this.router.get('/getProblemData', validator.query(problemIdSchema), this.getProblemData.bind(this));
+    this.router.get('/getAdminProblemData', validator.query(problemIdSchema), userAuth, verifyAdminIdMatch, verifyPermissions('isAllowedToCreateProblem'), this.getMyProblemData.bind(this));
+    this.router.post('/', createValidatorForSchema(newProblemSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.createNewProblem.bind(this));
     this.router.post('/save', createValidatorForSchema(problemDataSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveProblem.bind(this));
-    this.router.post('/saveandpublish',createValidatorForSchema(problemDataSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveAndPublishProblem.bind(this));
-    this.router.get('/globalLeaderboard', userController.globalLeaderboard.bind(this));
+    this.router.post('/saveandpublish', createValidatorForSchema(problemDataSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveAndPublishProblem.bind(this));
+    this.router.get('/globalLeaderboard', this.globalLeaderboard.bind(this));
   }
 }
 
