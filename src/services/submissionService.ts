@@ -1,4 +1,4 @@
-import { compileAndRun } from './jdoodleService';
+import { JdoodleService } from './jdoodleService';
 import { buildLogger } from '../plugin';
 import { LANGUAGE_CONFIG, VERDICTS } from '../constants';
 import { UserRepositoryImpl } from '../repositories/implements/userRepositoryImpl';
@@ -9,13 +9,18 @@ import { PostSubmissionDto } from '../dtos/postSubmissionDto';
 
 export class SubmissionService {
 
+  private jdoodleService: JdoodleService;
+  
   constructor(
     private submissionRepository: SubmissionRepositoryImpl,
     private problemRepository: ProblemRepositoryImpl,
     private userRepository: UserRepositoryImpl
-  ) { };
+  ) {  
+    this.jdoodleService = new JdoodleService();
+  };
 
   logger = buildLogger('submissionService');
+  
 
   async getUsernameProblemIdSubmissions(
     username: any,
@@ -106,7 +111,7 @@ export class SubmissionService {
         versionIndex: versionIndex,
       };
 
-      const clientCodeResult = await compileAndRun(userProgram);
+      const clientCodeResult = await this.jdoodleService.compileAndRun(userProgram);
       this.logger.log('Client code result:', clientCodeResult.body);
 
       maxTime = Math.max(maxTime, clientCodeResult.body.cpuTime || 0);
@@ -120,7 +125,7 @@ export class SubmissionService {
       }
 
       this.logger.log('Checker Program:', checkerProgram);
-      const checkerCodeResult = await compileAndRun(checkerProgram);
+      const checkerCodeResult = await this.jdoodleService.compileAndRun(checkerProgram);
       this.logger.log('Checker code result:', checkerCodeResult);
 
       verdict = veredictTestCaseHelper(i, clientCodeResult, checkerCodeResult, {memoryLimit, timeLimit})
