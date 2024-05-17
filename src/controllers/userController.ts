@@ -23,6 +23,7 @@ export class UserController {
     this.router = Router();
     this.logger = buildLogger('userController');
     this.userService = services;
+    this.routes();
   }
 
   async register(req: Request, res: Response): Promise<any> {
