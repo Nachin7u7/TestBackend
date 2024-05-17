@@ -19,7 +19,6 @@ const limiter = rateLimit({
   max: 100,
 });
 
-app.set('trust proxy', true);
 
 app.use(limiter);
 
