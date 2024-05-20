@@ -183,7 +183,7 @@ export class ProblemService {
   async saveAndPublishProblemData(problemId: string, authorId: string, updateData: any): Promise<any> {
     this.logger.log('Attempting to save and publish problem data for given problem id, author id and updateData.', { problemId, authorId });
     try {
-      const publishedProblem = await this.problemRepository.publishProblem(problemId, updateData);
+      const publishedProblem = await this.problemRepository.publishProblem(problemId, updateData.sampleProblemData);
       this.logger.log('Successfully saved and published problem data for given problem id, author id and updateData.');
       return publishedProblem;
     } catch (error: any) {

@@ -1,4 +1,5 @@
 import { IProblemEntity } from "../entities/IProblemEntity";
+import { ISemiProblemEntity } from "../entities/ISemiProblemEntity";
 
 export interface ProblemRepository {
     findProblemsByPublished(isPublished: boolean): Promise<IProblemEntity[]>;
@@ -10,5 +11,5 @@ export interface ProblemRepository {
     updateProblem(problemId: number, updateData: IProblemEntity): Promise<IProblemEntity | null>;
     findProblemByName(problemName: string): Promise<IProblemEntity | null>;
     incrementProblemIdCounter(): Promise<number>;
-    publishProblem(problemId: string, updatedData: IProblemEntity): Promise<IProblemEntity | null>;
+    publishProblem(problemId: string, updatedData: ISemiProblemEntity): Promise<IProblemEntity | null>;
 }
