@@ -17,8 +17,6 @@ const { getUsersSortedBySolvedProblems } = services
 export class ProblemController {
   public router: Router;
   private logger;
-  
-
 
   constructor(private problemServices: ProblemService) {
     this.router = Router();
@@ -33,7 +31,7 @@ export class ProblemController {
       this.logger.log('Global leaderboard fetched successfully');
       return res.status(HTTP_STATUS.OK).json({
         success: true,
-        leaderboard: [],
+        leaderboard,
       });
     } catch (err: any) {
       this.logger.error('Error fetching global leaderboard:', { error: err.message });
