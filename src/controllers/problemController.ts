@@ -12,6 +12,7 @@ import problemIdSchema from '../middlewares/schemas/problemIdSchema';
 import { newProblemSchema } from '../middlewares/schemas/newProblemSchema';
 import { problemDataSchema } from '../middlewares/schemas/problemDataSchema';
 import { services } from '../services';
+import { savedProblemSchema } from '../middlewares/schemas/savedProblemSchema';
 
 const { getUsersSortedBySolvedProblems } = services
 export class ProblemController {
@@ -188,8 +189,8 @@ export class ProblemController {
     this.router.get('/getProblemData', validator.query(problemIdSchema), this.getProblemData.bind(this));
     this.router.get('/getAdminProblemData', validator.query(problemIdSchema), userAuth, verifyAdminIdMatch, verifyPermissions('isAllowedToCreateProblem'), this.getMyProblemData.bind(this));
     this.router.post('/', createValidatorForSchema(newProblemSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.createNewProblem.bind(this));
-    this.router.post('/save', createValidatorForSchema(problemDataSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveProblem.bind(this));
-    this.router.post('/saveandpublish', createValidatorForSchema(problemDataSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveAndPublishProblem.bind(this));
+    this.router.post('/save',createValidatorForSchema(problemDataSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveProblem.bind(this));
+    this.router.post('/saveandpublish', createValidatorForSchema(savedProblemSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveAndPublishProblem.bind(this));
     this.router.get('/globalLeaderboard', this.globalLeaderboard.bind(this));
   }
 }

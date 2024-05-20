@@ -3,6 +3,7 @@ import Counter from '../../entities/implements/CounterEntity';
 import { buildLogger } from '../../plugin';
 import { ProblemRepository } from '../problemRepository';
 import { IProblemEntity } from '../../entities/IProblemEntity';
+import { ISemiProblemEntity } from '../../entities/ISemiProblemEntity';
 
 export class ProblemRepositoryImpl implements ProblemRepository {
 
@@ -254,7 +255,7 @@ export class ProblemRepositoryImpl implements ProblemRepository {
    * @param {Object} updateData - The publication data to update the problem with.
    * @returns {Promise<Object>} A promise that resolves to the published problem document.
    */
-  async publishProblem(problemId: string, updateData: IProblemEntity): Promise<IProblemEntity | null> {
+  async publishProblem(problemId: string, updateData: ISemiProblemEntity): Promise<IProblemEntity | null> {
     this.logger.log('Attempting to publish problem.', { problemId });
     this.logger.log('updateData:', updateData);
     try {
