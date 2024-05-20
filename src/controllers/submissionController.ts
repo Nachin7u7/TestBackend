@@ -60,7 +60,6 @@ export class SubmissionController {
     try {
       const postSubmissionDto: PostSubmissionDto = req.body;
       this.logger.log('Compiling and running submission');
-      console.log(this.submissionService)
       const verdict = await this.submissionService.postSubmission(req.user!, postSubmissionDto);
       this.logger.log('Submission compiled and run successfully');
       return res.status(HTTP_STATUS.OK).json({
