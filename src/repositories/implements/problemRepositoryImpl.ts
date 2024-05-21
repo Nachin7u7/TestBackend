@@ -160,7 +160,7 @@ export class ProblemRepositoryImpl implements ProblemRepository {
     });
     try {
       const problem = await Problem.findOne({
-        _id: problemId,
+        problemId,
         author: authorId,
       });
       this.logger.log('Successfully found problem by id and author.', { problem });
