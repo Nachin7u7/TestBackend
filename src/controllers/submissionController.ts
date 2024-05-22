@@ -2,7 +2,7 @@ import { buildLogger } from '../plugin';
 import { HTTP_STATUS } from '../constants';
 import { Request, Response, Router } from 'express';
 import { SubmissionService } from '../services/submissionService';
-import { ProblemService } from '../services/problemService'; // Importa ProblemService
+import { ProblemService } from '../services/problemService';
 import { userAuth } from '../middlewares';
 import { PostSubmissionDto } from '../dtos/postSubmissionDto';
 
@@ -12,7 +12,7 @@ export class SubmissionController {
 
   constructor(
     private submissionService: SubmissionService,
-    private problemService: ProblemService // Añade ProblemService como parámetro del constructor
+    private problemService: ProblemService 
   ) {
     this.router = Router();
     this.logger = buildLogger('submissionControllers');
