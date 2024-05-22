@@ -197,4 +197,9 @@ export class ProblemService {
     }
   };
 
+  async checkProblemExists(problemId: number): Promise<boolean> {
+    const problem = await this.problemRepository.findProblemByIdAndPublished(problemId, true);
+    return !!problem;
+  }
+
 }  
