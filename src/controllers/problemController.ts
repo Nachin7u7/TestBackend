@@ -66,6 +66,12 @@ export class ProblemController {
       this.logger.log(`Fetching problem data for ID: ${problemId}`);
       const problem = await this.problemServices.getProblemById(problemId);
       this.logger.log(`Problem data fetched successfully for ID: ${problemId}`);
+      if(!problem){
+        return res.status(HTTP_STATUS.NOT_FOUND).json({
+          success: true,
+          message: "Problem with such id doesn't exist"
+        })
+      }
       return res.status(HTTP_STATUS.OK).json({
         success: true,
         data: problem,
@@ -76,6 +82,7 @@ export class ProblemController {
         success: false,
         message: 'Internal server error. Please try again.',
       });
+
     }
   }
   async getMyProblemsList(req: Request, res: Response): Promise<any> {
