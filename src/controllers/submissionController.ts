@@ -4,6 +4,8 @@ import { Request, Response, Router } from 'express';
 import { SubmissionService } from '../services/submissionService';
 import { userAuth } from '../middlewares';
 import { PostSubmissionDto } from '../dtos/postSubmissionDto';
+import { validateBody } from '../middlewares/validateBody';
+import { postSubmissionSchema } from '../middlewares/schemas/postSubmissionSchema';
 
 export class SubmissionController {
   private logger;
@@ -76,7 +78,7 @@ export class SubmissionController {
   };
 
   routes(){
-    this.router.post('/compileAndRun', userAuth, this.compileAndRun.bind(this));
+    this.router.post('/compileAndRun', userAuth,validateBody(postSubmissionSchema), this.compileAndRun.bind(this));
     this.router.get('/submissionsList', userAuth, this.userSubmissionsList.bind(this));
     this.router.get('/leaderboard', this.leaderboardProblemSubmissionsList.bind(this));
   }
