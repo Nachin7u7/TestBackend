@@ -4,16 +4,16 @@ import { successHandler } from '../handlers';
 import { AuthService, verifyRefreshToken } from '../services/authService';
 import { HTTP_STATUS } from '../constants';
 import { userAuth, validateForgotPasswordInput, validateLoginInput, validateRefreshToken } from '../middlewares';
-import { checkTokenToMail } from '../services/userService';
 import { RefreshTokenDTO } from '../dtos/refreshTokenDto';
 import { LoginDTO } from '../dtos/loginDto';
 import { ForgotPasswordDTO } from '../dtos/forgotPasswordDto';
+import UserService from '../services/userService';
 
 export class AuthController{
   public router: Router
   private logger
 
-  constructor(private authService: AuthService){
+  constructor(private authService: AuthService, private userService: UserService){
     this.router = Router()
     this.logger = buildLogger('authController')
     this.routes()
@@ -119,7 +119,7 @@ export class AuthController{
     try {
       const { token } = req.params;
       this.logger.log('Verifying email with token:', {token});
-      const verifcationResult = await checkTokenToMail(token);
+      const verifcationResult = await this.userService.checkTokenToMail(token);
       this.logger.log('Email verified successfully');
 
       successHandler.sendOkResponse(
