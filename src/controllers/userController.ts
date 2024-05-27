@@ -3,14 +3,14 @@ import { HTTP_STATUS } from '../constants';
 import { Request, Response, Router } from 'express';
 import { validateRegisterInput, verifyPermissions, userAuth } from '../middlewares';
 import { services } from '../services';
+import UserService from '../services/userService';
 
-const { registerUser, registerAdminUser } = services;
 
 export class UserController {
   private logger;
   public router: Router;
 
-  constructor() {
+  constructor(private usersevice :UserService ) {
     this.router = Router();
     this.logger = buildLogger('userController');
     this.routes();
@@ -20,7 +20,7 @@ export class UserController {
     try {
       const { username, email, password } = req.body;
       this.logger.log('Registering new user:', { username, email });
-      await registerUser({ username, email, password });
+      await this.usersevice.registerUser({ username, email, password });
       this.logger.log('User registered successfully');
       return res.status(HTTP_STATUS.CREATED).json({
         message: 'Your account has been created successfully.',
@@ -37,7 +37,7 @@ export class UserController {
     try {
       const { username, email, password } = req.body;
       this.logger.log('Registering new admin user:', { username, email });
-      await registerAdminUser({ username, email, password });
+      await this.usersevice.registerAdminUser({ username, email, password });
       this.logger.log('Admin user registered successfully');
       return res.status(HTTP_STATUS.CREATED).json({
         message: 'A new ADMIN account has been created successfully.',
