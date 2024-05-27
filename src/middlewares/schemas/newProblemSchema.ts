@@ -3,10 +3,10 @@ import Joi from "joi";
 export const newProblemSchema = Joi.object({
     problemName: Joi.string().required(),
     sampleProblemData: Joi.object({
-        statement: Joi.string().required(),
-        inputFormat: Joi.string().required(),
-        outputFormat: Joi.string().required(),
-        constraints: Joi.string().required(),
+        statement: Joi.string(),
+        inputFormat: Joi.string(),
+        outputFormat: Joi.string(),
+        constraints: Joi.string(),
         testcases: Joi.array().min(1).items(
             Joi.object({
                 input: Joi.object({
@@ -19,17 +19,17 @@ export const newProblemSchema = Joi.object({
                 }).required(),
                 isSample: Joi.boolean().required()
             })
-        ).required(),
-        checkerCode: Joi.string().allow("").required(),
-        explanation: Joi.string().allow("").required(),
+        ),
+        checkerCode: Joi.string().allow(""),
+        explanation: Joi.string().allow(""),
         config: Joi.object({
-                timelimit: Joi.number().required(),
-                memorylimit: Joi.number().required(),
-                difficulty: Joi.object({
-                    value: Joi.number().max(3).required(),
-                    label: Joi.string().required()
-                }).required(),
-                tags: Joi.array().items(Joi.string())
-            })
-    }).required()
-})
+            timelimit: Joi.number(),
+            memorylimit: Joi.number(),
+            difficulty: Joi.object({
+                value: Joi.number().max(3),
+                label: Joi.string()
+            }),
+            tags: Joi.array().items(Joi.string())
+        })
+    })
+});
