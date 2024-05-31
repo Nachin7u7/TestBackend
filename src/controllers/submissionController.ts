@@ -14,7 +14,7 @@ export class SubmissionController {
 
   constructor(
     private submissionService: SubmissionService,
-    private problemService: ProblemService 
+    private problemService: ProblemService
   ) {
     this.router = Router();
     this.logger = buildLogger('submissionControllers');
@@ -91,10 +91,8 @@ export class SubmissionController {
     }
   };
 
-  routes(){
-    this.router.post('/compileAndRun', userAuth,validateBody(postSubmissionSchema), this.compileAndRun.bind(this));
   routes() {
-    this.router.post('/compileAndRun', userAuth, this.compileAndRun.bind(this));
+    this.router.post('/compileAndRun', userAuth, validateBody(postSubmissionSchema), this.compileAndRun.bind(this));
     this.router.get('/submissionsList', userAuth, this.userSubmissionsList.bind(this));
     this.router.get('/leaderboard', this.leaderboardProblemSubmissionsList.bind(this));
   }
