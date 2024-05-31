@@ -128,11 +128,11 @@ export class ProblemService {
 
   /**
    * Fetches problem data for a given problem ID and author ID.
-   * @param {number} problemId - The ID of the problem to fetch.
+   * @param {string} problemId - The ID of the problem to fetch.
    * @param {String} authorId - The ID of the author of the problem.
    * @returns {Promise<Object>} A promise that resolves to the problem data object.
    */
-  async getProblemWithAuthor(problemId: number, authorId: string): Promise<any> {
+  async getProblemWithAuthor(problemId: string, authorId: string): Promise<any> {
     this.logger.log('Attempting to fetch problem data for given problem id and author id.', { problemId, authorId });
     try {
       const problemData = await this.problemRepository.findProblemByIdAndAuthor(problemId, authorId);

@@ -165,7 +165,7 @@ export class ProblemController {
   async getMyProblemData(req: Request, res: Response): Promise<any> {
     try {
       const authorId = req.user.id;
-      const problemId = parseInt(req.query.problemId as string, 10);
+      const problemId = req.query.problemId as string;
       this.logger.log(`Fetching data for problem with ID: ${problemId} for user with ID: ${authorId}`);
       const problem = await this.problemServices.getProblemWithAuthor(problemId, authorId);
       if (!problem) {

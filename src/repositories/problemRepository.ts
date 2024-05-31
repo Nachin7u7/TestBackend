@@ -7,7 +7,7 @@ export interface ProblemRepository {
     findPublishedProblemById(problemId: number): Promise<IProblemEntity | null>;
     findProblemsByAuthor(authorId: string): Promise<IProblemEntity[]>;
     createNewProblem(problemData: IProblemEntity): Promise<IProblemEntity>;
-    findProblemByIdAndAuthor(problemId: number, authorId: string): Promise<IProblemEntity | null>;
+    findProblemByIdAndAuthor(problemId: string, authorId: string): Promise<IProblemEntity | null>;
     updateProblem(problemId: number, updateData: IProblemEntity): Promise<IProblemEntity | null>;
     findProblemByName(problemName: string): Promise<IProblemEntity | null>;
     incrementProblemIdCounter(): Promise<number>;
