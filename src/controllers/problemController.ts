@@ -13,13 +13,13 @@ import { newProblemSchema } from '../middlewares/schemas/newProblemSchema';
 import { problemDataSchema } from '../middlewares/schemas/problemDataSchema';
 import { services } from '../services';
 import { savedProblemSchema } from '../middlewares/schemas/savedProblemSchema';
+import UserService from '../services/userService';
 
-const { getUsersSortedBySolvedProblems } = services
 export class ProblemController {
   public router: Router;
   private logger;
 
-  constructor(private problemServices: ProblemService) {
+  constructor(private problemServices: ProblemService, private userService: UserService) {
     this.router = Router();
     this.logger = buildLogger('problemController')
     this.routes()
@@ -28,7 +28,7 @@ export class ProblemController {
   async globalLeaderboard(req: Request, res: Response): Promise<any> {
     try {
       this.logger.log('Fetching global leaderboard');
-      const leaderboard = await getUsersSortedBySolvedProblems();
+      const leaderboard = await this.userService.getUsersSortedBySolvedProblems();
       this.logger.log('Global leaderboard fetched successfully');
       return res.status(HTTP_STATUS.OK).json({
         success: true,
@@ -66,6 +66,12 @@ export class ProblemController {
       this.logger.log(`Fetching problem data for ID: ${problemId}`);
       const problem = await this.problemServices.getProblemById(problemId);
       this.logger.log(`Problem data fetched successfully for ID: ${problemId}`);
+      if(!problem){
+        return res.status(HTTP_STATUS.NOT_FOUND).json({
+          success: true,
+          message: "Problem with such id doesn't exist"
+        })
+      }
       return res.status(HTTP_STATUS.OK).json({
         success: true,
         data: problem,
@@ -76,6 +82,7 @@ export class ProblemController {
         success: false,
         message: 'Internal server error. Please try again.',
       });
+
     }
   }
   async getMyProblemsList(req: Request, res: Response): Promise<any> {
