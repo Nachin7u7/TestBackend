@@ -151,7 +151,7 @@ export class ProblemRepositoryImpl implements ProblemRepository {
    * @returns {Promise<Object>} A promise that resolves to the problem document if found.
    */
   async findProblemByIdAndAuthor(
-    problemId: number,
+    problemId: string,
     authorId: string
   ): Promise<IProblemEntity | null> {
     this.logger.log('Attempting to find problem by id and author.', {
@@ -160,7 +160,7 @@ export class ProblemRepositoryImpl implements ProblemRepository {
     });
     try {
       const problem = await Problem.findOne({
-        problemId,
+        _id: problemId,
         author: authorId,
       });
       this.logger.log('Successfully found problem by id and author.', { problem });
