@@ -14,5 +14,8 @@
   ],
   "env": {
     "LOG_DIRECTORY": "/tmp/logs"
+  },
+  "git": {
+    "deploymentEnabled": false
   }
 }
