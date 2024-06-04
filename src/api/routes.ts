@@ -24,7 +24,7 @@ const problemService = new ProblemService(problemRepository);
 const userService = new UserService(userRepository);
 const submissionService = new SubmissionService(submissionRepository, problemRepository, userRepository);
 
-const submissionController = new SubmissionController(submissionService)
+const submissionController = new SubmissionController(submissionService, problemService)
 const authController = new AuthController(authService, userService)
 const problemController = new ProblemController(problemService, userService);
 const userController = new UserController(userService);
