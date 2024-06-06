@@ -7,6 +7,7 @@ import { userAuth } from '../middlewares';
 import { PostSubmissionDto } from '../dtos/postSubmissionDto';
 import { validateBody } from '../middlewares/validateBody';
 import { postSubmissionSchema } from '../middlewares/schemas/postSubmissionSchema';
+import { sendOkResponse } from '../handlers/successHandler';
 
 export class SubmissionController {
   private logger;
@@ -78,10 +79,7 @@ export class SubmissionController {
       this.logger.log('Compiling and running submission');
       const verdict = await this.submissionService.postSubmission(req.user!, postSubmissionDto);
       this.logger.log('Submission compiled and run successfully');
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        verdict,
-      });
+      sendOkResponse(res, verdict, 'Submission compiled and run successfully');
     } catch (err: any) {
       this.logger.error('Error compiling and running submission:', { error: err.message });
       return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
@@ -89,7 +87,7 @@ export class SubmissionController {
         message: 'Internal server error. Please try again.',
       });
     }
-  };
+  }
 
   routes() {
     this.router.post('/compileAndRun', userAuth, validateBody(postSubmissionSchema), this.compileAndRun.bind(this));
