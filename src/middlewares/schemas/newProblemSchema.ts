@@ -29,7 +29,10 @@ export const newProblemSchema = Joi.object({
                 value: Joi.number().max(3),
                 label: Joi.string()
             }),
-            tags: Joi.array().items(Joi.string())
+            tags: Joi.array().items(Joi.object({
+                value: Joi.string(),
+                label: Joi.string()
+            }))
         })
     })
 });

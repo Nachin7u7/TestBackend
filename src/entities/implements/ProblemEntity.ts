@@ -4,7 +4,7 @@ import { IProblemModel } from '../../models/IProblemModel';
 import { IProblemEntity } from '../IProblemEntity';
 
 const ProblemSchema: Schema<IProblemEntity> = new mongoose.Schema({
-  problemId: {
+  _id: {
     type: Number,
     unique: true,
   },

@@ -3,7 +3,7 @@ import { ISemiProblemEntity } from './ISemiProblemEntity';
 import { ISubmissionEntity } from './ISubmissionEntity';
 
 export interface IProblemEntity {
-  problemId: number;
+  _id: number;
   author: string;
   problemName: string;
   isPublished: boolean;

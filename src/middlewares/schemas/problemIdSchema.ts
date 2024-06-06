@@ -1,9 +1,7 @@
-import Joi from "joi";
-
+import Joi from 'joi';
 
 const problemIdSchema = Joi.object({
-    problemId: Joi.string().required(),
-    adminId: Joi.string()
-})
+  problemId: Joi.string().required(),
+});
 
-export default problemIdSchema
+export default problemIdSchema;

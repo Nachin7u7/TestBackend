@@ -1,3 +1,8 @@
+export interface ITag {
+  value: string;
+  label: string;
+}
+
 export interface IConfigEntity {
   timelimit: number;
   memorylimit: number;
@@ -5,5 +10,5 @@ export interface IConfigEntity {
     value: number;
     label: string;
   };
-  tags: string[];
+  tags: ITag[];
 }

@@ -61,7 +61,7 @@ export class ProblemController {
     }
   }
   async getProblemData(req: Request, res: Response): Promise<any> {
-    const problemId = parseInt(req.query.problemId as string, 10);
+    const problemId = Number(req.query.problemId as string);
     try {
       this.logger.log(`Fetching problem data for ID: ${problemId}`);
       const problem = await this.problemServices.getProblemById(problemId);
@@ -126,9 +126,9 @@ export class ProblemController {
   async saveProblem(req: Request, res: Response): Promise<any> {
     try {
       const authorId = req.user.id;
-      const { _id, problem }: SaveProblemDTO = req.body;
+      const { _id, saved }: SaveProblemDTO = req.body;
       this.logger.log(`Saving problem with ID: ${_id} for user with ID: ${authorId}`);
-      await this.problemServices.saveProblemData(_id, authorId, problem);
+      await this.problemServices.saveProblemData(_id, authorId, saved);
       this.logger.log('Problem saved successfully');
       return res.status(HTTP_STATUS.OK).json({
         success: true,
@@ -145,9 +145,9 @@ export class ProblemController {
   async saveAndPublishProblem(req: Request, res: Response): Promise<any> {
     try {
       const authorId = req.user.id;
-      const { _id, problem }: SaveAndPublishProblemDTO = req.body;
+      const { _id, published }: SaveAndPublishProblemDTO = req.body;
       this.logger.log(`Saving and publishing problem with ID: ${_id} for user with ID: ${authorId}`);
-      const problemUpdated = await this.problemServices.saveAndPublishProblemData(_id, authorId, problem);
+      const problemUpdated = await this.problemServices.saveAndPublishProblemData(_id, authorId, published);
       this.logger.log('Problem saved and published successfully');
       return res.status(HTTP_STATUS.OK).json({
         success: true,

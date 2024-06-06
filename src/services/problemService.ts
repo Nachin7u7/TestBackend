@@ -99,12 +99,15 @@ export class ProblemService {
             value: 1,
             label: "Easy",
           },
-          tags: [],
+          tags: [{
+            value: "array",
+            label: "Array",
+          }],
         },
       };
 
       const newProblem = await this.problemRepository.createNewProblem({
-        problemId,
+        _id: problemId,
         author: userId,
         problemName,
         isPublished: false,
@@ -114,7 +117,7 @@ export class ProblemService {
         solvedCount: 0,
         totalSubmissions: 0
       });
-      this.logger.log('Successfully created a new problem.', { problemId: newProblem.problemId });
+      this.logger.log('Successfully created a new problem.', { problemId: newProblem._id });
       return newProblem;
     } catch (error: any) {
       this.logger.error('Error while creating a new problem.', {
@@ -181,9 +184,9 @@ export class ProblemService {
    * @returns {Promise<Object>} A promise that resolves to the published problem object.
    */
   async saveAndPublishProblemData(problemId: string, authorId: string, updateData: any): Promise<any> {
-    this.logger.log('Attempting to save and publish problem data for given problem id, author id and updateData.', { problemId, authorId });
+    this.logger.log('Attempting to save and publish problem data for given problem id, author id and updateData.', { problemId, updateData });
     try {
-      const publishedProblem = await this.problemRepository.publishProblem(problemId, updateData.sampleProblemData);
+      const publishedProblem = await this.problemRepository.publishProblem(problemId, updateData);
       this.logger.log('Successfully saved and published problem data for given problem id, author id and updateData.');
       return publishedProblem;
     } catch (error: any) {

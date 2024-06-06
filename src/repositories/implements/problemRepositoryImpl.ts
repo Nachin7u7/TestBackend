@@ -57,10 +57,10 @@ export class ProblemRepositoryImpl implements ProblemRepository {
     });
     try {
       const problem = await Problem.findOne(
-        { problemId, isPublished },
+        { _id: problemId, isPublished },
         { _id: 1, problemId: 1, problemName: 1, published: 1 }
       );
-      this.logger.log('Successfully fetched problem by id and published status =======.');
+      this.logger.log(`Successfully fetched problem by id and published status. ${problem}`);
       return problem;
     } catch (error: any) {
       this.logger.error('Error while fetching problem by id and published status.', {
@@ -188,10 +188,11 @@ export class ProblemRepositoryImpl implements ProblemRepository {
     updateData: IProblemEntity
   ): Promise<IProblemEntity | null> {
     this.logger.log('Attempting to update problem.', { problemId });
+    this.logger.log('updateData:', updateData);
     try {
       const updatedProblem = await Problem.findByIdAndUpdate(
         problemId,
-        updateData,
+        { $set: { saved: updateData  } },
         { new: true }
       );
       this.logger.log('Successfully updated problem.');

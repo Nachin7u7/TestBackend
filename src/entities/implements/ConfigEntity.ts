@@ -22,7 +22,18 @@ const ConfigSchema: Schema<IConfigEntity> = new mongoose.Schema({
       default: "Easy",
     },
   },
-  tags: [String],
+  tags: [
+    {
+      value: {
+        type: String,
+        default: "",
+      },
+      label: {
+        type: String,
+        default: "",
+      },
+    }
+  ],
 });
 
 export default ConfigSchema;
