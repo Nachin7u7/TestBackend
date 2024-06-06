@@ -14,6 +14,7 @@ import { problemDataSchema } from '../middlewares/schemas/problemDataSchema';
 import { services } from '../services';
 import { savedProblemSchema } from '../middlewares/schemas/savedProblemSchema';
 import UserService from '../services/userService';
+import { sendOkResponse } from '../handlers/successHandler';
 
 export class ProblemController {
   public router: Router;
@@ -66,7 +67,7 @@ export class ProblemController {
       this.logger.log(`Fetching problem data for ID: ${problemId}`);
       const problem = await this.problemServices.getProblemById(problemId);
       this.logger.log(`Problem data fetched successfully for ID: ${problemId}`);
-      if(!problem){
+      if (!problem) {
         return res.status(HTTP_STATUS.NOT_FOUND).json({
           success: true,
           message: "Problem with such id doesn't exist"
@@ -130,10 +131,7 @@ export class ProblemController {
       this.logger.log(`Saving problem with ID: ${_id} for user with ID: ${authorId}`);
       await this.problemServices.saveProblemData(_id, authorId, problem);
       this.logger.log('Problem saved successfully');
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        message: 'Problem saved successfully',
-      });
+      sendOkResponse(res, null, 'Problem saved successfully');
     } catch (error: any) {
       this.logger.error('Error saving problem:', { error: error.message });
       return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
@@ -196,7 +194,7 @@ export class ProblemController {
     this.router.get('/getProblemData', validator.query(problemIdSchema), this.getProblemData.bind(this));
     this.router.get('/getAdminProblemData', validator.query(problemIdSchema), userAuth, verifyAdminIdMatch, verifyPermissions('isAllowedToCreateProblem'), this.getMyProblemData.bind(this));
     this.router.post('/', createValidatorForSchema(newProblemSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.createNewProblem.bind(this));
-    this.router.post('/save',createValidatorForSchema(problemDataSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveProblem.bind(this));
+    this.router.post('/save', createValidatorForSchema(problemDataSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveProblem.bind(this));
     this.router.post('/saveandpublish', createValidatorForSchema(savedProblemSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveAndPublishProblem.bind(this));
     this.router.get('/globalLeaderboard', this.globalLeaderboard.bind(this));
   }
