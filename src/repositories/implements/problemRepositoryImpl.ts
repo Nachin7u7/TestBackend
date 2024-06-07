@@ -84,7 +84,7 @@ export class ProblemRepositoryImpl implements ProblemRepository {
       problemId: problemId,
     });
     try {
-      const query = { problemId, isPublished: true };
+      const query = { _id: problemId, isPublished: true };
       const fields = {
         'published.testcases': 1,
         'published.config': 1,

@@ -1,6 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
 import SemiProblemSchema from './SemiProblemEntity';
-import { IProblemModel } from '../../models/IProblemModel';
 import { IProblemEntity } from '../IProblemEntity';
 
 const ProblemSchema: Schema<IProblemEntity> = new mongoose.Schema({
@@ -39,6 +38,7 @@ const ProblemSchema: Schema<IProblemEntity> = new mongoose.Schema({
 }, {
   timestamps: true,
 });
+export interface IProblemModel extends IProblemEntity {}
 
 const Problem = mongoose.model<IProblemModel>('Problem', ProblemSchema);
 

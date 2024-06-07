@@ -1,5 +1,5 @@
 import { Document } from 'mongoose';
-import { IProblemEntity } from '../entities/IProblemEntity';
 
-export interface IProblemModel extends IProblemEntity, Document {
+export interface IProblemModel extends Document {
+	// Add the properties from IProblemEntity 
 }
