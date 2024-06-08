@@ -2,7 +2,7 @@ import { UserRepository } from './../repositories/userRepository';
 import { utils } from '../utils';
 import { buildLogger } from '../plugin';
 import jwt from 'jsonwebtoken';
-import { sendForgotPassword } from './emailService';
+import EmailService from './emailService';
 
 
 const { 
@@ -14,7 +14,7 @@ const {
   comparePasswords,
 } = utils
 const logger = buildLogger('authService');
-
+const emailService = new EmailService();
 
 
 class AuthService {
@@ -53,7 +53,7 @@ class AuthService {
     }
   
     const token: string = generateToken(user);
-    await sendForgotPassword(email, token);
+    await emailService.sendForgotPassword(email, token);
   }
 
   async resetUserPassword(token: string, password: string): Promise<any> {
