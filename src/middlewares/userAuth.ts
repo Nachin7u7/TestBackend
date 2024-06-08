@@ -20,6 +20,7 @@ const userAuth = async (req: Request, res: Response, next: NextFunction): Promis
     req.user = decoded as any; // Explicitly typing `decoded` as `any` to append to `req`
     next();
   } catch (err) {
+    console.error('Error verifying token:', { error: err });
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: 'Invalid token.',

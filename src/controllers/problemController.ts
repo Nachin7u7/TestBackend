@@ -127,9 +127,9 @@ export class ProblemController {
   async saveProblem(req: Request, res: Response): Promise<any> {
     try {
       const authorId = req.user.id;
-      const { _id, saved }: SaveProblemDTO = req.body;
+      const { _id, saved, problemName}: SaveProblemDTO = req.body;
       this.logger.log(`Saving problem with ID: ${_id} for user with ID: ${authorId}`);
-      await this.problemServices.saveProblemData(_id, authorId, saved);
+      await this.problemServices.saveProblemData(_id, authorId, saved, problemName);
       this.logger.log('Problem saved successfully');
       sendOkResponse(res, null, 'Problem saved successfully');
     } catch (error: any) {

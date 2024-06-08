@@ -159,10 +159,10 @@ export class ProblemService {
    * @param {Object} updateData - The data to update the problem with.
    * @returns {Promise<Object>} A promise that resolves to the updated problem object.
    */
-  async saveProblemData(problemId: number, authorId: string, updateData: any): Promise<any> {
+  async saveProblemData(problemId: number, authorId: string, updateData: any, problemName: string): Promise<any> {
     this.logger.log('Attempting to update problem data for given problem id, author id and updateData.', { problemId, authorId });
     try {
-      const savedProblem = await this.problemRepository.updateProblem(problemId, updateData);
+      const savedProblem = await this.problemRepository.updateProblem(problemId, updateData, problemName);
       this.logger.log('Successfully updating problem data for given problem id, author id and updateData.');
       return savedProblem;
     } catch (error: any) {

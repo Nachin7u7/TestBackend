@@ -220,7 +220,6 @@ const seed = async () => {
 
   try {
     await Problem.insertMany(problems);
-    console.log('Seed data inserted successfully');
   } catch (error) {
     console.error('Error inserting seed data:', error);
   } finally {
