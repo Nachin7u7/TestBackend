@@ -1,13 +1,13 @@
-import { sendVerificationEmail, sendForgotPassword } from './emailService';
+
 import { utils } from '../utils';
 import { buildLogger } from '../plugin';
 import { ROLES } from '../constants';
 import jwt from 'jsonwebtoken';
 import { UserRepositoryImpl } from '../repositories/implements/userRepositoryImpl';
-
-const { generateToken, verifyToken, generateAccessToken, generateRefreshToken, hashPassword, comparePasswords } = utils;
+import EmailService from './emailService';
+const { generateToken, verifyToken, hashPassword} = utils;
 const logger = buildLogger('userService');
-
+const emailService = new EmailService();
 class UserService {
   private userRepository: UserRepositoryImpl;
 
@@ -34,7 +34,7 @@ class UserService {
       });
 
       const token: string = generateToken(user);
-      await sendVerificationEmail(email, token);
+      await emailService.sendVerificationEmail(email, token);
 
       logger.log('User registered and verification email sent successfully', {
         email,
@@ -71,7 +71,7 @@ class UserService {
       });
 
       const token: string = generateToken(user);
-      await sendVerificationEmail(email, token);
+      await emailService.sendVerificationEmail(email, token);
 
       logger.log('Admin User registered and verification email sent successfully', { email, userId: user.id });
       return user;
