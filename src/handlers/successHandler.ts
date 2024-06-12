@@ -30,7 +30,7 @@ const sendOkResponse = (
 const sendCreatedResponse = (
   res: Response,
   message: string,
-  data: any
+  data: any = null
 ): void => {
   res.status(HTTP_STATUS.CREATED).json({
     success: true,
