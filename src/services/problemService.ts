@@ -108,6 +108,7 @@ export class ProblemService {
 
       const newProblem = await this.problemRepository.createNewProblem({
         _id: problemId,
+        problemId,
         author: userId,
         problemName,
         isPublished: false,
@@ -117,7 +118,7 @@ export class ProblemService {
         solvedCount: 0,
         totalSubmissions: 0
       });
-      this.logger.log('Successfully created a new problem.', { problemId: newProblem._id });
+      this.logger.log('Successfully created a new problem.', { newProblem });
       return newProblem;
     } catch (error: any) {
       this.logger.error('Error while creating a new problem.', {

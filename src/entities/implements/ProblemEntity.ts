@@ -7,6 +7,11 @@ const ProblemSchema: Schema<IProblemEntity> = new mongoose.Schema({
     type: Number,
     unique: true,
   },
+  problemId: {
+    type: Number,
+    required: true,
+    unique: true,
+  },
   author: {
     type: String,
     required: true,
