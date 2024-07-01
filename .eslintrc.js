@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 module.exports = {
     env: {
       browser: true,
@@ -13,8 +14,11 @@ module.exports = {
       sourceType: 'module', // Allows for the use of imports
     },
     rules: {
-      'no-unused-vars': 'warn', // Warns about variables that are declared but not used
-      'no-console': 'off', // Allows the use of console statements
+      'no-unused-vars': [
+        'warn',
+        { vars: 'all', args: 'after-used', ignoreRestSiblings: false },
+      ],// Warns about variables that are declared but not used
+      'no-console': 'error', // Allows the use of console statements
       'eqeqeq': ['error', 'always'], // Enforces the use of === and !== over == and !=
       'curly': 'error', // Requires the use of curly braces for all control statements
       'no-var': 'error', // Requires let or const instead of var
@@ -26,4 +30,3 @@ module.exports = {
       'eol-last': ['error', 'always'], // Ensures files end with a newline
     },
   };
-  
