@@ -14,8 +14,11 @@ import { problemDataSchema } from '../middlewares/schemas/problemDataSchema';
 import { services } from '../services';
 import { savedProblemSchema } from '../middlewares/schemas/savedProblemSchema';
 import UserService from '../services/userService';
-import { sendOkResponse } from '../handlers/successHandler';
-
+import { sendCreatedResponse, sendOkResponse } from '../handlers/successHandler';
+import { catchErrors } from '../handlers/errorHandler';
+import { NotFoundError } from '../Errors/NotFoundError';
+import { BadRequestError } from '../Errors/BadRequestError';
+import { ValidationError } from '../Errors/ValidationError';
 export class ProblemController {
   public router: Router;
   private logger;
@@ -27,176 +30,84 @@ export class ProblemController {
 
   }
   async globalLeaderboard(req: Request, res: Response): Promise<any> {
-    try {
-      this.logger.log('Fetching global leaderboard');
-      const leaderboard = await this.userService.getUsersSortedBySolvedProblems();
-      this.logger.log('Global leaderboard fetched successfully');
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        leaderboard,
-      });
-    } catch (err: any) {
-      this.logger.error('Error fetching global leaderboard:', { error: err.message });
-      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: 'Internal server error. Please try again.',
-      });
-    }
+    this.logger.log('Fetching global leaderboard');
+    const leaderboard = await this.userService.getUsersSortedBySolvedProblems();
+    this.logger.log('Global leaderboard fetched successfully');
+    sendOkResponse(res, leaderboard, 'Global leaderboard fetched successfully');
   }
 
   async getProblemList(req: Request, res: Response): Promise<any> {
-    try {
-      this.logger.log('Fetching problems list');
-      const problemsList = await this.problemServices.getProblems();
-      this.logger.log('Problems list fetched successfully');
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        data: problemsList,
-      });
-    } catch (err: any) {
-      this.logger.error(`Error getting problems list: ${err}`);
-      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: 'Unable to retrieve problems list. Please try again later.',
-      });
-    }
+    this.logger.log('Fetching problems list');
+    const problemsList = await this.problemServices.getProblems();
+    this.logger.log('Problems list fetched successfully');
+    sendOkResponse(res, problemsList, 'Problems list fetched successfully');
   }
   async getProblemData(req: Request, res: Response): Promise<any> {
     const problemId = Number(req.query.problemId as string);
-    try {
-      this.logger.log(`Fetching problem data for ID: ${problemId}`);
-      const problem = await this.problemServices.getProblemById(problemId);
-      this.logger.log(`Problem data fetched successfully for ID: ${problemId}`);
-      if (!problem) {
-        return res.status(HTTP_STATUS.NOT_FOUND).json({
-          success: true,
-          message: "Problem with such id doesn't exist"
-        })
-      }
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        data: problem,
-      });
-    } catch (err: any) {
-      this.logger.error(`Error getting problem data for ID ${problemId}: ${err}`);
-      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: 'Internal server error. Please try again.',
-      });
-
-    }
+    if (isNaN(problemId)) throw new BadRequestError("Invalid problem ID");
+    this.logger.log(`Fetching problem data for ID: ${problemId}`);
+    const problem = await this.problemServices.getProblemById(problemId);
+    if (!problem) throw new NotFoundError("Problem with such id doesn't exist");
+    this.logger.log(`Problem data fetched successfully for ID: ${problemId}`);
+    sendOkResponse(res, problem, 'Problem data fetched successfully');
   }
   async getMyProblemsList(req: Request, res: Response): Promise<any> {
-    try {
-      const authorId = req.user.id;
-      this.logger.log(`Fetching problems for user with ID: ${authorId}`);
-      const problems = await this.problemServices.getProblemsByAuthor(authorId);
-      this.logger.log('Problems fetched successfully');
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        data: problems,
-      });
-    } catch (error: any) {
-      this.logger.error('Error fetching user problems:', { error: error.message });
-      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: error.message,
-      });
-    }
+    const authorId = req.user.id;
+    if (!authorId) throw new ValidationError("User ID is missing");
+    this.logger.log(`Fetching problems for user with ID: ${authorId}`);
+    const problems = await this.problemServices.getProblemsByAuthor(authorId);
+    this.logger.log('Problems fetched successfully');
+    sendOkResponse(res, problems, 'Problems fetched successfully');
   }
   async createNewProblem(req: Request, res: Response): Promise<any> {
-    try {
-      const userId = req.user.id;
-      const { problemName }: CreateNewProblemDTO = req.body;
-      this.logger.log(`Creating problem for user with ID: ${userId}`);
-      const problem = await this.problemServices.createProblem(userId, problemName);
-      this.logger.log('Problem created successfully');
-      return res.status(HTTP_STATUS.CREATED).json({
-        success: true,
-        message: 'Problem created successfully',
-        data: problem,
-      });
-    } catch (error: any) {
-      this.logger.error('Error creating problem:', { error: error.message });
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        message: error.message,
-      });
-    }
+    const userId = req.user.id;
+    const { problemName }: CreateNewProblemDTO = req.body;
+    if (!problemName) throw new ValidationError("Problem name is required");
+    this.logger.log(`Creating problem for user with ID: ${userId}`);
+    const problem = await this.problemServices.createProblem(userId, problemName);
+    this.logger.log('Problem created successfully');
+    sendCreatedResponse(res, 'Problem created successfully', problem);
   }
   async saveProblem(req: Request, res: Response): Promise<any> {
-    try {
-      const authorId = req.user.id;
-      const { _id, saved, problemName}: SaveProblemDTO = req.body;
-      this.logger.log(`Saving problem with ID: ${_id} for user with ID: ${authorId}`);
-      await this.problemServices.saveProblemData(_id, authorId, saved, problemName);
-      this.logger.log('Problem saved successfully');
-      sendOkResponse(res, null, 'Problem saved successfully');
-    } catch (error: any) {
-      this.logger.error('Error saving problem:', { error: error.message });
-      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: error.message,
-      });
-    }
+    const authorId = req.user.id;
+    const { _id, saved, problemName }: SaveProblemDTO = req.body;
+    if (!_id || !problemName) throw new ValidationError("Problem ID and name are required");
+    this.logger.log(`Saving problem with ID: ${_id} for user with ID: ${authorId}`);
+    await this.problemServices.saveProblemData(_id, authorId, saved, problemName);
+    this.logger.log('Problem saved successfully');
+    sendOkResponse(res, null, 'Problem saved successfully');
   }
   async saveAndPublishProblem(req: Request, res: Response): Promise<any> {
-    try {
-      const authorId = req.user.id;
-      const { _id, published }: SaveAndPublishProblemDTO = req.body;
-      this.logger.log(`Saving and publishing problem with ID: ${_id} for user with ID: ${authorId}`);
-      const problemUpdated = await this.problemServices.saveAndPublishProblemData(_id, authorId, published);
-      this.logger.log('Problem saved and published successfully');
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        data: problemUpdated,
-        message: 'Problem saved and published successfully',
-      });
-    } catch (error: any) {
-      this.logger.error('Error saving and publishing problem:', { error: error.message });
-      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: error.message,
-      });
-    }
+    const authorId = req.user.id;
+    const { _id, published }: SaveAndPublishProblemDTO = req.body;
+    if (!_id) throw new ValidationError("Problem ID is required");
+    this.logger.log(`Saving and publishing problem with ID: ${_id} for user with ID: ${authorId}`);
+    const problemUpdated = await this.problemServices.saveAndPublishProblemData(_id, authorId, published);
+    this.logger.log('Problem saved and published successfully');
+    sendOkResponse(res, problemUpdated, 'Problem saved and published successfully');
   }
   async getMyProblemData(req: Request, res: Response): Promise<any> {
-    try {
-      const authorId = req.user.id;
-      const problemId = req.query.problemId as string;
-      this.logger.log(`Fetching data for problem with ID: ${problemId} for user with ID: ${authorId}`);
-      const problem = await this.problemServices.getProblemWithAuthor(problemId, authorId);
-      if (!problem) {
-        this.logger.log(`Problem not found with ID: ${problemId}`);
-        return res.status(HTTP_STATUS.NOT_FOUND).json({
-          success: false,
-          message: 'Problem not found',
-        });
-      }
-      this.logger.log('Problem data fetched successfully');
-      return res.status(HTTP_STATUS.OK).json({
-        success: true,
-        data: problem,
-      });
-    } catch (error: any) {
-      this.logger.error('Error fetching problem data:', { error: error.message });
-      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: error.message,
-      });
-    }
+    const authorId = req.user.id;
+    const problemId = req.query.problemId as string;
+    if (!problemId) throw new ValidationError("Problem ID is required");
+    this.logger.log(`Fetching data for problem with ID: ${problemId} for user with ID: ${authorId}`);
+    const problem = await this.problemServices.getProblemWithAuthor(problemId, authorId);
+    if (!problem) throw new NotFoundError('Problem not found');
+    this.logger.log('Problem data fetched successfully');
+    sendOkResponse(res, problem, 'Problem data fetched successfully');
   }
   routes() {
     const validator = createValidator()
 
-    this.router.get('/getProblemsList', this.getProblemList.bind(this));
-    this.router.get('/getMyProblems', userAuth, verifyPermissions('isAllowedToCreateProblem'), this.getMyProblemsList.bind(this));
-    this.router.get('/getProblemData', validator.query(problemIdSchema), this.getProblemData.bind(this));
-    this.router.get('/getAdminProblemData', validator.query(problemIdSchema), userAuth, verifyAdminIdMatch, verifyPermissions('isAllowedToCreateProblem'), this.getMyProblemData.bind(this));
-    this.router.post('/', createValidatorForSchema(newProblemSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.createNewProblem.bind(this));
-    this.router.post('/save', createValidatorForSchema(problemDataSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveProblem.bind(this));
-    this.router.post('/saveandpublish', createValidatorForSchema(savedProblemSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), this.saveAndPublishProblem.bind(this));
-    this.router.get('/globalLeaderboard', this.globalLeaderboard.bind(this));
+    
+    this.router.get('/getProblemsList', catchErrors(this.getProblemList.bind(this)));
+    this.router.get('/getMyProblems', userAuth, verifyPermissions('isAllowedToCreateProblem'), catchErrors(this.getMyProblemsList.bind(this)));
+    this.router.get('/getProblemData', validator.query(problemIdSchema), catchErrors(this.getProblemData.bind(this)));
+    this.router.get('/getAdminProblemData', validator.query(problemIdSchema), userAuth, verifyAdminIdMatch, verifyPermissions('isAllowedToCreateProblem'), catchErrors(this.getMyProblemData.bind(this)));
+    this.router.post('/', createValidatorForSchema(newProblemSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), catchErrors(this.createNewProblem.bind(this)));
+    this.router.post('/save', createValidatorForSchema(problemDataSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), catchErrors(this.saveProblem.bind(this)));
+    this.router.post('/saveandpublish', createValidatorForSchema(savedProblemSchema), userAuth, verifyPermissions('isAllowedToCreateProblem'), catchErrors(this.saveAndPublishProblem.bind(this)));
+    this.router.get('/globalLeaderboard', catchErrors(this.globalLeaderboard.bind(this)));
   }
 }
 

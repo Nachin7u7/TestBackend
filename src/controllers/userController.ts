@@ -1,9 +1,10 @@
 import { buildLogger } from '../plugin';
-import { HTTP_STATUS } from '../constants';
 import { Request, Response, Router } from 'express';
 import { validateRegisterInput, verifyPermissions, userAuth } from '../middlewares';
 import { services } from '../services';
 import UserService from '../services/userService';
+import { catchErrors } from '../handlers/errorHandler';
+import { sendCreatedResponse } from '../handlers/successHandler';
 
 
 export class UserController {
@@ -17,47 +18,29 @@ export class UserController {
   }
 
   async register(req: Request, res: Response): Promise<any> {
-    try {
-      const { username, email, password } = req.body;
-      this.logger.log('Registering new user:', { username, email });
-      await this.usersevice.registerUser({ username, email, password });
-      this.logger.log('User registered successfully');
-      return res.status(HTTP_STATUS.CREATED).json({
-        message: 'Your account has been created successfully.',
-      });
-    } catch (error: any) {
-      this.logger.error('Error registering user:', { error: error.message });
-      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-        message: error.message,
-      });
-    }
+    const { username, email, password } = req.body;
+    this.logger.log('Registering new user:', { username, email });
+    const newUSer = await this.usersevice.registerUser({ username, email, password });
+    this.logger.log('User registered successfully');
+    return sendCreatedResponse(res, "Your account has been created successfully.", newUSer);
   }
 
   async registerAdmin(req: Request, res: Response): Promise<any> {
-    try {
-      const { username, email, password } = req.body;
-      this.logger.log('Registering new admin user:', { username, email });
-      await this.usersevice.registerAdminUser({ username, email, password });
-      this.logger.log('Admin user registered successfully');
-      return res.status(HTTP_STATUS.CREATED).json({
-        message: 'A new ADMIN account has been created successfully.',
-      });
-    } catch (error: any) {
-      this.logger.error('Error registering admin user:', { error: error.message });
-      return res.status(HTTP_STATUS.CONFLICT).json({
-        message: error.message,
-      });
-    }
+    const { username, email, password } = req.body;
+    this.logger.log('Registering new admin user:', { username, email });
+    const newAdminUser = await this.usersevice.registerAdminUser({ username, email, password });
+    this.logger.log('Admin user registered successfully');
+    return sendCreatedResponse(res, "A new Admin account has been created successfully.", newAdminUser);
   }
 
   routes() {
-    this.router.post('/register', validateRegisterInput, this.register.bind(this));
+    this.router.post('/register', validateRegisterInput, catchErrors(this.register.bind(this)));
     this.router.post(
       '/create-admin',
       userAuth,
       verifyPermissions('isAllowedToCreateAdmin'),
       validateRegisterInput,
-      this.registerAdmin.bind(this)
-    );
+      catchErrors(this.registerAdmin.bind(this)))
+    ;
   }
 }

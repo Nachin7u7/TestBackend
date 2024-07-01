@@ -61,7 +61,7 @@ export class ProblemRepositoryImpl implements ProblemRepository {
     });
     try {
       const problem = await Problem.findOne(
-        { _id: problemId, isPublished },
+        { problemId, isPublished },
         { _id: 1, problemId: 1, problemName: 1, published: 1 }
       );
       this.logger.log(

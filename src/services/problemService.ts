@@ -1,6 +1,8 @@
 import { buildLogger } from '../plugin';
 import { ProblemRepositoryImpl } from '../repositories/implements/problemRepositoryImpl';
-
+import { NotFoundError } from '../Errors/NotFoundError';
+import { BadRequestError } from '../Errors/BadRequestError';
+import { ValidationError } from '../Errors/ValidationError';
 export class ProblemService {
 
   constructor(private problemRepository: ProblemRepositoryImpl) { };
@@ -35,9 +37,11 @@ export class ProblemService {
    * @returns {Promise<Object>} A promise that resolves to the problem object.
    */
   async getProblemById(problemId: number): Promise<any> {
+    if (isNaN(problemId)) throw new BadRequestError("Invalid problem ID");
     this.logger.log('Attempting to fetch the problem by id.', { problemId });
     try {
       const problem = await this.problemRepository.findProblemByIdAndPublished(problemId, true);
+      if (!problem) throw new NotFoundError('Problem not found');
       this.logger.log('Successfully fetched the problem by id.', { problemId });
       return problem;
     } catch (err: any) {
@@ -55,6 +59,7 @@ export class ProblemService {
    * @returns {Promise<Array>} A promise that resolves to an array of problems created by the specified author.
    */
   async getProblemsByAuthor(authorId: string): Promise<any> {
+    if (!authorId) throw new ValidationError("Author ID is required");
     this.logger.log('Attempting to fetch problems for given author id.', { authorId });
     try {
       const problems = await this.problemRepository.findProblemsByAuthor(authorId);
@@ -108,6 +113,7 @@ export class ProblemService {
 
       const newProblem = await this.problemRepository.createNewProblem({
         _id: problemId,
+        problemId,
         author: userId,
         problemName,
         isPublished: false,
@@ -117,7 +123,7 @@ export class ProblemService {
         solvedCount: 0,
         totalSubmissions: 0
       });
-      this.logger.log('Successfully created a new problem.', { problemId: newProblem._id });
+      this.logger.log('Successfully created a new problem.', { newProblem });
       return newProblem;
     } catch (error: any) {
       this.logger.error('Error while creating a new problem.', {

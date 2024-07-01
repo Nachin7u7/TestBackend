@@ -94,7 +94,6 @@ export class SubmissionService {
 
     const timeLimit = problemJSON.published.config.timelimit / 1000;
     const memoryLimit = problemJSON.published.config.memorylimit * 1000;
-    const checkerCode = problemJSON.published.checkerCode;
 
     let maxTime = 0,
       maxMemory = 0;
@@ -112,30 +111,28 @@ export class SubmissionService {
       };
 
       const clientCodeResult = await this.jdoodleService.compileAndRun(userProgram);
-      this.logger.log('Client code result:', clientCodeResult.body);
 
       maxTime = Math.max(maxTime, clientCodeResult.body.cpuTime || 0);
       maxMemory = Math.max(maxMemory, clientCodeResult.body.memory || 0);
 
-      const checkerProgram = {
-        script: checkerCode,
-        stdin: problemJSON.published.testcases[i].input.url,
-        language: 'cpp17',
-        versionIndex: '1'
-      }
+      const expectedOutput = problemJSON.published.testcases[i].output.url; 
 
-      this.logger.log('Checker Program:', checkerProgram);
-      const checkerCodeResult = await this.jdoodleService.compileAndRun(checkerProgram);
-      this.logger.log('Checker code result:', checkerCodeResult);
+      //const isCorrect = clientCodeResult.body.output === expectedOutput;
 
-      verdict = veredictTestCaseHelper(i, clientCodeResult, checkerCodeResult, {memoryLimit, timeLimit})
+      
+      //help demostrate the equality
+      this.logger.log('Client code result:', clientCodeResult.body.output);
+      this.logger.log('expected Result:', expectedOutput);
+      console.log(expectedOutput, problemJSON.published.testcases[i].output.url)
+
+
+      verdict = veredictTestCaseHelper(i, clientCodeResult, expectedOutput, {memoryLimit, timeLimit})
       if(verdict !== null)
         break
     }
 
-    // AC
-    if(!verdict){
-      verdict = { name: 'ac', label: 'Accepted!' }
+    if (!verdict) {
+      verdict = { name: 'ac', label: 'Accepted!' };
     }
     
     return { verdict, maxTime, maxMemory };
@@ -170,7 +167,7 @@ export class SubmissionService {
           memory: maxMemory,
         });
 
-        if (verdict.name == 'ac') {
+        if (verdict.name === 'ac') {
           problem.solvedCount += 1;
         }
         problem.totalSubmissions += 1;
@@ -178,19 +175,19 @@ export class SubmissionService {
 
         const user: any = await this.userRepository.findUserById(userInfo.id);
         if (verdict.name === 'ac') {
-          if (user.stats.solved.indexOf(postSubmissionDto.problemId) == -1) {
+          if (user.stats.solved.indexOf(postSubmissionDto.problemId) === -1) {
             user.stats.solved.push(postSubmissionDto.problemId);
             user.stats.solvedCount += 1;
 
-            let index = user.stats.unsolved.indexOf(postSubmissionDto.problemId);
+            const index = user.stats.unsolved.indexOf(postSubmissionDto.problemId);
             if (index !== -1) {
               user.stats.unsolved.splice(index, 1);
             }
           }
         } else {
           if (
-            user.stats.solved.indexOf(postSubmissionDto.problemId) == -1 &&
-            user.stats.unsolved.indexOf(postSubmissionDto.problemId) == -1
+            user.stats.solved.indexOf(postSubmissionDto.problemId) === -1 &&
+            user.stats.unsolved.indexOf(postSubmissionDto.problemId) === -1
           ) {
             user.stats.unsolved.push(postSubmissionDto.problemId);
           }
@@ -206,4 +203,4 @@ export class SubmissionService {
     }
   };
 
-}  
+}
